@@ -1,0 +1,30 @@
+{
+  "workout_1": {
+    "Exercise 1": {
+      "ExerciseID": 1,
+      "ExerciseName": "exexrcise 1",
+      "Weights": "10_10_10",
+      "NumberOfRepetitions": "20_15_10"
+    },
+    "Exercise 2": {
+      "ExerciseID": 2,
+      "ExerciseName": "esercise 2",
+      "Weights": "10_10_10",
+      "NumberOfRepetitions": "20_15_10"
+    }
+  },
+  "workout_2": {
+    "Exercise 1": {
+      "ExerciseID": 1,
+      "ExerciseName": "exexrcise 1",
+      "Weights": "10_10_10",
+      "NumberOfRepetitions": "20_15_10"
+    },
+    "Exercise 2": {
+      "ExerciseID": 2,
+      "ExerciseName": "esercise 2",
+      "Weights": "10_10_10",
+      "NumberOfRepetitions": "20_15_10"
+    }
+  }
+}

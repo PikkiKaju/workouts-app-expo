@@ -1,11 +1,13 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Platform, Animated } from 'react-native';
-import { View } from '../Themed';
-import NewWorkoutWindow from './NewWorkoutWindow';
+
 import { useTheme } from '@/components/ThemeProvider';
+import { View } from '../Themed';
 import Colors from '@/constants/Colors';
+import NewWorkoutWindow from './NewWorkoutWindow';
 import { NewWorkoutWindowToggler } from './NewWorkoutWindowToggler';
+import WorkoutList from './WorkoutList';
 
 
 export default function Panel() {
@@ -71,6 +73,7 @@ export default function Panel() {
           toggleNewWorkoutWindow={toggleNewWorkoutWindow}
         />
       </View>
+      <WorkoutList selectedWorkoutID={selectedWorkoutID} setSelectedWorkoutID={setSelectedWorkoutID} />
     </View>
   );
 }

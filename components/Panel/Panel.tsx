@@ -2,10 +2,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Platform, Animated } from 'react-native';
 import { View } from '../Themed';
-import NewWorkoutWindow from '@/components/panel/NewWorkoutWindow';
+import NewWorkoutWindow from './NewWorkoutWindow';
 import { useTheme } from '@/components/ThemeProvider';
 import Colors from '@/constants/Colors';
-import { NewWorkoutWindowToggler } from '@/components/panel/NewWorkoutWindowToggler';
+import { NewWorkoutWindowToggler } from './NewWorkoutWindowToggler';
 
 
 export default function Panel() {

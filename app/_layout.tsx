@@ -4,7 +4,7 @@ import { SplashScreen } from 'expo-router';
 import { useFonts } from 'expo-font';
 
 import App from './app';
-import { ThemeProvider } from '@/components/ThemeProvider';
+import { ThemeProvider } from 'components/ThemeProvider';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -16,8 +16,8 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    Comfortaa: require('../assets/fonts/Comfortaa-VariableFont_wght.ttf'),
+    SpaceMono: require('assets/fonts/SpaceMono-Regular.ttf'),
+    Comfortaa: require('assets/fonts/Comfortaa-VariableFont_wght.ttf'),
   });
 
   // Catch errors when loading fonts

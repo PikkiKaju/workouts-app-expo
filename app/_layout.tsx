@@ -4,6 +4,7 @@ import { SplashScreen } from 'expo-router';
 import { useFonts } from 'expo-font';
 
 import App from './app';
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -43,7 +44,9 @@ function RootLayoutNav() {
 
   return (
     <>
-      <App />
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
     </>
   );
 }

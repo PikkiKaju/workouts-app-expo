@@ -944,18 +944,28 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     }
 
     if (this.state.newYearInputEvent) {
-      if (parseInt(key) < 1 || parseInt(key) > 2) return;
+      if (parseInt(key) < 0 || parseInt(key) > 2) return;
       newText = "000" + key;
-    } 
+    }
     else {
-      newText = oldText.substring(1, 4) + key;
-    } 
+      if (this.state.displayYear.length > 4) {
+        return;
+      }
+      newText = oldText.substring(oldText.length -3, oldText.length) + key;
+    }
     
     this.setState({
       newYearInputEvent: false,
       displayYear: newText,
     });
-    this.updatePickedDate({ day: this.state.pickedDay, month: this.state.monthCalendarContent[this.state.pickedMonth], year: parseInt(newText) });
+
+    if (key == "Enter") {
+      this.updatePickedDate({ 
+        day: this.state.pickedDay, 
+        month: this.state.monthCalendarContent[this.state.pickedMonth], 
+        year: parseInt(newText) 
+      });
+    }
   }
 
   render() {

@@ -2,10 +2,12 @@ import { Platform, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as SplashScreen from 'expo-splash-screen';
 import Constants from 'expo-constants';
+import { Feather } from '@expo/vector-icons';
 
 import { Text, View } from '@/components/Themed';
 import { useTheme } from '@/components//ThemeProvider';
 import Switch from '@/components//Switch'
+import { usePanelContext } from './PanelContextProvider';
 
 function Label({ showLabel }: { showLabel: boolean }) {
   if (showLabel) {
@@ -17,11 +19,7 @@ function Label({ showLabel }: { showLabel: boolean }) {
   }
 }
 
-interface MyProps {
-  flex?: number;
-}
-
-interface MyProps {
+interface HeaderProps {
   style?: {
     flex?: number
   }
@@ -29,8 +27,9 @@ interface MyProps {
 
 SplashScreen.preventAutoHideAsync();
 
-export default function Header(props: MyProps) {
+export default function Header(props: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
+  const { panelToggled, togglePanel } = usePanelContext();
   
   const statusBarHeight = Constants.statusBarHeight || 0; 
   const headerHeight = 50;
@@ -61,7 +60,9 @@ export default function Header(props: MyProps) {
           end={{ x: 1, y: 5 }}
         />
         <View style={styles.leftSection}>
-          
+          <Pressable onPress={togglePanel} >
+            <Feather name="menu" size={30} color="white" />
+          </Pressable>
           <Text style={styles.title}>Puero</Text>
           <Label showLabel={true} />
         </View>

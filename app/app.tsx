@@ -12,14 +12,11 @@ import { View } from '@/components/Themed';
 import Header from '@/components/Header';
 import Panel from '@/components/Panel/Panel';
 import Colors from '@/constants/Colors';
-import { useState } from 'react';
-import { usePanelContext } from '@/components/PanelContextProvider';
 import PanelToggler from '@/components/Panel/PanelToggler';
 
 export default function App() {
   const { height, width, scale, fontScale } = useWindowDimensions();
   const { theme, toggleTheme } = useTheme();
-  const { panelToggled, togglePanel } = usePanelContext();
 
   return (
     <View style={{
@@ -30,7 +27,7 @@ export default function App() {
       <Header />
       <StatusBar style="auto" />
       <View style={styles.body}>
-        { panelToggled ? <Panel /> : null }
+        <Panel />
         { Platform.OS !== "ios" && Platform.OS !== "android" 
           ? <PanelToggler /> : null }
       </View>

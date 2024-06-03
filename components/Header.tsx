@@ -8,8 +8,6 @@ import { useTheme } from '@/components//ThemeProvider';
 import Switch from '@/components//Switch'
 
 function Label({ showLabel }: { showLabel: boolean }) {
-  
-
   if (showLabel) {
     return (
       <Pressable>
@@ -63,6 +61,7 @@ export default function Header(props: MyProps) {
           end={{ x: 1, y: 5 }}
         />
         <View style={styles.leftSection}>
+          
           <Text style={styles.title}>Puero</Text>
           <Label showLabel={true} />
         </View>

@@ -8,7 +8,7 @@ import {
 import { useTheme } from '@/components/ThemeProvider';
 import { View } from '@/components/Themed';
 import Header from '@/components/Header';
-import Panel from '@/components/panel/Panel';
+import Panel from '@/components/Panel/Panel';
 import Colors from '@/constants/Colors';
 
 export default function App() {

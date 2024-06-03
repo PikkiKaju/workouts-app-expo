@@ -1,6 +1,8 @@
 
 import { StatusBar } from 'expo-status-bar';
 import {
+  Animated,
+  Platform,
   StyleSheet,
   useWindowDimensions
 } from 'react-native';
@@ -12,6 +14,7 @@ import Panel from '@/components/Panel/Panel';
 import Colors from '@/constants/Colors';
 import { useState } from 'react';
 import { usePanelContext } from '@/components/PanelContextProvider';
+import PanelToggler from '@/components/Panel/PanelToggler';
 
 export default function App() {
   const { height, width, scale, fontScale } = useWindowDimensions();
@@ -28,6 +31,8 @@ export default function App() {
       <StatusBar style="auto" />
       <View style={styles.body}>
         { panelToggled ? <Panel /> : null }
+        { Platform.OS !== "ios" && Platform.OS !== "android" 
+          ? <PanelToggler /> : null }
       </View>
     </View>
   );

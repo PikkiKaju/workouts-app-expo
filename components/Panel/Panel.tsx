@@ -8,6 +8,7 @@ import Colors from '@/constants/Colors';
 import NewWorkoutWindow from './NewWorkoutWindow';
 import { NewWorkoutWindowToggler } from './NewWorkoutWindowToggler';
 import WorkoutList from './WorkoutList';
+import Dimensions from '@/constants/Dimensions';
 
 
 export default function Panel() {
@@ -51,7 +52,7 @@ export default function Panel() {
       {
         width: Platform.OS === ("ios" || "android")
           ? "100%"
-          : 400
+          : Dimensions.web.panelWidth
       }
     ]}>
       <View style={styles.newWorkoutWindowSection}>

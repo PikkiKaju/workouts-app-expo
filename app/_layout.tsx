@@ -5,6 +5,7 @@ import { useFonts } from 'expo-font';
 
 import App from './app';
 import { ThemeProvider } from 'components/ThemeProvider';
+import { PanelContextProvider } from '@/components/PanelContextProvider';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -45,7 +46,9 @@ function RootLayoutNav() {
   return (
     <>
       <ThemeProvider>
-        <App />
+        <PanelContextProvider>
+          <App />
+        </PanelContextProvider>
       </ThemeProvider>
     </>
   );

@@ -21,17 +21,18 @@ export default function Panel() {
   const windowMoveAnim = useRef(new Animated.Value(0)).current;
   const windowOpacityAnim = useRef(new Animated.Value(0)).current;
   const windowHeightAnim = useRef(new Animated.Value(0)).current;
-  const windowpanelAnimDuration = 300;
+  const windowAnimDuration = 300;
 
   const panelMoveAnim = useRef(new Animated.Value(0)).current;
   const panelWidthAnim = useRef(new Animated.Value(0)).current;
   const panelAnimDuration = 300;
 
+  // Panel toggle animations
   useEffect(() => {
     Animated.timing(panelWidthAnim, {
       toValue: panelToggled ? Dimensions.web.panelWidth : 0,
       duration: panelAnimDuration,
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start();
     Animated.timing(panelMoveAnim, {
       toValue: panelToggled ? 0 : -Dimensions.web.panelWidth,
@@ -40,20 +41,21 @@ export default function Panel() {
     }).start();
   }, [panelToggled]);
 
+  // New workout window toggle animations
   useEffect(() => {
     Animated.timing(windowHeightAnim, {
       toValue: isNewWorkoutWindowOpen ? 140 : 0,
-      duration: windowpanelAnimDuration,
+      duration: windowAnimDuration,
       useNativeDriver: false,
     }).start();
     Animated.timing(windowMoveAnim, {
       toValue: isNewWorkoutWindowOpen ? 0 : -200,
-      duration: windowpanelAnimDuration,
+      duration: windowAnimDuration,
       useNativeDriver: true,
     }).start();
     Animated.timing(windowOpacityAnim, {
       toValue: isNewWorkoutWindowOpen ? 1 : 0,
-      duration: windowpanelAnimDuration,
+      duration: windowAnimDuration,
       useNativeDriver: true,
     }).start();
   }, [isNewWorkoutWindowOpen]);
@@ -74,9 +76,11 @@ export default function Panel() {
           ? "100%"
           : Dimensions.web.panelWidth,
         transform: [{ translateX: panelMoveAnim }],
-        maxWidth: (Platform.OS !== "ios" && Platform.OS !== "android")
-          ? panelWidthAnim
-          : panelToggled ? Dimensions.web.panelWidth : 0,
+        // maxWidth: (Platform.OS !== "ios" && Platform.OS !== "android")
+        //   ? panelWidthAnim
+        //   : panelToggled ? Dimensions.web.panelWidth : 0,
+        borderRightWidth: (Platform.OS !== "ios" && Platform.OS !== "android")
+          ? 1 : 0
       },
     ]}>
       <View style={styles.newWorkoutWindowSection}>
@@ -107,7 +111,6 @@ export default function Panel() {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
-    borderRightWidth: 1,
     borderRightColor: Colors.global.themeColorSecond,
     overflow: "hidden",
   },

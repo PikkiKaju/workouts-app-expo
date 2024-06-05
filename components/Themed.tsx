@@ -1,14 +1,10 @@
-/**
- * Learn more about Light and Dark modes:
- * https://docs.expo.io/guides/color-schemes/
- */
 
 import {
   Text as DefaultText,
+  TextInput as DefaultTextInput,
   View as DefaultView,
   useColorScheme
 } from 'react-native';
-import { TextInput as DefaultTextInput, } from 'react-native-gesture-handler';
 import Colors from '@/constants/Colors';
 
 export function useThemeColor(

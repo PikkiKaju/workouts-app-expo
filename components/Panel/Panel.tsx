@@ -11,7 +11,6 @@ import WorkoutList from './WorkoutList';
 import Dimensions from '@/constants/Dimensions';
 import { usePanelContext } from '../PanelContextProvider';
 
-
 export default function Panel() {
   const { theme, toggleTheme } = useTheme();
   const { panelToggled, togglePanel } = usePanelContext();
@@ -22,24 +21,6 @@ export default function Panel() {
   const windowOpacityAnim = useRef(new Animated.Value(0)).current;
   const windowHeightAnim = useRef(new Animated.Value(0)).current;
   const windowAnimDuration = 300;
-
-  const panelMoveAnim = useRef(new Animated.Value(0)).current;
-  const panelWidthAnim = useRef(new Animated.Value(0)).current;
-  const panelAnimDuration = 300;
-
-  // Panel toggle animations
-  useEffect(() => {
-    Animated.timing(panelWidthAnim, {
-      toValue: panelToggled ? Dimensions.web.panelWidth : 0,
-      duration: panelAnimDuration,
-      useNativeDriver: true,
-    }).start();
-    Animated.timing(panelMoveAnim, {
-      toValue: panelToggled ? 0 : -Dimensions.web.panelWidth,
-      duration: panelAnimDuration,
-      useNativeDriver: true,
-    }).start();
-  }, [panelToggled]);
 
   // New workout window toggle animations
   useEffect(() => {
@@ -69,21 +50,8 @@ export default function Panel() {
   }
 
   return (
-    <Animated.View style={[
-      styles.container,
-      {
-        width: Platform.OS === ("ios" || "android")
-          ? "100%"
-          : Dimensions.web.panelWidth,
-        transform: [{ translateX: panelMoveAnim }],
-        // maxWidth: (Platform.OS !== "ios" && Platform.OS !== "android")
-        //   ? panelWidthAnim
-        //   : panelToggled ? Dimensions.web.panelWidth : 0,
-        borderRightWidth: (Platform.OS !== "ios" && Platform.OS !== "android")
-          ? 1 : 0
-      },
-    ]}>
-      <View style={styles.newWorkoutWindowSection}>
+    <View style={[ styles.container ]}>
+      <View style={ styles.newWorkoutWindowSection }>
         <Animated.View style={[
           {
             opacity: windowOpacityAnim,
@@ -102,25 +70,25 @@ export default function Panel() {
           toggleNewWorkoutWindow={toggleNewWorkoutWindow}
         />
       </View>
-      <WorkoutList selectedWorkoutID={selectedWorkoutID} setSelectedWorkoutID={setSelectedWorkoutID} />
-    </Animated.View>
+      <WorkoutList 
+        selectedWorkoutID={selectedWorkoutID} 
+        setSelectedWorkoutID={setSelectedWorkoutID} 
+      />
+    </View>
   );
-  
 }
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
-    borderRightColor: Colors.global.themeColorSecond,
     overflow: "hidden",
+    margin: 10,
   },
   newWorkoutWindowSection: {
     flex: -1,
     flexDirection: "row",
     justifyContent: "space-between",
-    margin: 20,
     zIndex: 10,
+    margin: 20
   },
 });
-
-

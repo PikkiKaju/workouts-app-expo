@@ -8,16 +8,57 @@ import Colors from '@/constants/Colors';
 import NewWorkoutWindow from './NewWorkoutWindow';
 import { NewWorkoutWindowToggler } from './NewWorkoutWindowToggler';
 import WorkoutList from './WorkoutList';
+import Dimensions from '@/constants/Dimensions';
+import { usePanelContext } from '../PanelContextProvider';
 
 
 export default function Panel() {
   const { theme, toggleTheme } = useTheme();
+  const { panelToggled, togglePanel } = usePanelContext();
   const [isNewWorkoutWindowOpen, setIsNewWorkoutWindowOpen] = useState(false);
   const [selectedWorkoutID, setSelectedWorkoutID] = useState(1);
-  const moveAnim = useRef(new Animated.Value(0)).current;
-  const opacityAnim = useRef(new Animated.Value(0)).current;
-  const heightAnim = useRef(new Animated.Value(0)).current;
-  const animDuration = 300;
+
+  const windowMoveAnim = useRef(new Animated.Value(0)).current;
+  const windowOpacityAnim = useRef(new Animated.Value(0)).current;
+  const windowHeightAnim = useRef(new Animated.Value(0)).current;
+  const windowAnimDuration = 300;
+
+  const panelMoveAnim = useRef(new Animated.Value(0)).current;
+  const panelWidthAnim = useRef(new Animated.Value(0)).current;
+  const panelAnimDuration = 300;
+
+  // Panel toggle animations
+  useEffect(() => {
+    Animated.timing(panelWidthAnim, {
+      toValue: panelToggled ? Dimensions.web.panelWidth : 0,
+      duration: panelAnimDuration,
+      useNativeDriver: true,
+    }).start();
+    Animated.timing(panelMoveAnim, {
+      toValue: panelToggled ? 0 : -Dimensions.web.panelWidth,
+      duration: panelAnimDuration,
+      useNativeDriver: true,
+    }).start();
+  }, [panelToggled]);
+
+  // New workout window toggle animations
+  useEffect(() => {
+    Animated.timing(windowHeightAnim, {
+      toValue: isNewWorkoutWindowOpen ? 140 : 0,
+      duration: windowAnimDuration,
+      useNativeDriver: false,
+    }).start();
+    Animated.timing(windowMoveAnim, {
+      toValue: isNewWorkoutWindowOpen ? 0 : -200,
+      duration: windowAnimDuration,
+      useNativeDriver: true,
+    }).start();
+    Animated.timing(windowOpacityAnim, {
+      toValue: isNewWorkoutWindowOpen ? 1 : 0,
+      duration: windowAnimDuration,
+      useNativeDriver: true,
+    }).start();
+  }, [isNewWorkoutWindowOpen]);
 
   const toggleNewWorkoutWindow = () => {
     if (isNewWorkoutWindowOpen) {
@@ -27,40 +68,28 @@ export default function Panel() {
     }
   }
 
-  useEffect(() => {
-    Animated.timing(heightAnim, {
-      toValue: isNewWorkoutWindowOpen ? 140 : 0,
-      duration: animDuration,
-      useNativeDriver: false,
-    }).start();
-    Animated.timing(moveAnim, {
-      toValue: isNewWorkoutWindowOpen ? 0 : -200,
-      duration: animDuration,
-      useNativeDriver: true,
-    }).start();
-    Animated.timing(opacityAnim, {
-      toValue: isNewWorkoutWindowOpen ? 1 : 0,
-      duration: animDuration,
-      useNativeDriver: true,
-    }).start();
-  }, [isNewWorkoutWindowOpen]);
-
   return (
-    <View style={[
+    <Animated.View style={[
       styles.container,
       {
         width: Platform.OS === ("ios" || "android")
           ? "100%"
-          : 400
-      }
+          : Dimensions.web.panelWidth,
+        transform: [{ translateX: panelMoveAnim }],
+        // maxWidth: (Platform.OS !== "ios" && Platform.OS !== "android")
+        //   ? panelWidthAnim
+        //   : panelToggled ? Dimensions.web.panelWidth : 0,
+        borderRightWidth: (Platform.OS !== "ios" && Platform.OS !== "android")
+          ? 1 : 0
+      },
     ]}>
       <View style={styles.newWorkoutWindowSection}>
         <Animated.View style={[
           {
-            opacity: opacityAnim,
-            transform: [{ translateY: moveAnim }],
+            opacity: windowOpacityAnim,
+            transform: [{ translateY: windowMoveAnim }],
             maxHeight: (Platform.OS !== "ios" && Platform.OS !== "android")
-              ? heightAnim
+              ? windowHeightAnim
               : isNewWorkoutWindowOpen ? 500 : 0,
           },
 
@@ -74,15 +103,14 @@ export default function Panel() {
         />
       </View>
       <WorkoutList selectedWorkoutID={selectedWorkoutID} setSelectedWorkoutID={setSelectedWorkoutID} />
-    </View>
+    </Animated.View>
   );
+  
 }
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
-    padding: 10,
-    borderRightWidth: 1,
     borderRightColor: Colors.global.themeColorSecond,
     overflow: "hidden",
   },

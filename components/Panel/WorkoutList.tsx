@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, FlatList } from "react-native";
 import { View, Text } from "@/components/Themed";
 import AnimatedArrow from "@/components/AnimatedArrow";
 import { useTheme } from "@/components/ThemeProvider";
 import type { Theme } from "@/components/ThemeProvider";
-import { FlatList } from "react-native-gesture-handler";
 
 import WorkoutsData from "@/data/sample_workout_data/workout_list.json";
 import Colors from "@/constants/Colors";
@@ -228,8 +227,7 @@ export default function WorkoutList(state: WorkoutListProps) {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      zIndex: 5,
-      overflowY: "",
+      zIndex: 5
     },
     header: {
       flexDirection: "row",

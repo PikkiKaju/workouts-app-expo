@@ -6,6 +6,7 @@ import {
   useColorScheme
 } from 'react-native';
 import Colors from '@/constants/Colors';
+import { forwardRef } from 'react';
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
@@ -40,14 +41,14 @@ export function Text(props: TextProps) {
   return <DefaultText style={[{ color }, style]} {...otherProps} />;
 }
 
-export function TextInput(props: TextInputProps) {
+export const TextInput = forwardRef<DefaultTextInput, TextInputProps>((props, ref) => {
   const { style, theme, ...otherProps } = props;
   const lightColor = "#000";
   const darkColor = "#fff";
   const color = theme === "light" ? lightColor : darkColor;
 
-  return <DefaultTextInput style={[{ color }, style]} {...otherProps} />;
-}
+  return <DefaultTextInput ref={ref} style={[{ color }, style]} {...otherProps} />;
+});
 
 export function View(props: ViewProps) {
   const { style, theme, ...otherProps } = props;

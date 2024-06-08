@@ -732,6 +732,8 @@ interface DatePickerStyles {
 }
 
 interface DatePickerProps {
+  onDateChange: (date: Date) => void
+  selectedDate?: Date
   theme?: "dark" | "light"
   width?: DimensionValue | undefined
   height?: DimensionValue | undefined
@@ -769,6 +771,8 @@ interface DatePickerState {
    * A date picker with mm/dd/yyyy text inputs 
    * as well as a calendar date picker.
    * 
+   * @prop onDateChange Date change handler.
+   * @prop (optional) selectedDate The currently selected date - default is the present date
    * @prop (optional) theme: "light" | "dark" - default: light 
    * @prop (optional) width: DimensionValue | undefined - default: 100
    * @prop (optional) height: DimensionValue | undefined - default: 20
@@ -792,7 +796,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
   constructor(props: DatePickerProps) {
     super(props);
     
-    let currentDate = new Date();
+    let currentDate = props.selectedDate ?? new Date();
     
     this.state = {
       pickedDate: currentDate,
@@ -826,14 +830,6 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
 
   componentDidMount(): void {
     this.updateDisplayDate(this.state.pickedDay, this.state.pickedMonth, this.state.pickedYear);
-  }
-
-  componentDidUpdate(prevProps: Readonly<{ theme: "dark" | "light"; }>): void {
-    if (this.props.theme !== prevProps.theme) {
-      this.setState({
-        theme: this.state.theme,
-      });
-    }
   }
 
   togglePickerWindow = (): void => {
@@ -917,6 +913,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
       pickedMonth: month,
       pickedYear: year,
     });
+    this.props.onDateChange(newDate);
     this.updateDisplayDate(day, month, year);
   }
 

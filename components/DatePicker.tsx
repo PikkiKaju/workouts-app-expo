@@ -8,10 +8,12 @@ import {
   StyleSheet,
   Pressable,
   FlatList,
+  StyleProp,
 } from 'react-native';
 import { AntDesign } from "@expo/vector-icons";
 import NativeDatePicker from 'react-native-date-picker' ;
-import { DimensionValue } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
+import { DimensionValue, ViewStyle } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
+import Colors from '@/constants/Colors';
 
 type ThemeProps = {
   theme?: string
@@ -219,6 +221,7 @@ interface DayCalendarProps {
   state: PickerWindowState
   updatePickedDate: (day: number, month: number, year: number) => void
   togglePickerWindow: () => void
+  blurDatePicker: () => void
 }
 
 class DayCalendar extends Component<DayCalendarProps> {
@@ -227,16 +230,17 @@ class DayCalendar extends Component<DayCalendarProps> {
   }
 
   render() {
+    const weekdaysNames = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
     return (
       <View style={this.styles.calendar}>
         <View style={this.styles.calendarHeader}>
-          <Text theme={this.props.state.theme} > Mo</Text>
-          <Text theme={this.props.state.theme} > Tu</Text>
-          <Text theme={this.props.state.theme} > We</Text>
-          <Text theme={this.props.state.theme} > Th</Text>
-          <Text theme={this.props.state.theme} > Fr</Text>
-          <Text theme={this.props.state.theme} > Sa</Text>
-          <Text theme={this.props.state.theme} > Su</Text>
+          <FlatList
+            data={weekdaysNames}
+            renderItem={({ item }) =>
+              <Text style={this.styles.weekdayTile} theme={this.props.state.theme}>{item}</Text>
+            }
+            numColumns={7}
+          />
         </View>
         <View style={this.styles.calendarBody}>
           <FlatList
@@ -262,6 +266,10 @@ class DayCalendar extends Component<DayCalendarProps> {
       alignItems: "center",
       justifyContent: "space-between",
     },
+    weekdayTile: {
+      flex: 1,
+      textAlign: "center",
+    },
     calendarBody: {
       flex: 6,
     },
@@ -278,11 +286,22 @@ interface DayCalendarTileProps extends CalendarTileProps {
   state: PickerWindowState
   updatePickedDate: (day: number, month: number, year: number) => void
   togglePickerWindow: () => void
+  blurDatePicker: () => void
 }
 
-class DayCalendarTile extends Component<DayCalendarTileProps> {    
+class DayCalendarTile extends Component<DayCalendarTileProps, {isHovered: boolean}> {    
   constructor(props: any) {
     super(props);
+
+    this.state = {
+      isHovered: false
+    }
+  }
+
+  toggleIsHovered = () => {
+    if (this.state.isHovered) {
+      this.setState({ isHovered:false });
+    }  
   }
 
   render() {
@@ -292,6 +311,7 @@ class DayCalendarTile extends Component<DayCalendarTileProps> {
         onPress={() => {          
           this.props.updatePickedDate(this.props.day, months.indexOf(this.props.month) + 1, this.props.year);
           this.props.togglePickerWindow();
+          this.props.blurDatePicker();
         }}
         style={({ pressed }) => [
           this.styles.calendarTile,
@@ -302,17 +322,19 @@ class DayCalendarTile extends Component<DayCalendarTileProps> {
               : "transparent"
           },
           {
-            backgroundColor: (
-              this.props.state.selectedYear === this.props.state.pickedYear
+            backgroundColor: 
+            (this.props.state.selectedYear === this.props.state.pickedYear
               && this.props.state.pickedMonth.includes(this.props.month)
               && this.props.day === this.props.state.pickedDay
-            ) ? this.props.state.theme === "light"
-                ? "#8789BC" 
-                : "#B7B7CC"
-              : "transparent"
+            ) ? this.props.state.theme === "light" ? "#99E" : "#B7B7DD"
+            : this.state.isHovered 
+              ? this.props.state.theme === "light" ? "#DDF" : "#668"
+            : "transparent"
           },
           { pointerEvents: "box-only" }
         ]}
+        onHoverIn={() => this.setState({ isHovered: true })}
+        onHoverOut={() => this.setState({ isHovered: false })}
       >
         <Text
           theme={
@@ -337,7 +359,8 @@ class DayCalendarTile extends Component<DayCalendarTileProps> {
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      marginVertical: 4,
+      aspectRatio: 1,
+      borderRadius: 3,
     },
   });
 }
@@ -351,7 +374,9 @@ interface PickerWindowProps {
   theme: "dark" | "light"
 
   updatePickedDate: (day: number, month: number, year: number) => void
+  updateDisplayDate: (day: string, month: string, year: string) => void
   togglePickerWindow: () => void
+  blurDatePicker: () => void
 }
 
 interface PickerWindowState {
@@ -492,7 +517,7 @@ class PickerWindow extends Component<PickerWindowProps, PickerWindowState> {
   setDateToPresent = (): void => {
     const presentDate = new Date();
     const day = presentDate.getDate();
-    const month = presentDate.getMonth() - 1;
+    const month = presentDate.getMonth() + 1;
     const year = presentDate.getFullYear();
 
     this.props.updatePickedDate( day, month, year );
@@ -582,6 +607,7 @@ class PickerWindow extends Component<PickerWindowProps, PickerWindowState> {
                 state={this.state}
                 updatePickedDate={this.props.updatePickedDate}
                 togglePickerWindow={this.props.togglePickerWindow}
+                blurDatePicker={this.props.blurDatePicker}
               />
               : <YearCalendar
                 state={this.state}
@@ -593,6 +619,7 @@ class PickerWindow extends Component<PickerWindowProps, PickerWindowState> {
         </View>
         <View style={this.styles.footer}>
           <Pressable
+            onPress={() => this.props.updateDisplayDate("dd", "mm", "yyyy")}
             style={({ pressed }) => [{ backgroundColor: pressed ? "#BBB" : "transparent" }]}
           >
             <Text theme={this.state.theme} selectable={false} >Clear</Text>
@@ -749,9 +776,9 @@ interface DatePickerProps {
   theme?: "dark" | "light"
   width?: DimensionValue
   height?: DimensionValue
-  style?: DatePickerStyles
+  style?: DatePickerStyles & ViewStyle
 }
-
+  
 interface DatePickerState {
   pickedDate: Date
   pickedDay: number
@@ -794,11 +821,13 @@ interface DatePickerState {
    * , borderRadius: number
    * , backgroundColor: string
    * , padding: number
-   * , margin: number }
+   * , margin: number 
+   * } & ViewStyle
    */
 export default class DatePicker extends Component<DatePickerProps, DatePickerState> {
   private inputPressableRef: RefObject<any>;
-
+  pickerWindowRef: React.RefObject<any>;
+  
   static defaultProps = {
     theme: "light" as "dark" | "light",
     width: 100,
@@ -811,7 +840,9 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     
     let currentDate = props.selectedDate ?? new Date();
     this.inputPressableRef = createRef<any>();
-    
+
+    this.pickerWindowRef = createRef<any>();
+
     this.state = {
       pickedDate: currentDate,
       pickedDay: currentDate.getDate(),
@@ -838,6 +869,8 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
       width: props.width ?? DatePicker.defaultProps.width,
       height: props.height ?? DatePicker.defaultProps.height
     }
+
+    this.handleOutsideClick = this.handleOutsideClick.bind(this);
   }
 
   componentDidMount(): void {
@@ -862,6 +895,20 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     this.setState({isPickerWindowOpened: false});
   }
 
+  blurDatePicker = (): void => {
+    this.setState({ isDatePickerInputFocused: false })
+  }
+
+  handleOutsideClick(event: MouseEvent) {
+    if (
+      this.pickerWindowRef.current &&
+      !this.pickerWindowRef.current.contains(event.target as Node) &&
+      !this.inputPressableRef.current.contains(event.target as Node)
+    ) {
+      this.setState({ isPickerWindowOpened: false, isDatePickerInputFocused: false });
+    }
+  }
+
   // Set picked, display and date states to the present date
   setDateToPresent = (): void => {
     const presentDate = new Date();
@@ -879,29 +926,48 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
    * @param day number in range 1-31
    * @param month number in range 1-12
    * @param year number (4-digit)
+   * 
+   * @Override 
+   * Update display date states with string values
+   * 
+   * @param day string 2-characters
+   * @param month string 2-characters
+   * @param year string 4-characters
    */
-  updateDisplayDate = (day: number, month: number, year: number): void => {
-    if (day < 1 || day > 31 ) {
-      throw new Error("Display date update day out of range.");
-    }
-    if (month < 1 || month > 12) {
-      throw new Error("Display date update month out of range.");
+  updateDisplayDate: {
+    (day: number, month: number, year: number):void;
+    (day: string, month: string, year: string): void;
+  } = (day: number | string, month: number | string, year: number | string): void => {
+    if (typeof day === 'string' && typeof month === 'string' && typeof year === 'string') {
+      this.setState({
+        displayDay: day,
+        displayMonth: month,
+        displayYear: year
+      });
     } 
-    if (year < 1000 || year > 9999) {
-      throw new Error("Display date update year out of range.");
+    else if (typeof day === 'number' && typeof month === 'number' && typeof year === 'number') {
+      if (day < 1 || day > 31 ) {
+        throw new Error("Display date update day out of range.");
+      }
+      if (month < 1 || month > 12) {
+        throw new Error("Display date update month out of range.");
+      } 
+      if (year < 1000 || year > 9999) {
+        throw new Error("Display date update year out of range.");
+      }
+  
+      let dayString = "01";
+      let monthString = "01";
+      if (day < 10) dayString = "0" + day.toString();
+      else dayString = day.toString();
+      if (month < 10) monthString = "0" + month.toString();
+      else monthString = month.toString();
+      this.setState({
+        displayDay: dayString,
+        displayMonth: monthString,
+        displayYear: year.toString()
+      });
     }
-
-    let dayString = "01";
-    let monthString = "01";
-    if (day < 10) dayString = "0" + day.toString();
-    else dayString = day.toString();
-    if (month < 10) monthString = "0" + month.toString();
-    else monthString = month.toString();
-    this.setState({
-      displayDay: dayString,
-      displayMonth: monthString,
-      displayYear: year.toString()
-    });
   }
 
   /**
@@ -923,8 +989,8 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
       pickedMonth: month,
       pickedYear: year,
     });
-    this.props.onDateChange(newDate);
     this.updateDisplayDate(day, month, year);
+    this.props.onDateChange(newDate);
   }
 
   onDayKeyPress(key: string) {
@@ -1045,7 +1111,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
   }
 
   render() {
-    const inputsBgColor = "#48B";
+    const inputsBgColor = this.state.theme === "light" ? "#6AD" : "#48B";
 
     return (
       <View
@@ -1177,7 +1243,12 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
             <Pressable 
               onPressIn={() => this.setState({ isDatePickerInputFocused: true })}
               onPress={() => this.togglePickerWindow()}
-              style={this.styles.button}
+              style={[
+                this.styles.button,
+                {
+                  backgroundColor: this.state.isPickerWindowOpened ? this.state.theme === "dark" ? "#777" : "#FBB" : "transparent"
+                }
+              ]}
             >
               <AntDesign
                 name="calendar"
@@ -1211,7 +1282,9 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                 pickedDate={this.state.pickedDate}
                 theme={this.state.theme}
                 updatePickedDate={this.updatePickedDate}
+                updateDisplayDate={this.updateDisplayDate}
                 togglePickerWindow={this.togglePickerWindow}
+                blurDatePicker={this.blurDatePicker}
               />
             </View>
         : null
@@ -1255,10 +1328,12 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
         : this.props.style.borderWidth === 0 ? 0 : this.props.style.borderWidth + 1,
       padding: 
         this.props.style?.padding === undefined
-        ? 1
+        ? this.props.style?.borderWidth === 0
+          ? 2 : 1
         : this.props.style?.borderWidth === undefined
           ? this.props.style.padding
-          : this.props.style.borderWidth === 0 ? this.props.style?.padding : this.props.style?.padding - 1,
+          : this.props.style.borderWidth === 0 
+            ? this.props.style.padding : this.props.style.padding - 1,
     },
     textInput: {
       margin: 0,
@@ -1277,6 +1352,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
       textAlign: "center",
       paddingVertical: 2,
       paddingHorizontal: 8,
+      borderRadius: 3,
     }
   });
 }

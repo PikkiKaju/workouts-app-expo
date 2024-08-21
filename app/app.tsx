@@ -77,7 +77,7 @@ export default function App() {
         <Animated.View style={[styles.content, {marginLeft: contentMarginAnim }]}>
           { Platform.OS !== "ios" && Platform.OS !== "android" 
           ? <PanelToggler /> : null }
-          <Content />
+          <Content name='' date={new Date()} />
         </Animated.View>
       </View>
     </View>

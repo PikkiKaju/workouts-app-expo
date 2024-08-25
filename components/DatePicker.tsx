@@ -776,6 +776,7 @@ interface DatePickerProps {
   theme?: "dark" | "light"
   width?: DimensionValue
   height?: DimensionValue
+  iconPosition?: "start" | "end"
   style?: DatePickerStyles & ViewStyle
 }
   
@@ -815,6 +816,7 @@ interface DatePickerState {
    * @prop (optional) theme: "light" | "dark" - default: light 
    * @prop (optional) width: DimensionValue | undefined - default: 100
    * @prop (optional) height: DimensionValue | undefined - default: 20
+   * @prop (optional) iconPosition: "start" | "end" - default: end 
    * @prop (optional) style: DatePickerStyles 
    * { borderWidth: number
    * , borderColor: string
@@ -832,6 +834,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     theme: "light" as "dark" | "light",
     width: 100,
     height: 20,
+    iconPosition: "end",
     fontSize: 15,
   }
 
@@ -842,6 +845,14 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     this.inputPressableRef = createRef<any>();
 
     this.pickerWindowRef = createRef<any>();
+
+    if (props.style && props.style.fontSize && props.height) {
+      if (Number.isInteger(props.height)) { //@ts-ignore
+        if(props.style.fontSize > props.height) props.style.fontSize = props.height
+      } else {
+        props.style.fontSize = DatePicker.defaultProps.fontSize;
+      }
+    }
 
     this.state = {
       pickedDate: currentDate,
@@ -1301,7 +1312,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     },
     datePickerInput: {
       flex: -1,
-      flexDirection: "row",
+      flexDirection: this.props.iconPosition === "end" ? "row" : "row-reverse",
       justifyContent: "space-between",
       alignItems: "center",
       borderRadius: this.props.style?.borderRadius ?? 3,

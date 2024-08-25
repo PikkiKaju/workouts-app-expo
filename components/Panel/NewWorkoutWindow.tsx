@@ -47,6 +47,7 @@ export default function NewWorkoutWindow() {
         onBlur={() => setIsTextInputFocused(false)}
       />
       <DatePicker
+        onDateChange={() => {}}
         theme={theme}
         width={styles.inputs.width}
         height={styles.inputs.height}

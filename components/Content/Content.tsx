@@ -29,6 +29,7 @@ export default class Content extends Component<ContentProps, ContentState>{
     container: {
       flex: 1,
       paddingHorizontal: 5, 
+      minWidth: 400,
     },
   });
 }

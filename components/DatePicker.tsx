@@ -776,6 +776,7 @@ interface DatePickerProps {
   theme?: "dark" | "light"
   width?: DimensionValue
   height?: DimensionValue
+  icon: boolean
   iconPosition?: "start" | "end"
   style?: DatePickerStyles & ViewStyle
 }
@@ -816,6 +817,7 @@ interface DatePickerState {
    * @prop (optional) theme: "light" | "dark" - default: light 
    * @prop (optional) width: DimensionValue | undefined - default: 100
    * @prop (optional) height: DimensionValue | undefined - default: 20
+   * @prop (optional) icon: boolean - default: true 
    * @prop (optional) iconPosition: "start" | "end" - default: end 
    * @prop (optional) style: DatePickerStyles 
    * { borderWidth: number
@@ -834,6 +836,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     theme: "light" as "dark" | "light",
     width: 100,
     height: 20,
+    icon: true,
     iconPosition: "end",
     fontSize: 15,
   }
@@ -1251,7 +1254,8 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                 maxLength={4}
               />
             </View>
-            <Pressable 
+            {this.props.icon ?
+            <Pressable
               onPressIn={() => this.setState({ isDatePickerInputFocused: true })}
               onPress={() => this.togglePickerWindow()}
               style={[
@@ -1266,7 +1270,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                 size={this.styles.slash.fontSize}
                 color={this.state.theme === "light" ? "black" : "white"}
               />
-            </Pressable>
+            </Pressable> : null}
           </View>
         </Pressable>
         {

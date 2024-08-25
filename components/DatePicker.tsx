@@ -317,9 +317,7 @@ class DayCalendarTile extends Component<DayCalendarTileProps, {isHovered: boolea
           this.styles.calendarTile,
           {
             opacity: this.props.state.selectedMonth.includes(this.props.month) ? 1 : 0.5,
-            backgroundColor: pressed
-              ? "#999"
-              : "transparent"
+            backgroundColor: pressed ? "#999" : "transparent"
           },
           {
             backgroundColor: 
@@ -902,7 +900,8 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
 
   togglePickerWindow = (): void => {
     if (this.state.isPickerWindowOpened) {
-      this.setState({isPickerWindowOpened: false});
+      this.setState({ isPickerWindowOpened: false });
+      this.focus();
     } else {
       this.setState({isPickerWindowOpened: true});
     }
@@ -1132,7 +1131,6 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
   }
 
   public focus() {
-    this.inputPressableRef.current.focus();
     this.monthInputRef.current.focus();
   }
 
@@ -1183,7 +1181,8 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                 onKeyPress={(e) => { this.onMonthKeyPress(e.nativeEvent.key); }}
                 caretHidden={true}
                 inputMode="numeric"
-                editable={Platform.OS === "web" ? false : true}
+                enterKeyHint='next'
+                readOnly={Platform.OS === "web" ? true : false}
                 onFocus={() => this.setState({ 
                   isMonthInputFocused: true,
                   isDatePickerInputFocused: true
@@ -1216,8 +1215,8 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                 onKeyPress={(e) => { this.onDayKeyPress(e.nativeEvent.key); }}
                 caretHidden={true}
                 inputMode="numeric"
-                returnKeyType='google'
-                editable={Platform.OS === "web" ? false : true}
+                enterKeyHint='next'
+                readOnly={Platform.OS === "web" ? true : false}
                 onFocus={() => this.setState({ 
                   isDayInputFocused: true,
                   isDatePickerInputFocused: true
@@ -1250,7 +1249,8 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                 onKeyPress={(e) => { this.onYearKeyPress(e.nativeEvent.key); }}
                 caretHidden={true}
                 inputMode="numeric"
-                editable={Platform.OS === "web" ? false : true}
+                enterKeyHint='done'
+                readOnly={Platform.OS === "web" ? true : false}
                 onFocus={() => this.setState({
                   isYearInputFocused: true, 
                   isDatePickerInputFocused: true,

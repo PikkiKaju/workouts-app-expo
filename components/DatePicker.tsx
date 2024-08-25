@@ -1,5 +1,5 @@
 
-import  React, { Component, createRef, RefObject  } from 'react';
+import  React, { Component, createRef, forwardRef, RefObject  } from 'react';
 import {
   Platform,
   Text as DefaultText,
@@ -46,14 +46,14 @@ function Text(props: TextProps) {
   return <DefaultText style={[{ color }, style]} {...otherProps} />;
 }
 
-function TextInput(props: TextInputProps) {
+const TextInput = forwardRef<DefaultTextInput, TextInputProps>((props, ref) => {
   const { style, theme, ...otherProps } = props;
   const lightColor = "#000";
   const darkColor = "#fff";
   const color = theme === "light" ? lightColor : darkColor;
 
-  return <DefaultTextInput style={[{ color }, style]} {...otherProps} />;
-}
+  return <DefaultTextInput ref={ref} style={[{ color }, style]} {...otherProps} />;
+});
 
 function View(props: ViewProps) {
   const { style, theme, ...otherProps } = props;
@@ -772,6 +772,8 @@ interface DatePickerStyles {
 
 interface DatePickerProps {
   onDateChange: (date: Date) => void
+  onFocus?: () => void
+  onBlur?: () => void
   selectedDate?: Date
   theme?: "dark" | "light"
   width?: DimensionValue
@@ -829,7 +831,8 @@ interface DatePickerState {
    * } & ViewStyle
    */
 export default class DatePicker extends Component<DatePickerProps, DatePickerState> {
-  private inputPressableRef: RefObject<any>;
+  inputPressableRef: RefObject<any>;
+  monthInputRef: RefObject<any>;
   pickerWindowRef: React.RefObject<any>;
   
   static defaultProps = {
@@ -846,7 +849,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     
     let currentDate = props.selectedDate ?? new Date();
     this.inputPressableRef = createRef<any>();
-
+    this.monthInputRef = createRef<any>();
     this.pickerWindowRef = createRef<any>();
 
     if (props.style && props.style.fontSize && props.height) {
@@ -1124,6 +1127,15 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     });
   }
 
+  public blur() {
+    this.inputPressableRef.current.blur();
+  }
+
+  public focus() {
+    this.inputPressableRef.current.focus();
+    this.monthInputRef.current.focus();
+  }
+
   render() {
     const inputsBgColor = this.state.theme === "light" ? "#6AD" : "#48B";
 
@@ -1138,8 +1150,15 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
         <Pressable
           ref={this.inputPressableRef}
           onPress={() => this.closePickerWindow()}
-          onFocus={() => this.setState({ isDatePickerInputFocused: true })}
-          onBlur={() => this.setState({ isDatePickerInputFocused: false })}
+          onFocus={() => {
+            this.setState({ isDatePickerInputFocused: true });
+            this.props.onFocus;
+          }}
+          onBlur={() => {
+            this.setState({ isDatePickerInputFocused: false });
+            this.setState({ isPickerWindowOpened: false })
+            this.props.onBlur;
+          }}
         >
           <View
             theme={this.state.theme}
@@ -1151,6 +1170,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
           >
             <View style={this.styles.inputsWrapper} >
               <TextInput
+                ref={this.monthInputRef}
                 theme={this.state.theme}
                 style={[
                   this.styles.textInput,
@@ -1163,7 +1183,6 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                 onKeyPress={(e) => { this.onMonthKeyPress(e.nativeEvent.key); }}
                 caretHidden={true}
                 inputMode="numeric"
-                keyboardType="number-pad"
                 editable={Platform.OS === "web" ? false : true}
                 onFocus={() => this.setState({ 
                   isMonthInputFocused: true,
@@ -1197,7 +1216,6 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                 onKeyPress={(e) => { this.onDayKeyPress(e.nativeEvent.key); }}
                 caretHidden={true}
                 inputMode="numeric"
-                keyboardType="number-pad"
                 returnKeyType='google'
                 editable={Platform.OS === "web" ? false : true}
                 onFocus={() => this.setState({ 
@@ -1231,8 +1249,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                 value={this.state.displayYear}
                 onKeyPress={(e) => { this.onYearKeyPress(e.nativeEvent.key); }}
                 caretHidden={true}
-                //inputMode="numeric"
-                keyboardType="number-pad"
+                inputMode="numeric"
                 editable={Platform.OS === "web" ? false : true}
                 onFocus={() => this.setState({
                   isYearInputFocused: true, 

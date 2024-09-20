@@ -2,14 +2,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Platform, Animated } from 'react-native';
 
-import { useTheme } from '@/components/ThemeProvider';
-import { View } from '../Themed';
+import { useTheme } from '@/components/Providers/ThemeProvider';
+import { View } from '@/components/UI/Themed';
 import Colors from '@/constants/Colors';
 import NewWorkoutWindow from './NewWorkoutWindow';
 import { NewWorkoutWindowToggler } from './NewWorkoutWindowToggler';
 import WorkoutList from './WorkoutList';
 import Dimensions from '@/constants/Dimensions';
-import { usePanelContext } from '../PanelContextProvider';
+import { usePanelContext } from '@/components/Providers/PanelContextProvider';
 
 export default function Panel() {
   const { theme, toggleTheme } = useTheme();

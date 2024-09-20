@@ -8,8 +8,8 @@ import {
   Dimensions as AppDimensions
 } from 'react-native';
 
-import { useTheme } from '@/components/ThemeProvider';
-import { View } from '@/components/Themed';
+import { useTheme } from '@/components/Providers/ThemeProvider';
+import { View } from '@/components/UI/Themed';
 import Header from '@/components/Header';
 import Panel from '@/components/Panel/Panel';
 import Colors from '@/constants/Colors';
@@ -17,7 +17,7 @@ import PanelToggler from '@/components/Panel/PanelToggler';
 import Content from '@/components/Content/Content';
 import Dimensions from '@/constants/Dimensions';
 import { useEffect, useRef } from 'react';
-import { usePanelContext } from '@/components/PanelContextProvider';
+import { usePanelContext } from '@/components/Providers/PanelContextProvider';
 
 export default function App() {
   const { height, width, scale, fontScale } = useWindowDimensions();

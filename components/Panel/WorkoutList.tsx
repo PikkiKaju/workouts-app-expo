@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Pressable, StyleSheet, FlatList } from "react-native";
-import { View, Text } from "@/components/Themed";
-import AnimatedArrow from "@/components/AnimatedArrow";
-import { useTheme } from "@/components/ThemeProvider";
-import type { Theme } from "@/components/ThemeProvider";
+import { View, Text } from "@/components/UI/Themed";
+import AnimatedArrow from "@/components/UI/AnimatedArrow";
+import { useTheme } from "@/components/Providers/ThemeProvider";
+import type { Theme } from "@/components/Providers/ThemeProvider";
 
 import WorkoutsData from "@/data/sample_workout_data/workout_list.json";
 import Colors from "@/constants/Colors";

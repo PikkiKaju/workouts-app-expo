@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { usePanelContext } from "../PanelContextProvider";
-import AnimatedArrow from "../AnimatedArrow";
-import { useTheme } from "../ThemeProvider";
+import { usePanelContext } from "@/components/Providers/PanelContextProvider";
+import AnimatedArrow from "@/components/UI/AnimatedArrow";
+import { useTheme } from "@/components/Providers/ThemeProvider";
 import { Animated, Pressable, StyleSheet, View } from "react-native";
 import Colors from "@/constants/Colors";
 import { AntDesign } from "@expo/vector-icons";

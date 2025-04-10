@@ -26,7 +26,7 @@
       "package": "com.anonymous.workoutsappexpo"
     },
     "web": {
-      "output": "static",
+      "output": "single",
       "favicon": "./assets/images/puero-logo-transparent.png",
       "bundler": "metro"
     },

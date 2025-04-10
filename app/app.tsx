@@ -3,9 +3,11 @@ import { StatusBar } from 'expo-status-bar';
 import {
   Animated,
   Platform,
+  Pressable,
+  Keyboard,
   StyleSheet,
+  StatusBar as RNStatusBar,
   useWindowDimensions,
-  Dimensions as AppDimensions
 } from 'react-native';
 
 import { useTheme } from '@/components/Providers/ThemeProvider';
@@ -34,7 +36,7 @@ export default function App() {
     Animated.parallel([
       Animated.timing(panelMoveAnim, {
         toValue: panelToggled 
-          ? 0 : Platform.OS === ("ios" || "android")
+          ? 0 : (Platform.OS === 'ios' || Platform.OS === 'android')
           ? -width : -Dimensions.web.panelWidth,
         duration: panelAnimDuration,
         useNativeDriver: true,
@@ -54,17 +56,20 @@ export default function App() {
 
   return (
     <View style={{
-      backgroundColor: theme === "light" ? "#FFF" : Colors.dark.background,
+      backgroundColor: theme === "light" ? Colors.light.background : Colors.dark.background,
       height: height,
-      width: width
+      width: width,
+      paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight : 0,
     }}>
-      <Header />
+      <Pressable onPress={Keyboard.dismiss}>
+        <Header />
+      </Pressable>
       <StatusBar style="auto" />
       <View style={styles.body}>
         <Animated.View style={[
           styles.panel, 
           { 
-            width: Platform.OS === ("ios" || "android")
+            width: (Platform.OS === 'ios' || Platform.OS === 'android')
               ? width - 20
               : Dimensions.web.panelWidth,
             borderRightWidth: (Platform.OS !== "ios" && Platform.OS !== "android")
@@ -72,7 +77,7 @@ export default function App() {
             transform: [{ translateX: panelMoveAnim }],
           }
         ]}>
-          <Panel />
+        <Panel />
         </Animated.View>
         <Animated.View style={[styles.content, {marginLeft: contentMarginAnim }]}>
           { Platform.OS !== "ios" && Platform.OS !== "android" 
@@ -92,6 +97,8 @@ const styles = StyleSheet.create({
   panel: {
     position: "absolute",
     left: 0,
+    top: 0,
+    bottom: 0,
     height: "100%",
     flexDirection: "row",
     borderRightColor: Colors.global.themeColorSecond,

@@ -12,12 +12,14 @@ export default {
   },
   light: {
     text: '#000',
+    textMuted: '#666',
     background: '#fff',
     tint: tintColorLight,
     tabIconSelected: tintColorLight
   },
   dark: {
     text: '#fff',
+    textMuted: '#aaa',
     background: '#181818',
     tint: tintColorDark,
     tabIconSelected: tintColorDark

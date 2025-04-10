@@ -1,11 +1,11 @@
-import React, { Component, useContext } from "react";
-import { Animated, StyleSheet } from "react-native";
-import { View } from "../Themed";
-import ContentHeader from "./ContentHeader";
+import React, { Component } from "react"; 
+import { StyleSheet, Pressable, Keyboard } from "react-native";
+import { View } from "@/components/UI/Themed";
+import ContentHeader from "./ContentHeader/ContentHeader";
 
 interface ContentProps {
   name: string
-  date: Date
+  date: Date 
 }
 
 interface ContentState {
@@ -19,17 +19,22 @@ export default class Content extends Component<ContentProps, ContentState>{
 
   render() {
     return (
-      <View style={[ this.styles.container ]}>
-        <ContentHeader name={this.props.name} date={this.props.date} />
-      </View>
+      <Pressable style={this.styles.pressableContainer} onPress={Keyboard.dismiss}>
+        <View style={this.styles.innerContainer}>
+          <ContentHeader name={this.props.name} />
+        </View>
+      </Pressable>
     );
   }
 
   styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      paddingHorizontal: 5, 
-      minWidth: 400,
+    pressableContainer: {
+      flex: 1, 
+    },
+    innerContainer: {
+      flex: 1, 
+      paddingHorizontal: 5,
+      minWidth: 400, 
     },
   });
 }

@@ -35,6 +35,12 @@ export default function AnimatedArrow(props: AnimatedArrowProps) {
     }).start();
   }, [isToggled]);
 
+  useEffect(() => {
+    if (props.toggled !== undefined) {
+      setIsToggled(props.toggled);
+    }
+  }, [props.toggled]);
+
   return (
     <Pressable
       style={[styles.button, { height: props.size, width: props.size }]}

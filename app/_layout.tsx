@@ -4,8 +4,8 @@ import { SplashScreen } from 'expo-router';
 import { useFonts } from 'expo-font';
 
 import App from './app';
-import { ThemeProvider } from 'components/ThemeProvider';
-import { PanelContextProvider } from '@/components/PanelContextProvider';
+import { ThemeProvider } from '@/components/Providers/ThemeProvider';
+import { PanelContextProvider } from '@/components/Providers/PanelContextProvider';
 
 export {
   // Catch any errors thrown by the Layout component.

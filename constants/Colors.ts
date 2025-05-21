@@ -14,6 +14,8 @@ export default {
     text: '#000',
     textMuted: '#666',
     background: '#fff',
+    backgroundAccessory: "#fff",
+    border: borderColorLight,
     tint: tintColorLight,
     tabIconSelected: tintColorLight
   },
@@ -21,6 +23,8 @@ export default {
     text: '#fff',
     textMuted: '#aaa',
     background: '#181818',
+    backgroundAccessory: "#181818",
+    border: borderColorDark,
     tint: tintColorDark,
     tabIconSelected: tintColorDark
   },

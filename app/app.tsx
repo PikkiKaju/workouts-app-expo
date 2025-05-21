@@ -77,7 +77,7 @@ export default function App() {
             transform: [{ translateX: panelMoveAnim }],
           }
         ]}>
-        <Panel />
+          <Panel />
         </Animated.View>
         <Animated.View style={[styles.content, {marginLeft: contentMarginAnim }]}>
           { Platform.OS !== "ios" && Platform.OS !== "android" 

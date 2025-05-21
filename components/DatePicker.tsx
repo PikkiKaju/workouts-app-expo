@@ -830,8 +830,10 @@ interface DatePickerState {
    */
 export default class DatePicker extends Component<DatePickerProps, DatePickerState> {
   inputPressableRef: RefObject<any>;
-  monthInputRef: RefObject<any>;
-  pickerWindowRef: React.RefObject<any>;
+  monthInputRef: RefObject<DefaultTextInput | null>;
+  dayInputRef: RefObject<DefaultTextInput | null>;
+  yearInputRef: RefObject<DefaultTextInput | null>;
+  pickerWindowRef: RefObject<any>;
   
   static defaultProps = {
     theme: "light" as "dark" | "light",
@@ -847,7 +849,9 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     
     let currentDate = props.selectedDate ?? new Date();
     this.inputPressableRef = createRef<any>();
-    this.monthInputRef = createRef<any>();
+    this.monthInputRef = createRef<DefaultTextInput>();
+    this.dayInputRef = createRef<DefaultTextInput>();
+    this.yearInputRef = createRef<DefaultTextInput>();
     this.pickerWindowRef = createRef<any>();
 
     if (props.style && props.style.fontSize && props.height) {
@@ -1131,7 +1135,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
   }
 
   public focus() {
-    this.monthInputRef.current.focus();
+    this.monthInputRef.current?.focus();
   }
 
   render() {
@@ -1198,7 +1202,8 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                     parseInt(this.state.displayYear)
                   );
                 }}
-                blurOnSubmit={true}
+                submitBehavior="submit"
+                onSubmitEditing={() => this.dayInputRef.current?.focus()}
                 maxLength={2}
               />
               <Text theme={this.state.theme} style={this.styles.slash} >/</Text>
@@ -1212,6 +1217,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                   ? { outline: "none" }: null
                 ]}
                 value={this.state.displayDay}
+                ref={this.dayInputRef}
                 onKeyPress={(e) => { this.onDayKeyPress(e.nativeEvent.key); }}
                 caretHidden={true}
                 inputMode="numeric"
@@ -1232,7 +1238,8 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                     parseInt(this.state.displayYear)
                   );
                 }}
-                blurOnSubmit={true}
+                submitBehavior="submit"
+                onSubmitEditing={() => this.yearInputRef.current?.focus()}
                 maxLength={2}
               />
               <Text theme={this.state.theme} style={this.styles.slash} >/</Text>
@@ -1246,6 +1253,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                   ? { outline: "none" }: null
                 ]}
                 value={this.state.displayYear}
+                ref={this.yearInputRef}
                 onKeyPress={(e) => { this.onYearKeyPress(e.nativeEvent.key); }}
                 caretHidden={true}
                 inputMode="numeric"
@@ -1267,7 +1275,6 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                     parseInt(this.state.displayYear)
                   );
                 }}
-                blurOnSubmit={true}
                 maxLength={4}
               />
             </View>
@@ -1357,7 +1364,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
       borderWidth:
         this.props.style?.borderWidth === undefined
         ? 2
-        : this.props.style.borderWidth === 0 ? 0 : this.props.style.borderWidth + 1,
+          : this.props.style.borderWidth === 0 ? 0 : this.props.style.borderWidth + 1,
       padding: 
         this.props.style?.padding === undefined
         ? this.props.style?.borderWidth === 0
@@ -1366,17 +1373,20 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
           ? this.props.style.padding
           : this.props.style.borderWidth === 0 
             ? this.props.style.padding : this.props.style.padding - 1,
+            
     },
     textInput: {
       margin: 0,
       padding: 0,
       borderWidth: 0,
+      borderRadius: 3,
       textAlign: "center",
       verticalAlign: "middle",
       fontSize: this.props.style?.fontSize ?? DatePicker.defaultProps.fontSize,
     },
     slash: {
       margin: 0,
+      marginHorizontal: 1,
       fontSize: this.props.style?.fontSize ?? DatePicker.defaultProps.fontSize,
       padding: 0,
     },

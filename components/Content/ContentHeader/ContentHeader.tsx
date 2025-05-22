@@ -1,14 +1,15 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   Platform,
   StyleSheet,
+  Animated,
+  Text as DefaultText,
 } from "react-native"
 import { View } from "../../UI/Themed";
 import DatePicker from "../../DatePicker/DatePicker";
 import { useTheme } from "../../Providers/ThemeProvider";
 import Colors from "@/constants/Colors";
 
-// import WorkoutData from "@/data/sample_workout_data/workout_data.json";
 import MenuButton, { MenuItem } from "./MenuButton"; 
 import DescriptionInput from "./DescriptionInput"; 
 import WorkoutNameInput from "./WorkoutNameInput";
@@ -39,15 +40,54 @@ export default function ContentHeader(props: ContentHeaderProps) {
   } = useWorkoutForm();
 
   const [descriptionToggled, setDescriptionToggled] = useState(true);
+  // State and refs for DatePicker "Saved" message
+  const [isDateSavedVisible, setIsDateSavedVisible] = useState(false);
+  const dateFadeAnim = useRef(new Animated.Value(0)).current;
+  const dateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+ 
 
-   function toggleDescription() {
+  function toggleDescription() {
     setDescriptionToggled(!descriptionToggled);
   }
   
-    function deleteWorkout() {
+  function deleteWorkout() {
     console.log("Delete workout action (implement logic)");
     // Add logic to delete the workout
   }
+
+  // Cleanup for DatePicker "Saved" message animation
+  useEffect(() => {
+    return () => {
+      if (dateTimeoutRef.current) {
+        clearTimeout(dateTimeoutRef.current);
+      }
+      dateFadeAnim.stopAnimation();
+    };
+  }, [dateFadeAnim]);
+
+  const showDateSavedMessage = useCallback(() => {
+    if (dateTimeoutRef.current) {
+      clearTimeout(dateTimeoutRef.current);
+    }
+    dateFadeAnim.stopAnimation();
+    setIsDateSavedVisible(true);
+
+    Animated.timing(dateFadeAnim, {
+      toValue: 1,
+      duration: 200, // Short fade-in duration
+      useNativeDriver: Platform.OS !== 'web',
+    }).start();
+
+    dateTimeoutRef.current = setTimeout(() => {
+      Animated.timing(dateFadeAnim, {
+        toValue: 0,
+        duration: 500, // Fade out duration
+        useNativeDriver: Platform.OS !== 'web',
+      }).start(() => {
+        setIsDateSavedVisible(false); // Hide after fade out
+      });
+    }, 2000); // Display for 2 seconds before starting fade out
+  }, [dateFadeAnim]);
 
   // Define menu items for the MenuButton component
   const menuItems: MenuItem[] = [
@@ -98,20 +138,43 @@ export default function ContentHeader(props: ContentHeaderProps) {
             textFontSize={textFontSize}
           />
 
-          {/* Date Picker */}
-          <DatePicker
-            ref={refs.dateInputRef}
-            onDateChange={handleWorkoutDateChange}
-            selectedDate={workoutDate}
-            theme={theme}
-            width={170}
-            height={30} // Consider making height dynamic or using padding
-            style={{ 
-              ...styles.datePicker,
-              fontSize: textFontSize, // Ensure font size is consistent
-              borderColorFocused: theme === "light" ? Colors.light.text : Colors.global.themeColorSecond, 
-            }}
-          />
+          {/* Date Picker with Saved Message */}
+          <View style={styles.datePickerContainer}>
+            <DatePicker
+              ref={refs.dateInputRef}
+              onDateChange={(newDate) => {
+                const currentDate = workoutDate; // Get current date before state update
+                handleWorkoutDateChange(newDate); // Call original handler
+                if (currentDate && newDate.getTime() !== currentDate.getTime()) {
+                  showDateSavedMessage();
+                }
+              }}
+              selectedDate={workoutDate}
+              theme={theme}
+              width={170}
+              height={30}
+              style={{
+                ...styles.datePicker,
+                fontSize: textFontSize,
+                borderColorFocused: theme === "light" ? Colors.light.text : Colors.global.themeColorSecond,
+              }}
+            />
+            {isDateSavedVisible && (
+              <Animated.View
+                style={[
+                  styles.dateSavedMessageContainer,
+                  {
+                    opacity: dateFadeAnim,
+                    backgroundColor: theme === 'light' ? Colors.light.background : Colors.dark.background,
+                  },
+                ]}
+              >
+                <DefaultText style={[styles.dateSavedMessageText, { color: theme === 'light' ? Colors.light.tint : Colors.dark.tint, fontSize: textFontSize * 0.8 }]}>
+                  Saved
+                </DefaultText>
+              </Animated.View>
+            )}
+          </View>
 
           {/* Description Toggle */}
           <DescriptionToggle
@@ -167,6 +230,9 @@ const styles = StyleSheet.create({
     columnGap: 30, 
     marginRight: 15, 
   },
+  datePickerContainer: {
+    position: 'relative',
+  },
   datePicker: {
     borderWidth: 0,
     borderBottomWidth: 1,
@@ -175,5 +241,20 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent", 
     paddingTop: 3,
     minWidth: 150, 
+  },
+  dateSavedMessageContainer: {
+    position: 'absolute',
+    right: 0, 
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    pointerEvents: 'none', // So it doesn't interfere with DatePicker interactions
+    paddingHorizontal: 6,
+    borderRadius: 5,
+    zIndex: 15,
+  },
+  dateSavedMessageText: {
+    fontWeight: 'bold',
   },
 });

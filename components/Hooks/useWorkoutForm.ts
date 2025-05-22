@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TextInput as RNTextInput } from 'react-native';
-import DatePicker from '../DatePicker'; // Assuming DatePicker.tsx is in components/
+import DatePicker from '../DatePicker/DatePicker'; // Assuming DatePicker.tsx is in components/
 
 export function useWorkoutForm(
   initialName = "Workout Name",

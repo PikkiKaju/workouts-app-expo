@@ -8,7 +8,7 @@ import {
 } from "react-native"
 import { Text, TextInput, View } from "../../UI/Themed";
 import { AntDesign } from "@expo/vector-icons";
-import DatePicker from "../../DatePicker";
+import DatePicker from "../../DatePicker/DatePicker";
 import { useTheme } from "../../Providers/ThemeProvider";
 import Colors from "@/constants/Colors";
 

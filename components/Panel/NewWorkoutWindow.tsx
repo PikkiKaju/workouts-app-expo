@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Platform, Pressable, StyleSheet } from 'react-native';
 import { Text, View, TextInput } from '@/components/UI/Themed';
-import DatePicker from '@/components/DatePicker';
+import DatePicker from '@/components/DatePicker/DatePicker';
 import { useTheme } from '@/components/Providers/ThemeProvider';
 import Colors from '@/constants/Colors';
 

@@ -4,7 +4,7 @@ import {
   StyleSheet,
 } from "react-native"
 import { View } from "../../UI/Themed";
-import DatePicker from "../../DatePicker";
+import DatePicker from "../../DatePicker/DatePicker";
 import { useTheme } from "../../Providers/ThemeProvider";
 import Colors from "@/constants/Colors";
 

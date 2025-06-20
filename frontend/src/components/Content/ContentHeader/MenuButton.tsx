@@ -4,18 +4,18 @@ import {
   StyleSheet,
   View,
   Platform,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
 } from "react-native";
-import Modal from 'react-native-modal';
-import { Text } from "../../UI/Themed"; 
+import Modal from "react-native-modal";
+import { Text } from "components/UI/Themed";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import Colors from "@/constants/Colors"; 
+import Colors from "constants/Colors";
 
 // Define the structure for a menu item
 export interface MenuItem {
   text: string;
   onPressAction: () => void;
-  isSeparator?: boolean; 
+  isSeparator?: boolean;
 }
 
 // Props for the internal MenuRowButton
@@ -31,10 +31,14 @@ function MenuRowButton({ item, theme, closeMenu }: MenuRowButtonProps) {
   if (item.isSeparator) {
     return (
       <View style={styles.menuElem}>
-        <View style={[
-          styles.menuLine,
-          theme === 'light' ? { backgroundColor: "#AAA" } : { backgroundColor: "#555" }
-        ]}></View>
+        <View
+          style={[
+            styles.menuLine,
+            theme === "light"
+              ? { backgroundColor: "#AAA" }
+              : { backgroundColor: "#555" },
+          ]}
+        ></View>
       </View>
     );
   }
@@ -53,11 +57,21 @@ function MenuRowButton({ item, theme, closeMenu }: MenuRowButtonProps) {
       style={({ pressed }) => [
         styles.menuElem,
         // Apply hover/pressed styles based on theme
-        isHovered ? theme === "light" ? { backgroundColor: "#DDD" } : { backgroundColor: "#555" } : null,
-        pressed ? theme === "light" ? { backgroundColor: "#CCC" } : { backgroundColor: "#666" } : null
+        isHovered
+          ? theme === "light"
+            ? { backgroundColor: "#DDD" }
+            : { backgroundColor: "#555" }
+          : null,
+        pressed
+          ? theme === "light"
+            ? { backgroundColor: "#CCC" }
+            : { backgroundColor: "#666" }
+          : null,
       ]}
     >
-      <Text theme={theme} style={styles.menuText}>{item.text}</Text>
+      <Text theme={theme} style={styles.menuText}>
+        {item.text}
+      </Text>
     </Pressable>
   );
 }
@@ -76,7 +90,7 @@ const menuToggleDuration = 200;
 export default function MenuButton({
   theme,
   menuItems,
-  iconSize = defaultIconSize
+  iconSize = defaultIconSize,
 }: MenuButtonProps) {
   const [menuToggled, setMenuToggled] = useState(false);
   const [isButtonHovered, setIsButtonHovered] = useState(false); // State for button hover
@@ -85,12 +99,17 @@ export default function MenuButton({
   const buttonRef = useRef<View>(null); // Ref specifically for the button (used for native measurement)
 
   // State to store button layout for native modal positioning
-  const [buttonLayout, setButtonLayout] = useState<{ x: number, y: number, width: number, height: number } | null>(null);
+  const [buttonLayout, setButtonLayout] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
 
   // Effect to handle clicks outside the menu (WEB ONLY)
   useEffect(() => {
     // Only run this effect on the web platform
-    if (Platform.OS !== 'web' || !menuToggled) {
+    if (Platform.OS !== "web" || !menuToggled) {
       return;
     }
 
@@ -98,7 +117,9 @@ export default function MenuButton({
       if (event.target && menuWrapRef.current && menuRef.current) {
         // Check if the click was outside the button wrapper AND outside the menu dropdown
         if (
-          !(menuWrapRef.current as unknown as Node).contains(event.target as Node) &&
+          !(menuWrapRef.current as unknown as Node).contains(
+            event.target as Node
+          ) &&
           !(menuRef.current as unknown as Node).contains(event.target as Node)
         ) {
           closeMenu();
@@ -106,20 +127,19 @@ export default function MenuButton({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
 
     // Cleanup function
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
     };
   }, [menuToggled]); // Rerun effect when menuToggled changes (on web)
 
-
   // ------------------------------------------
   function toggleMenu() {
-    if (!menuToggled && Platform.OS !== 'web') {
+    if (!menuToggled && Platform.OS !== "web") {
       // Measure button position before opening the menu on native
       buttonRef.current?.measureInWindow((x, y, width, height) => {
         setButtonLayout({ x, y, width, height });
@@ -127,8 +147,8 @@ export default function MenuButton({
       });
     } else {
       // Just toggle for web, or close if already open on native
-      setMenuToggled(prev => !prev);
-      if (menuToggled && Platform.OS !== 'web') {
+      setMenuToggled((prev) => !prev);
+      if (menuToggled && Platform.OS !== "web") {
         // Reset layout if closing on native
         // setButtonLayout(null);
       }
@@ -137,32 +157,35 @@ export default function MenuButton({
 
   function closeMenu() {
     setMenuToggled(false);
-    if (Platform.OS !== 'web') {
+    if (Platform.OS !== "web") {
       // setButtonLayout(null); // Reset layout on native
     }
   }
-
 
   // Common Menu Content View
   const MenuContent = (
     // Use menuRef only for web's direct rendering check
     <View
-      ref={Platform.OS === 'web' ? menuRef : null}
+      ref={Platform.OS === "web" ? menuRef : null}
       style={[
         styles.menu,
-        theme === "light" ? styles.menuContentBackground : styles.menuContentBackgroundDark,
-        theme === "light" ? styles.menuContentBorder : styles.menuContentBorderDark,
+        theme === "light"
+          ? styles.menuContentBackground
+          : styles.menuContentBackgroundDark,
+        theme === "light"
+          ? styles.menuContentBorder
+          : styles.menuContentBorderDark,
         // Apply dynamic position for Native Modal, or static position for Web
-        Platform.OS === 'web'
+        Platform.OS === "web"
           ? { top: iconSize + 5 } // Static position relative to button for web
           : buttonLayout // Dynamic position for native modal
-            ? {
-                position: 'absolute',
-                top: buttonLayout.y + buttonLayout.height + 5, // Below button
-                left: buttonLayout.x + buttonLayout.width - 150,
-                width: 150,
-              }
-            : {}, // Empty style if layout not ready
+          ? {
+              position: "absolute",
+              top: buttonLayout.y + buttonLayout.height + 5, // Below button
+              left: buttonLayout.x + buttonLayout.width - 150,
+              width: 150,
+            }
+          : {}, // Empty style if layout not ready
       ]}
     >
       {menuItems.map((item, index) => (
@@ -184,14 +207,22 @@ export default function MenuButton({
         ref={buttonRef}
         onPress={toggleMenu}
         // Hover effects for the main button (primarily for web)
-        onHoverIn={() => Platform.OS === 'web' && setIsButtonHovered(true)}
-        onHoverOut={() => Platform.OS === 'web' && setIsButtonHovered(false)}
+        onHoverIn={() => Platform.OS === "web" && setIsButtonHovered(true)}
+        onHoverOut={() => Platform.OS === "web" && setIsButtonHovered(false)}
         style={[
           styles.menuButton,
           // Apply active/toggled style
-          menuToggled ? (theme === "light" ? styles.menuButtonActiveLight : styles.menuButtonActiveDark) : null,
+          menuToggled
+            ? theme === "light"
+              ? styles.menuButtonActiveLight
+              : styles.menuButtonActiveDark
+            : null,
           // Apply hover style (only if not active, and on web)
-          isButtonHovered && !menuToggled && Platform.OS === 'web' ? (theme === "light" ? styles.menuButtonHoverLight : styles.menuButtonHoverDark) : null
+          isButtonHovered && !menuToggled && Platform.OS === "web"
+            ? theme === "light"
+              ? styles.menuButtonHoverLight
+              : styles.menuButtonHoverDark
+            : null,
         ]}
       >
         <MaterialCommunityIcons
@@ -215,7 +246,7 @@ export default function MenuButton({
       >
         {MenuContent}
       </Modal> */}
-      
+
       {/* {menuToggled && (
         <View ref={menuRef} style={[
           styles.menu,
@@ -235,10 +266,11 @@ export default function MenuButton({
       )} */}
 
       {/* Platform-specific rendering for the menu dropdown */}
-      { menuToggled &&
-        (Platform.OS === 'web'
-        ? (MenuContent) // Directly render the menu for web
-        : ( // Native: Render menu inside a Modal
+      {menuToggled &&
+        (Platform.OS === "web" ? (
+          MenuContent // Directly render the menu for web
+        ) : (
+          // Native: Render menu inside a Modal
           <Modal
             isVisible={menuToggled} // Already checked menuToggled above
             onBackButtonPress={closeMenu} // Android back button
@@ -251,8 +283,7 @@ export default function MenuButton({
           >
             {MenuContent}
           </Modal>
-        ))
-      }
+        ))}
     </View>
   );
 }
@@ -260,16 +291,16 @@ export default function MenuButton({
 const styles = StyleSheet.create({
   menuWrap: {
     zIndex: 20, // Ensure menu is above other elements
-    position: 'relative', 
+    position: "relative",
   },
   menuButton: {
     borderRadius: 5,
-    padding: 2, 
+    padding: 2,
   },
   // Style for the modal overlay (NATIVE ONLY)
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
   },
   menu: {
     position: "absolute",
@@ -281,20 +312,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     elevation: 3, // Add shadow for Android
-    shadowColor: '#000', // Add shadow for iOS
+    shadowColor: "#000", // Add shadow for iOS
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
-    
+
     // Platform-specific positioning styles
-    ...(Platform.OS === 'web' ? {
-      position: "absolute", // Position absolutely relative to menuWrap
-      right: 0,
-      zIndex: 11, // Ensure dropdown is above the button on web
-      // top is set dynamically based on iconSize
-    } : {
-      // position: 'absolute' is applied dynamically based on buttonLayout for native modal
-    })
+    ...(Platform.OS === "web"
+      ? {
+          position: "absolute", // Position absolutely relative to menuWrap
+          right: 0,
+          zIndex: 11, // Ensure dropdown is above the button on web
+          // top is set dynamically based on iconSize
+        }
+      : {
+          // position: 'absolute' is applied dynamically based on buttonLayout for native modal
+        }),
   },
   menuButtonHoverLight: {
     backgroundColor: "#EEE", // Light theme hover
@@ -323,7 +356,7 @@ const styles = StyleSheet.create({
   menuElem: {
     flex: 1,
     marginVertical: 2,
-    paddingVertical: 6, 
+    paddingVertical: 6,
     paddingHorizontal: 8,
     borderRadius: 4,
   },

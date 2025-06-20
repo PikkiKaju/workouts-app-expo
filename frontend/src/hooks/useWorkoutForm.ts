@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TextInput as RNTextInput } from 'react-native';
-import DatePicker from '../DatePicker/DatePicker'; // Assuming DatePicker.tsx is in components/
+import DatePicker from '../components/DatePicker/DatePicker';
 
 export function useWorkoutForm(
   initialName = "Workout Name",
@@ -8,7 +8,7 @@ export function useWorkoutForm(
   initialDescription = ""
 ) {
   const nameInputRef = useRef<RNTextInput>(null);
-  const dateInputRef = useRef<DatePicker>(null); // Assuming DatePicker is a class component or its type is directly usable for refs
+  const dateInputRef = useRef<DatePicker>(null); 
   const descInputRef = useRef<RNTextInput>(null);
 
   const [workoutName, setWorkoutName] = useState<string>(initialName);
@@ -16,7 +16,6 @@ export function useWorkoutForm(
   const [workoutDescription, setWorkoutDescription] = useState<string>(initialDescription);
 
   useEffect(() => {
-    // Simulates initial data loading, replace with actual data fetching if needed
     setWorkoutName("Workout 1");
     setWorkoutDate(new Date());
     setWorkoutDescription("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ");
@@ -65,7 +64,7 @@ export function useWorkoutForm(
     workoutName,
     workoutDate,
     workoutDescription,
-    setWorkoutDescription, // For direct updates from DescriptionInput
+    setWorkoutDescription,   // For direct updates from DescriptionInput
     handleWorkoutNameChange, // For onChangeText
     saveWorkoutName,         // For onBlur
     handleWorkoutDateChange, // For onDateChange

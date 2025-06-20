@@ -15,8 +15,8 @@ import {
   Keyboard,
   View as RNView,
 } from "react-native";
-import { TextInput } from "../../UI/Themed";
-import Colors from "@/constants/Colors";
+import { TextInput } from "components/UI/Themed";
+import Colors from "constants/Colors";
 
 interface DescriptionInputProps
   extends Omit<
@@ -170,8 +170,8 @@ const styles = StyleSheet.create({
   },
   accessoryView: {
     padding: 4,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+    flexDirection: "row",
+    justifyContent: "flex-end",
     borderTopWidth: StyleSheet.hairlineWidth,
   },
 });

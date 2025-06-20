@@ -1,20 +1,24 @@
 import React, { useState } from "react";
 import { Pressable, StyleSheet, FlatList } from "react-native";
-import { View, Text } from "@/components/UI/Themed";
-import AnimatedArrow from "@/components/UI/AnimatedArrow";
-import { useTheme } from "@/components/Providers/ThemeProvider";
-import type { Theme } from "@/components/Providers/ThemeProvider";
+import { View, Text } from "components/UI/Themed";
+import AnimatedArrow from "components/UI/AnimatedArrow";
+import { useTheme } from "providers/ThemeProvider";
+import type { Theme } from "providers/ThemeProvider";
 
-import WorkoutsData from "@/data/sample_workout_data/workout_list.json";
-import Colors from "@/constants/Colors";
+import WorkoutsData from "data/sample_workout_data/workout_list.json";
+import Colors from "constants/Colors";
 
 interface WorkoutItemType {
-  ID: number
-  name: string
-  date: Date
+  ID: number;
+  name: string;
+  date: Date;
 }
 
-function WorkoutEntry(props: { workoutEntry: WorkoutItemType, state: WorkoutListProps, theme: Theme }) {
+function WorkoutEntry(props: {
+  workoutEntry: WorkoutItemType;
+  state: WorkoutListProps;
+  theme: Theme;
+}) {
   const month = props.workoutEntry.date.getMonth();
   const day = props.workoutEntry.date.getDate();
   const year = props.workoutEntry.date.getFullYear();
@@ -34,8 +38,8 @@ function WorkoutEntry(props: { workoutEntry: WorkoutItemType, state: WorkoutList
     text: {
       fontSize: 17,
       fontFamily: "Comfortaa",
-    }
-  }); 
+    },
+  });
 
   function handleEntryPress() {
     props.state.setSelectedWorkoutID(props.workoutEntry.ID);
@@ -51,19 +55,26 @@ function WorkoutEntry(props: { workoutEntry: WorkoutItemType, state: WorkoutList
               ? props.theme === "light"
                 ? "#eef"
                 : "#544"
-              : "transparent"
-        }
+              : "transparent",
+        },
       ]}
       onPress={handleEntryPress}
     >
-      <Text style={styles.text} theme={props.theme}>{props.workoutEntry.name}</Text>
-      <Text style={styles.text} theme={props.theme}>{month}/{day}/{year}</Text>
+      <Text style={styles.text} theme={props.theme}>
+        {props.workoutEntry.name}
+      </Text>
+      <Text style={styles.text} theme={props.theme}>
+        {month}/{day}/{year}
+      </Text>
     </Pressable>
   );
-
 }
 
-function MonthSection(props: { monthArray: WorkoutItemType[], state: WorkoutListProps, theme: Theme }) {
+function MonthSection(props: {
+  monthArray: WorkoutItemType[];
+  state: WorkoutListProps;
+  theme: Theme;
+}) {
   const styles = StyleSheet.create({
     container: {
       width: "100%",
@@ -80,28 +91,42 @@ function MonthSection(props: { monthArray: WorkoutItemType[], state: WorkoutList
     workoutEntryList: {
       flexDirection: "column",
     },
-  }); 
+  });
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText} theme={props.theme}>{ props.monthArray[0].date.toLocaleString("locale", { month: "long" }) }</Text>
+        <Text style={styles.headerText} theme={props.theme}>
+          {props.monthArray[0].date.toLocaleString("locale", { month: "long" })}
+        </Text>
       </View>
       <FlatList
         style={styles.workoutEntryList}
         data={props.monthArray}
-        renderItem={({ item }) => <WorkoutEntry workoutEntry={item} state={ props.state } theme={props.theme} />}
-        getItemLayout={(data, index) => (
-          { length: 20, offset: 24 * index, index }
+        renderItem={({ item }) => (
+          <WorkoutEntry
+            workoutEntry={item}
+            state={props.state}
+            theme={props.theme}
+          />
         )}
+        getItemLayout={(data, index) => ({
+          length: 20,
+          offset: 24 * index,
+          index,
+        })}
       />
     </View>
   );
 }
 
-function YearSection(props: {yearArray: WorkoutItemType[][], state: WorkoutListProps, theme: Theme }) {
+function YearSection(props: {
+  yearArray: WorkoutItemType[][];
+  state: WorkoutListProps;
+  theme: Theme;
+}) {
   const [isExpanded, setIsExpanded] = useState(true);
-  
+
   function toggleYearSection() {
     if (isExpanded) {
       setIsExpanded(false);
@@ -129,11 +154,11 @@ function YearSection(props: {yearArray: WorkoutItemType[][], state: WorkoutListP
       flexDirection: "column",
       paddingHorizontal: 10,
     },
-  }); 
+  });
 
   return (
     <View style={styles.container}>
-      <View style={styles.header} >
+      <View style={styles.header}>
         <AnimatedArrow
           direction={"down"}
           size={20}
@@ -141,20 +166,28 @@ function YearSection(props: {yearArray: WorkoutItemType[][], state: WorkoutListP
           onPress={toggleYearSection}
           toggled={isExpanded}
         />
-        <Text style={styles.headerText} theme={props.theme}>{ props.yearArray[0][0].date.getFullYear() }</Text>
+        <Text style={styles.headerText} theme={props.theme}>
+          {props.yearArray[0][0].date.getFullYear()}
+        </Text>
       </View>
-      {
-      isExpanded
-        ? <FlatList
-            style={styles.monthSectionList}
-            data={props.yearArray}
-            renderItem={({ item }) => <MonthSection monthArray={ item } state={ props.state } theme={props.theme} />}
-            getItemLayout={(data, index) => (
-              { length: 20, offset: 24 * index, index }
-            )}
-          />
-        : null
-      }
+      {isExpanded ? (
+        <FlatList
+          style={styles.monthSectionList}
+          data={props.yearArray}
+          renderItem={({ item }) => (
+            <MonthSection
+              monthArray={item}
+              state={props.state}
+              theme={props.theme}
+            />
+          )}
+          getItemLayout={(data, index) => ({
+            length: 20,
+            offset: 24 * index,
+            index,
+          })}
+        />
+      ) : null}
     </View>
   );
 }
@@ -173,7 +206,11 @@ function getWorkoutsItems(): WorkoutItemType[][][] {
       parseInt(value.WorkoutDate.slice(5, 7)),
       parseInt(value.WorkoutDate.slice(8, 10))
     );
-    let item: WorkoutItemType = { ID: value.WorkoutID, name: value.WorkoutName, date: itemDate };
+    let item: WorkoutItemType = {
+      ID: value.WorkoutID,
+      name: value.WorkoutName,
+      date: itemDate,
+    };
 
     workoutItems.push(item);
     index++;
@@ -189,19 +226,21 @@ function getWorkoutsItems(): WorkoutItemType[][][] {
   let currentYear = workoutItems[0].date.getFullYear();
   let currentMonth = workoutItems[0].date.getMonth();
 
-  workoutItems.forEach(element => {
+  workoutItems.forEach((element) => {
     if (currentYear == element.date.getFullYear()) {
       if (currentMonth == element.date.getMonth()) {
         currentMonthArray.push(element);
       } else {
-        if (currentMonthArray.length > 0) currentYearArray.push(currentMonthArray);        
+        if (currentMonthArray.length > 0)
+          currentYearArray.push(currentMonthArray);
         currentMonthArray = [];
         currentMonthArray.push(element);
       }
     } else {
-      if (currentMonthArray.length > 0) currentYearArray.push(currentMonthArray);
+      if (currentMonthArray.length > 0)
+        currentYearArray.push(currentMonthArray);
       if (currentYearArray.length > 0) workoutItemsArray.push(currentYearArray);
-      
+
       currentYearArray = [];
       currentMonthArray = [];
       currentMonthArray.push(element);
@@ -211,15 +250,15 @@ function getWorkoutsItems(): WorkoutItemType[][][] {
   });
   if (currentMonthArray.length > 0) currentYearArray.push(currentMonthArray);
   if (currentYearArray.length > 0) workoutItemsArray.push(currentYearArray);
-  
+
   return workoutItemsArray;
 }
 
 interface WorkoutListProps {
-  selectedWorkoutID: number
-  setSelectedWorkoutID: (arg0: number) => void
+  selectedWorkoutID: number;
+  setSelectedWorkoutID: (arg0: number) => void;
 }
- 
+
 export default function WorkoutList(state: WorkoutListProps) {
   const { theme, toggleTheme } = useTheme();
   const yearSectionData: WorkoutItemType[][][] = getWorkoutsItems();
@@ -227,7 +266,7 @@ export default function WorkoutList(state: WorkoutListProps) {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      zIndex: 5
+      zIndex: 5,
     },
     header: {
       flexDirection: "row",
@@ -242,12 +281,15 @@ export default function WorkoutList(state: WorkoutListProps) {
       <FlatList
         style={styles.workoutList}
         data={yearSectionData}
-        renderItem={({ item }) => <YearSection yearArray={item} state={ state } theme={theme} />}
-        getItemLayout={(data, index) => (
-          { length: 20, offset: 24 * index, index }
+        renderItem={({ item }) => (
+          <YearSection yearArray={item} state={state} theme={theme} />
         )}
+        getItemLayout={(data, index) => ({
+          length: 20,
+          offset: 24 * index,
+          index,
+        })}
       />
     </View>
-    
   );
 }

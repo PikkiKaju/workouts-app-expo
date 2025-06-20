@@ -1,23 +1,25 @@
 import React, { useEffect, useRef } from "react";
 import { Animated, Pressable, StyleSheet } from "react-native";
-import { View } from "@/components/UI/Themed";
-import Colors from "@/constants/Colors";
+import { View } from "components/UI/Themed";
+import Colors from "constants/Colors";
 
 interface NewWorkoutWindowTogglerProps {
-  theme: string
-  isNewWorkoutWindowOpen: boolean
-  toggleNewWorkoutWindow: () => void
+  theme: string;
+  isNewWorkoutWindowOpen: boolean;
+  toggleNewWorkoutWindow: () => void;
 }
 
 export function NewWorkoutWindowToggler(props: NewWorkoutWindowTogglerProps) {
   const moveAnim = useRef(new Animated.Value(0)).current;
-  
+
   useEffect(() => {
     Animated.timing(moveAnim, {
-      toValue: props.isNewWorkoutWindowOpen ? 2 : styles.toggleWindowButton.height - 5,
+      toValue: props.isNewWorkoutWindowOpen
+        ? 2
+        : styles.toggleWindowButton.height - 5,
       duration: 200,
       useNativeDriver: false,
-    }).start();    
+    }).start();
   }, [props.isNewWorkoutWindowOpen]);
 
   return (
@@ -25,10 +27,11 @@ export function NewWorkoutWindowToggler(props: NewWorkoutWindowTogglerProps) {
       style={[
         styles.toggleWindowButton,
         {
-          backgroundColor: props.theme === "light"
-            ? Colors.light.background
-            : Colors.dark.background
-        }
+          backgroundColor:
+            props.theme === "light"
+              ? Colors.light.background
+              : Colors.dark.background,
+        },
       ]}
       onPress={props.toggleNewWorkoutWindow}
     >
@@ -39,7 +42,8 @@ export function NewWorkoutWindowToggler(props: NewWorkoutWindowTogglerProps) {
             width: styles.toggleWindowButton.height - 5,
             height: 3,
             borderRadius: 1,
-            backgroundColor: props.theme === "light" ? Colors.global.themeColorFirst : "white"
+            backgroundColor:
+              props.theme === "light" ? Colors.global.themeColorFirst : "white",
           }}
         />
         <Animated.View
@@ -48,7 +52,8 @@ export function NewWorkoutWindowToggler(props: NewWorkoutWindowTogglerProps) {
             width: 3,
             height: moveAnim,
             borderRadius: 1,
-            backgroundColor: props.theme === "light" ? Colors.global.themeColorFirst : "white"
+            backgroundColor:
+              props.theme === "light" ? Colors.global.themeColorFirst : "white",
           }}
         />
       </View>

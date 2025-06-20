@@ -1,50 +1,51 @@
 import React, { useState, useCallback } from "react";
-import {
-  Platform,
-  StyleSheet,
-} from "react-native"
-import { View } from "../../UI/Themed";
-import DatePicker from "../../DatePicker/DatePicker";
-import { useTheme } from "../../Providers/ThemeProvider";
-import Colors from "@/constants/Colors";
+import { Platform, StyleSheet } from "react-native";
+import { View } from "components/UI/Themed";
+import DatePicker from "components/DatePicker/DatePicker";
+import { useTheme } from "providers/ThemeProvider";
+import Colors from "constants/Colors";
 
-// import WorkoutData from "@/data/sample_workout_data/workout_data.json";
-import MenuButton, { MenuItem } from "./MenuButton"; 
-import DescriptionInput from "./DescriptionInput"; 
+import MenuButton, { MenuItem } from "./MenuButton";
+import DescriptionInput from "./DescriptionInput";
 import WorkoutNameInput from "./WorkoutNameInput";
 import DescriptionToggle from "./DescriptionToggle";
-import { useResponsiveLayout } from "../../Hooks/useResponsiveLayout"; 
-import { useWorkoutForm } from "../../Hooks/useWorkoutForm"; 
-
+import { useResponsiveLayout } from "hooks/useResponsiveLayout";
+import { useWorkoutForm } from "hooks/useWorkoutForm";
 
 interface ContentHeaderProps {
-  name: string 
+  name: string;
 }
 
 const textFontSizeMobile = 22;
 const textFontSizeWeb = 18;
-const textFontSize = Platform.OS === "web" ? textFontSizeWeb : textFontSizeMobile;
-
+const textFontSize =
+  Platform.OS === "web" ? textFontSizeWeb : textFontSizeMobile;
 
 export default function ContentHeader(props: ContentHeaderProps) {
-  const { theme } = useTheme(); 
+  const { theme } = useTheme();
   const { isRowLayout, handleLayout } = useResponsiveLayout();
   const {
     refs,
-    workoutName, workoutDate, workoutDescription,
-    handleWorkoutNameChange, saveWorkoutName,
+    workoutName,
+    workoutDate,
+    workoutDescription,
+    handleWorkoutNameChange,
+    saveWorkoutName,
     handleWorkoutDateChange,
-    setWorkoutDescription, saveWorkoutDescription,
-    requestFocusNameInput, requestFocusDateInput, requestFocusDescriptionInput,
+    setWorkoutDescription,
+    saveWorkoutDescription,
+    requestFocusNameInput,
+    requestFocusDateInput,
+    requestFocusDescriptionInput,
   } = useWorkoutForm();
 
   const [descriptionToggled, setDescriptionToggled] = useState(true);
 
-   function toggleDescription() {
+  function toggleDescription() {
     setDescriptionToggled(!descriptionToggled);
   }
-  
-    function deleteWorkout() {
+
+  function deleteWorkout() {
     console.log("Delete workout action (implement logic)");
     // Add logic to delete the workout
   }
@@ -65,7 +66,8 @@ export default function ContentHeader(props: ContentHeaderProps) {
     },
     {
       isSeparator: true,
-      text: 'sep1', onPressAction: () => { }
+      text: "sep1",
+      onPressAction: () => {},
     }, // Separator item
     {
       text: "Delete",
@@ -73,7 +75,7 @@ export default function ContentHeader(props: ContentHeaderProps) {
     },
   ];
 
-  return(
+  return (
     <View
       style={[
         styles.container,
@@ -82,12 +84,14 @@ export default function ContentHeader(props: ContentHeaderProps) {
       onLayout={handleLayout}
     >
       <View style={styles.visibleWrap}>
-        <View style={[
-          styles.inputs,
-          Platform.OS === "web"
-            ? { flexDirection: isRowLayout ? "row" : "column" }
-            : { flexDirection: "column" },
-        ]}>
+        <View
+          style={[
+            styles.inputs,
+            Platform.OS === "web"
+              ? { flexDirection: isRowLayout ? "row" : "column" }
+              : { flexDirection: "column" },
+          ]}
+        >
           {/* Name Input */}
           <WorkoutNameInput
             inputRef={refs.nameInputRef}
@@ -106,10 +110,13 @@ export default function ContentHeader(props: ContentHeaderProps) {
             theme={theme}
             width={170}
             height={30} // Consider making height dynamic or using padding
-            style={{ 
+            style={{
               ...styles.datePicker,
               fontSize: textFontSize, // Ensure font size is consistent
-              borderColorFocused: theme === "light" ? Colors.light.text : Colors.global.themeColorSecond, 
+              borderColorFocused:
+                theme === "light"
+                  ? Colors.light.text
+                  : Colors.global.themeColorSecond,
             }}
           />
 
@@ -123,10 +130,7 @@ export default function ContentHeader(props: ContentHeaderProps) {
         </View>
 
         {/* Menu Button */}
-        <MenuButton
-          theme={theme}
-          menuItems={menuItems}
-        />
+        <MenuButton theme={theme} menuItems={menuItems} />
       </View>
 
       {/* Description Input Area */}
@@ -147,8 +151,8 @@ export default function ContentHeader(props: ContentHeaderProps) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
-    rowGap: 15, 
-    marginHorizontal: 20, 
+    rowGap: 15,
+    marginHorizontal: 20,
     padding: 5,
     paddingBottom: 10,
     borderBottomWidth: 1,
@@ -162,18 +166,18 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   inputs: {
-    flex: 1, 
+    flex: 1,
     rowGap: 15,
-    columnGap: 30, 
-    marginRight: 15, 
+    columnGap: 30,
+    marginRight: 15,
   },
   datePicker: {
     borderWidth: 0,
     borderBottomWidth: 1,
     borderRadius: 0,
     borderColor: "transparent", // Default border color when not focused
-    backgroundColor: "transparent", 
+    backgroundColor: "transparent",
     paddingTop: 3,
-    minWidth: 150, 
+    minWidth: 150,
   },
 });

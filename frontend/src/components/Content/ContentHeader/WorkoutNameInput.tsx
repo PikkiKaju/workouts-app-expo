@@ -1,16 +1,20 @@
-// c:\.Projects\WebProjects\WorkoutsApp\workouts-app-expo\components\Content\ContentHeader\WorkoutNameInput.tsx
-import React, { useState } from 'react';
-import { Platform, Pressable, StyleSheet, TextInput as RNTextInput } from 'react-native';
-import { TextInput } from '../../UI/Themed';
-import { AntDesign } from '@expo/vector-icons';
-import Colors from '@/constants/Colors';
+import React, { useState } from "react";
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  TextInput as RNTextInput,
+} from "react-native";
+import { TextInput } from "components/UI/Themed";
+import { AntDesign } from "@expo/vector-icons";
+import Colors from "constants/Colors";
 
 interface WorkoutNameInputProps {
   value: string;
   onChangeText: (text: string) => void;
   onBlur: () => void;
   inputRef: React.RefObject<RNTextInput | null>;
-  theme: 'light' | 'dark';
+  theme: "light" | "dark";
   textFontSize: number;
 }
 
@@ -28,23 +32,29 @@ export default function WorkoutNameInput({
     <Pressable
       style={[
         styles.namePressable,
-        { borderColor: isFocused ? (theme === 'light' ? Colors.light.text : Colors.global.themeColorSecond) : 'transparent' },
+        {
+          borderColor: isFocused
+            ? theme === "light"
+              ? Colors.light.text
+              : Colors.global.themeColorSecond
+            : "transparent",
+        },
       ]}
       onPress={() => inputRef.current?.focus()}
     >
       <AntDesign
         name="edit"
         size={24}
-        color={theme === 'light' ? Colors.light.text : Colors.dark.text}
+        color={theme === "light" ? Colors.light.text : Colors.dark.text}
       />
       <TextInput
         ref={inputRef}
         theme={theme}
         style={[
           styles.nameInput,
-            { fontSize: textFontSize },
-            //@ts-ignore
-            Platform.OS === 'web' ? { outlineStyle: 'none' } : null,
+          { fontSize: textFontSize },
+          //@ts-ignore
+          Platform.OS === "web" ? { outlineStyle: "none" } : null,
         ]}
         value={value}
         onChangeText={onChangeText}
@@ -62,8 +72,8 @@ export default function WorkoutNameInput({
 
 const styles = StyleSheet.create({
   namePressable: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     columnGap: 10,
     borderBottomWidth: 1,
   },

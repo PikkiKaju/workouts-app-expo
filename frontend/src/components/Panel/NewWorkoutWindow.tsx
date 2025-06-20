@@ -1,11 +1,9 @@
-
 import React, { useState } from 'react';
 import { Platform, Pressable, StyleSheet } from 'react-native';
-import { Text, View, TextInput } from '@/components/UI/Themed';
-import DatePicker from '@/components/DatePicker/DatePicker';
-import { useTheme } from '@/components/Providers/ThemeProvider';
-import Colors from '@/constants/Colors';
-
+import { Text, View, TextInput } from 'components/UI/Themed';
+import DatePicker from 'components/DatePicker/DatePicker';
+import { useTheme } from 'providers/ThemeProvider';
+import Colors from 'constants/Colors';
 
 export default function NewWorkoutWindow() {
   const { theme, toggleTheme } = useTheme();

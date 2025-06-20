@@ -1,5 +1,4 @@
-
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar } from "expo-status-bar";
 import {
   Animated,
   Platform,
@@ -8,18 +7,18 @@ import {
   StyleSheet,
   StatusBar as RNStatusBar,
   useWindowDimensions,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '@/components/Providers/ThemeProvider';
-import { View } from '@/components/UI/Themed';
-import Header from '@/components/Header';
-import Panel from '@/components/Panel/Panel';
-import Colors from '@/constants/Colors';
-import PanelToggler from '@/components/Panel/PanelToggler';
-import Content from '@/components/Content/Content';
-import Dimensions from '@/constants/Dimensions';
-import { useEffect, useRef } from 'react';
-import { usePanelContext } from '@/components/Providers/PanelContextProvider';
+import { useTheme } from "providers/ThemeProvider";
+import { View } from "components/UI/Themed";
+import Header from "components/Header";
+import Panel from "components/Panel/Panel";
+import Colors from "constants/Colors";
+import PanelToggler from "components/Panel/PanelToggler";
+import Content from "components/Content/Content";
+import Dimensions from "constants/Dimensions";
+import { useEffect, useRef } from "react";
+import { usePanelContext } from "providers/PanelContextProvider";
 
 export default function App() {
   const { height, width, scale, fontScale } = useWindowDimensions();
@@ -35,9 +34,11 @@ export default function App() {
   useEffect(() => {
     Animated.parallel([
       Animated.timing(panelMoveAnim, {
-        toValue: panelToggled 
-          ? 0 : (Platform.OS === 'ios' || Platform.OS === 'android')
-          ? -width : -Dimensions.web.panelWidth,
+        toValue: panelToggled
+          ? 0
+          : Platform.OS === "ios" || Platform.OS === "android"
+          ? -width
+          : -Dimensions.web.panelWidth,
         duration: panelAnimDuration,
         useNativeDriver: true,
       }),
@@ -55,34 +56,43 @@ export default function App() {
   }, [panelToggled]);
 
   return (
-    <View style={{
-      backgroundColor: theme === "light" ? Colors.light.background : Colors.dark.background,
-      height: height,
-      width: width,
-      paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight : 0,
-    }}>
+    <View
+      style={{
+        backgroundColor:
+          theme === "light" ? Colors.light.background : Colors.dark.background,
+        height: height,
+        width: width,
+        paddingTop: Platform.OS === "android" ? RNStatusBar.currentHeight : 0,
+      }}
+    >
       <Pressable onPress={Keyboard.dismiss}>
         <Header />
       </Pressable>
       <StatusBar style="auto" />
       <View style={styles.body}>
-        <Animated.View style={[
-          styles.panel, 
-          { 
-            width: (Platform.OS === 'ios' || Platform.OS === 'android')
-              ? width - 20
-              : Dimensions.web.panelWidth,
-            borderRightWidth: (Platform.OS !== "ios" && Platform.OS !== "android")
-              ? 1 : 0,
-            transform: [{ translateX: panelMoveAnim }],
-          }
-        ]}>
+        <Animated.View
+          style={[
+            styles.panel,
+            {
+              width:
+                Platform.OS === "ios" || Platform.OS === "android"
+                  ? width - 20
+                  : Dimensions.web.panelWidth,
+              borderRightWidth:
+                Platform.OS !== "ios" && Platform.OS !== "android" ? 1 : 0,
+              transform: [{ translateX: panelMoveAnim }],
+            },
+          ]}
+        >
           <Panel />
         </Animated.View>
-        <Animated.View style={[styles.content, {marginLeft: contentMarginAnim }]}>
-          { Platform.OS !== "ios" && Platform.OS !== "android" 
-          ? <PanelToggler /> : null }
-          <Content name='' date={new Date()} />
+        <Animated.View
+          style={[styles.content, { marginLeft: contentMarginAnim }]}
+        >
+          {Platform.OS !== "ios" && Platform.OS !== "android" ? (
+            <PanelToggler />
+          ) : null}
+          <Content name="" date={new Date()} />
         </Animated.View>
       </View>
     </View>
@@ -106,5 +116,5 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     flexDirection: "row",
-  }
+  },
 });

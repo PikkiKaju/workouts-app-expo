@@ -1,24 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import { SplashScreen } from 'expo-router';
-import { useFonts } from 'expo-font';
+import * as SplashScreen from "expo-splash-screen";
+import { useFonts } from "expo-font";
 
-import App from './app';
-import { ThemeProvider } from '@/components/Providers/ThemeProvider';
-import { PanelContextProvider } from '@/components/Providers/PanelContextProvider';
-
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
+import App from "./app";
+import { ThemeProvider } from "providers/ThemeProvider";
+import { PanelContextProvider } from "providers/PanelContextProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require('assets/fonts/SpaceMono-Regular.ttf'),
-    Comfortaa: require('assets/fonts/Comfortaa-VariableFont_wght.ttf'),
+    SpaceMono: require("assets/fonts/SpaceMono-Regular.ttf"),
+    Comfortaa: require("assets/fonts/Comfortaa-VariableFont_wght.ttf"),
   });
 
   // Catch errors when loading fonts

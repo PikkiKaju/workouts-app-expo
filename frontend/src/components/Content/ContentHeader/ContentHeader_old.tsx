@@ -4,47 +4,47 @@ import {
   Pressable,
   StyleSheet,
   LayoutChangeEvent,
-  TextInput as RNTextInput 
-} from "react-native"
-import { Text, TextInput, View } from "../../UI/Themed";
+  TextInput as RNTextInput,
+} from "react-native";
+import { Text, TextInput, View } from "components/UI/Themed";
 import { AntDesign } from "@expo/vector-icons";
-import DatePicker from "../../DatePicker/DatePicker";
-import { useTheme } from "../../Providers/ThemeProvider";
-import Colors from "@/constants/Colors";
+import DatePicker from "components/DatePicker/DatePicker";
+import { useTheme } from "providers/ThemeProvider";
+import Colors from "constants/Colors";
 
 // import WorkoutData from "@/data/sample_workout_data/workout_data.json";
 import AnimatedArrow from "../../UI/AnimatedArrow";
-import MenuButton, { MenuItem } from "./MenuButton"; 
-import DescriptionInput from "./DescriptionInput"; 
+import MenuButton, { MenuItem } from "./MenuButton";
+import DescriptionInput from "./DescriptionInput";
 
 interface ContentHeaderProps {
-  name: string // This prop seems unused, consider removing or using it
+  name: string; // This prop seems unused, consider removing or using it
 }
 
 const textFontSize = 18;
-const RESPONSIVE_BREAKPOINT = 650; 
-
+const RESPONSIVE_BREAKPOINT = 650;
 
 export default function ContentHeader(props: ContentHeaderProps) {
-  const nameInputRef = useRef<RNTextInput>(null); 
-  const dateInputRef = useRef<DatePicker>(null); 
-  const descInputRef = useRef<RNTextInput>(null); 
+  const nameInputRef = useRef<RNTextInput>(null);
+  const dateInputRef = useRef<DatePicker>(null);
+  const descInputRef = useRef<RNTextInput>(null);
 
-  const { theme } = useTheme(); 
+  const { theme } = useTheme();
   const [nameInputFocused, setNameInputFocused] = useState(false);
   const [descriptionToggled, setDescriptionToggled] = useState(true);
 
   const [workoutName, setWorkoutName] = useState<string>("Workout Name");
   const [workoutDate, setWorkoutDate] = useState<Date>(new Date());
   const [workoutDescription, setWorkoutDescription] = useState<string>("");
- 
+
   // Get header width
   const [headerWidth, setHeaderWidth] = useState<number | null>(null);
 
   // Determine if the layout should be row or column based on width
-  const isRowLayout = headerWidth !== null && headerWidth >= RESPONSIVE_BREAKPOINT;
+  const isRowLayout =
+    headerWidth !== null && headerWidth >= RESPONSIVE_BREAKPOINT;
 
-  // Handler for onLayout event 
+  // Handler for onLayout event
   const handleLayout = (event: LayoutChangeEvent) => {
     const { width } = event.nativeEvent.layout;
     // Only update state if the width has actually changed to avoid potential loops
@@ -55,12 +55,12 @@ export default function ContentHeader(props: ContentHeaderProps) {
 
   useEffect(() => {
     getWorkoutData();
-  }, [])
+  }, []);
 
   function requestFocusNameInput() {
     dateInputRef.current?.blur();
     descInputRef.current?.blur();
-    nameInputRef.current?.focus();  
+    nameInputRef.current?.focus();
   }
   function requestFocusDateInput() {
     nameInputRef.current?.blur();
@@ -76,12 +76,14 @@ export default function ContentHeader(props: ContentHeaderProps) {
   function toggleDescription() {
     setDescriptionToggled(!descriptionToggled);
   }
-  
+
   function getWorkoutData() {
     // Replace with actual data fetching logic if needed
     setWorkoutName("Workout 1");
     setWorkoutDate(new Date());
-    setWorkoutDescription("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ");
+    setWorkoutDescription(
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+    );
   }
 
   function changeWorkoutName() {
@@ -91,7 +93,7 @@ export default function ContentHeader(props: ContentHeaderProps) {
 
   function changeWorkoutDate() {
     console.log("Workout date changed (implement save logic)");
-     // Add logic to save the workout date
+    // Add logic to save the workout date
   }
 
   function changeWorkoutDesription() {
@@ -124,7 +126,8 @@ export default function ContentHeader(props: ContentHeaderProps) {
     },
     {
       isSeparator: true,
-      text: 'sep1', onPressAction: () => { }
+      text: "sep1",
+      onPressAction: () => {},
     }, // Separator item
     {
       text: "Delete",
@@ -132,7 +135,7 @@ export default function ContentHeader(props: ContentHeaderProps) {
     },
   ];
 
-  return(
+  return (
     <View
       style={[
         styles.container,
@@ -141,24 +144,32 @@ export default function ContentHeader(props: ContentHeaderProps) {
       onLayout={handleLayout}
     >
       <View style={styles.visibleWrap}>
-        <View style={[
-          styles.inputs,
-          Platform.OS === "web"
-            ? { flexDirection: isRowLayout ? "row" : "column" }
-            : { flexDirection: "column" },
-        ]}>
+        <View
+          style={[
+            styles.inputs,
+            Platform.OS === "web"
+              ? { flexDirection: isRowLayout ? "row" : "column" }
+              : { flexDirection: "column" },
+          ]}
+        >
           {/* Name Input */}
           <Pressable
             style={[
               styles.namePressable,
-              { borderColor: nameInputFocused ? theme === "light" ? Colors.light.text : Colors.global.themeColorSecond : "transparent" }
+              {
+                borderColor: nameInputFocused
+                  ? theme === "light"
+                    ? Colors.light.text
+                    : Colors.global.themeColorSecond
+                  : "transparent",
+              },
             ]}
             onPress={() => nameInputRef.current?.focus()} // Focus input on press
           >
             <AntDesign
               name="edit"
               size={24}
-              color={theme === "light" ? Colors.light.text : Colors.dark.text } 
+              color={theme === "light" ? Colors.light.text : Colors.dark.text}
             />
             <TextInput
               ref={nameInputRef}
@@ -166,13 +177,12 @@ export default function ContentHeader(props: ContentHeaderProps) {
               style={[
                 styles.nameInput,
                 //@ts-ignore
-                Platform.OS === "web"
-                  ? { outlineStyle: "none" } : null, // Use outlineStyle for web
+                Platform.OS === "web" ? { outlineStyle: "none" } : null, // Use outlineStyle for web
               ]}
               value={workoutName} // Use value for controlled component
               onChangeText={setWorkoutName} // Update state on change
               inputMode="text"
-              returnKeyType='done'
+              returnKeyType="done"
               onFocus={() => setNameInputFocused(true)}
               onBlur={() => {
                 setNameInputFocused(false);
@@ -184,38 +194,44 @@ export default function ContentHeader(props: ContentHeaderProps) {
           {/* Date Picker */}
           <DatePicker
             ref={dateInputRef}
-            onDateChange={(newDate) => { // Get the new date from the callback
-                setWorkoutDate(newDate);
-                changeWorkoutDate(); // Trigger save logic
+            onDateChange={(newDate) => {
+              // Get the new date from the callback
+              setWorkoutDate(newDate);
+              changeWorkoutDate(); // Trigger save logic
             }}
             selectedDate={workoutDate}
             theme={theme}
             width={150}
             height={30} // Consider making height dynamic or using padding
-            style={{ 
+            style={{
               ...styles.datePicker,
-              borderColorFocused: theme === "light" ? Colors.light.text : Colors.global.themeColorSecond, 
+              borderColorFocused:
+                theme === "light"
+                  ? Colors.light.text
+                  : Colors.global.themeColorSecond,
             }}
           />
 
           {/* Description Toggle */}
-          <Pressable style={styles.descriptionToggle} onPress={toggleDescription}>
+          <Pressable
+            style={styles.descriptionToggle}
+            onPress={toggleDescription}
+          >
             <AnimatedArrow
               direction={"down"}
               size={20}
-              color={theme === "light" ? Colors.light.text : Colors.dark.text} 
+              color={theme === "light" ? Colors.light.text : Colors.dark.text}
               onPress={toggleDescription}
               toggled={descriptionToggled}
             />
-            <Text theme={theme} style={styles.descriptionText}>Description</Text>
+            <Text theme={theme} style={styles.descriptionText}>
+              Description
+            </Text>
           </Pressable>
         </View>
 
         {/* Menu Button */}
-        <MenuButton
-          theme={theme}
-          menuItems={menuItems}
-        />
+        <MenuButton theme={theme} menuItems={menuItems} />
       </View>
 
       {/* Description Input Area */}
@@ -236,8 +252,8 @@ export default function ContentHeader(props: ContentHeaderProps) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
-    rowGap: 15, 
-    marginHorizontal: 20, 
+    rowGap: 15,
+    marginHorizontal: 20,
     padding: 5,
     paddingBottom: 10,
     borderBottomWidth: 1,
@@ -251,21 +267,21 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   inputs: {
-    flex: 1, 
+    flex: 1,
     rowGap: 15,
-    columnGap: 30, 
-    marginRight: 15, 
+    columnGap: 30,
+    marginRight: 15,
   },
   namePressable: {
     flexDirection: "row",
-    alignItems: 'center', 
-    columnGap: 10, 
+    alignItems: "center",
+    columnGap: 10,
     borderBottomWidth: 1,
   },
   nameInput: {
-    flex: 1, 
+    flex: 1,
     fontSize: textFontSize,
-    paddingVertical: 0, 
+    paddingVertical: 0,
     paddingHorizontal: 0,
   },
   datePicker: {
@@ -273,10 +289,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderRadius: 0,
     borderColor: "transparent", // Default border color when not focused
-    backgroundColor: "transparent", 
+    backgroundColor: "transparent",
     fontSize: textFontSize,
     paddingTop: 3,
-    minWidth: 150, 
+    minWidth: 150,
   },
   descriptionToggle: {
     flexDirection: "row",

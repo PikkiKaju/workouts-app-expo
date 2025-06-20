@@ -1,14 +1,13 @@
-
 import React, { useEffect, useRef } from "react";
 import { View, StyleSheet, Pressable, Animated } from "react-native";
-import { useTheme } from "@/components/Providers/ThemeProvider";
+import { useTheme } from "providers/ThemeProvider";
 
 interface SwitchProps {
-  onValueChange: () => void
-  value: boolean
-  trackColor?: string
-  thumbColor?: string
-  animated?: boolean
+  onValueChange: () => void;
+  value: boolean;
+  trackColor?: string;
+  thumbColor?: string;
+  animated?: boolean;
 }
 
 export default function Switch(props: SwitchProps) {
@@ -18,7 +17,7 @@ export default function Switch(props: SwitchProps) {
 
   const interpolatedColor = animatedColor.interpolate({
     inputRange: [0, 1],
-    outputRange: ["rgb(223, 223, 223)", "rgb(85, 85, 85)"]
+    outputRange: ["rgb(223, 223, 223)", "rgb(85, 85, 85)"],
   });
 
   useEffect(() => {
@@ -35,16 +34,13 @@ export default function Switch(props: SwitchProps) {
   }, [theme]);
 
   return (
-    <View style={styles.container} >
-      <Pressable onPress={props.onValueChange} >
+    <View style={styles.container}>
+      <Pressable onPress={props.onValueChange}>
         <Animated.View
-          style={[styles.shell, {backgroundColor: interpolatedColor}]}
+          style={[styles.shell, { backgroundColor: interpolatedColor }]}
         >
           <Animated.View
-            style={[
-              styles.circle,
-              { transform: [{ translateX: moveAnim }]} 
-            ]} 
+            style={[styles.circle, { transform: [{ translateX: moveAnim }] }]}
           />
         </Animated.View>
       </Pressable>
@@ -64,7 +60,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 20,
     justifyContent: "center",
-    borderRadius: 9, 
+    borderRadius: 9,
     borderWidth: 1,
     borderColor: "black",
     padding: 1,
@@ -73,8 +69,8 @@ const styles = StyleSheet.create({
     width: "40%",
     aspectRatio: 1,
     backgroundColor: "#ea6",
-    borderRadius: 9, 
+    borderRadius: 9,
     borderWidth: 1,
-    borderColor: "#d59555"
-  }
+    borderColor: "#d59555",
+  },
 });

@@ -1,5 +1,4 @@
-
-import  React, { Component, createRef, forwardRef, RefObject  } from 'react';
+import React, { Component, createRef, forwardRef, RefObject } from "react";
 import {
   Platform,
   Text as DefaultText,
@@ -9,33 +8,36 @@ import {
   Pressable,
   FlatList,
   StyleProp,
-} from 'react-native';
+} from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import NativeDatePicker from 'react-native-date-picker' ;
-import { DimensionValue, ViewStyle } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
-import Colors from '@/constants/Colors';
+import NativeDatePicker from "react-native-date-picker";
+import {
+  DimensionValue,
+  ViewStyle,
+} from "react-native/Libraries/StyleSheet/StyleSheetTypes";
+import Colors from "constants/Colors";
 
 type ThemeProps = {
-  theme?: string
+  theme?: string;
   lightColor?: string;
   darkColor?: string;
 };
 
 type TextInputProps = ThemeProps & DefaultTextInput["props"];
-type TextProps = ThemeProps & DefaultText['props'];
-type ViewProps = ThemeProps & DefaultView['props'];
+type TextProps = ThemeProps & DefaultText["props"];
+type ViewProps = ThemeProps & DefaultView["props"];
 
 type PressEvent = {
-  changedTouches: [PressEvent],
-  identifier: number,
-  locationX: number,
-  locationY: number,
-  pageX: number,
-  pageY: number,
-  target: number,
-  timestamp: number,
-  touches: []
-}
+  changedTouches: [PressEvent];
+  identifier: number;
+  locationX: number;
+  locationY: number;
+  pageX: number;
+  pageY: number;
+  target: number;
+  timestamp: number;
+  touches: [];
+};
 
 function Text(props: TextProps) {
   const { style, theme, ...otherProps } = props;
@@ -52,7 +54,9 @@ const TextInput = forwardRef<DefaultTextInput, TextInputProps>((props, ref) => {
   const darkColor = "#fff";
   const color = theme === "light" ? lightColor : darkColor;
 
-  return <DefaultTextInput ref={ref} style={[{ color }, style]} {...otherProps} />;
+  return (
+    <DefaultTextInput ref={ref} style={[{ color }, style]} {...otherProps} />
+  );
 });
 
 function View(props: ViewProps) {
@@ -63,18 +67,18 @@ function View(props: ViewProps) {
   if (theme) {
     backgroundColor = theme === "light" ? lightColor : darkColor;
   }
-  
+
   return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
 }
 
 interface YearCalendarProps {
-  state: PickerWindowState
-  updateSelectedYear: (year: number) => void
-  updateSelectedMonth: (month: string) => void
-  changeCalendar: () => void
+  state: PickerWindowState;
+  updateSelectedYear: (year: number) => void;
+  updateSelectedMonth: (month: string) => void;
+  changeCalendar: () => void;
 }
 
-class YearCalendar extends Component<YearCalendarProps>{
+class YearCalendar extends Component<YearCalendarProps> {
   constructor(props: any) {
     super(props);
   }
@@ -85,11 +89,15 @@ class YearCalendar extends Component<YearCalendarProps>{
         <View style={this.styles.calendarBody}>
           <FlatList
             data={this.props.state.yearCalendarContent}
-            renderItem={({ item }) => <YearCalendarTile {...this.props} year={item} />}
-            initialScrollIndex={this.props.state.selectedYear - 1901}
-            getItemLayout={(data, index) => (
-              { length: 20, offset: 24 * index, index }
+            renderItem={({ item }) => (
+              <YearCalendarTile {...this.props} year={item} />
             )}
+            initialScrollIndex={this.props.state.selectedYear - 1901}
+            getItemLayout={(data, index) => ({
+              length: 20,
+              offset: 24 * index,
+              index,
+            })}
           />
         </View>
       </View>
@@ -99,7 +107,7 @@ class YearCalendar extends Component<YearCalendarProps>{
   styles = StyleSheet.create({
     calendar: {
       flex: 6,
-      paddingHorizontal: 5, 
+      paddingHorizontal: 5,
     },
     calendarBody: {
       flex: 6,
@@ -108,11 +116,11 @@ class YearCalendar extends Component<YearCalendarProps>{
 }
 
 interface YearCalendarTileProps {
-  state: PickerWindowState
-  year: number
-  updateSelectedYear: (year: number) => void
-  updateSelectedMonth: (month: string) => void
-  changeCalendar: () => void
+  state: PickerWindowState;
+  year: number;
+  updateSelectedYear: (year: number) => void;
+  updateSelectedMonth: (month: string) => void;
+  changeCalendar: () => void;
 }
 
 class YearCalendarTile extends Component<YearCalendarTileProps> {
@@ -125,25 +133,29 @@ class YearCalendarTile extends Component<YearCalendarTileProps> {
       <View style={this.styles.yearCalendarTile}>
         <Pressable
           onPress={() => this.props.updateSelectedYear(this.props.year)}
-          style={({ pressed }) => [{ backgroundColor: pressed ? "#AAA" : "transparent" },
+          style={({ pressed }) => [
+            { backgroundColor: pressed ? "#AAA" : "transparent" },
             {
               pointerEvents: "box-only",
               borderBottomColor: "#555",
-              borderBottomWidth: this.props.year === this.props.state.selectedYear ? 2 : 1,
-            }
+              borderBottomWidth:
+                this.props.year === this.props.state.selectedYear ? 2 : 1,
+            },
           ]}
         >
-          <Text theme={this.props.state.theme} selectable={false} >{this.props.year}</Text>
+          <Text theme={this.props.state.theme} selectable={false}>
+            {this.props.year}
+          </Text>
         </Pressable>
-        {this.props.state.selectedYear === this.props.year
-          ? (
-            <FlatList
-              data={this.props.state.monthCalendarContent}
-              renderItem={({ item }) => <MonthCalendarTile {...this.props} month={item} />}
-              numColumns={4}
-            />
-          ) : null
-        }
+        {this.props.state.selectedYear === this.props.year ? (
+          <FlatList
+            data={this.props.state.monthCalendarContent}
+            renderItem={({ item }) => (
+              <MonthCalendarTile {...this.props} month={item} />
+            )}
+            numColumns={4}
+          />
+        ) : null}
       </View>
     );
   }
@@ -159,10 +171,10 @@ class YearCalendarTile extends Component<YearCalendarTileProps> {
 }
 
 interface MonthCalendarTileProps {
-  state: PickerWindowState
-  month: string
-  updateSelectedMonth: (month: string) => void
-  changeCalendar: () => void
+  state: PickerWindowState;
+  month: string;
+  updateSelectedMonth: (month: string) => void;
+  changeCalendar: () => void;
 }
 
 class MonthCalendarTile extends Component<MonthCalendarTileProps> {
@@ -172,29 +184,35 @@ class MonthCalendarTile extends Component<MonthCalendarTileProps> {
 
   render() {
     return (
-      <View style={[
-        this.styles.calendarTile,
-        {
-          backgroundColor: this.props.state.selectedMonth.includes(this.props.month)
-          ? this.props.state.theme === "light"
-          ? "#8789BC" 
-          : "#B7B7CC"
-        : "transparent"
-        }
-      ]} >
+      <View
+        style={[
+          this.styles.calendarTile,
+          {
+            backgroundColor: this.props.state.selectedMonth.includes(
+              this.props.month
+            )
+              ? this.props.state.theme === "light"
+                ? "#8789BC"
+                : "#B7B7CC"
+              : "transparent",
+          },
+        ]}
+      >
         <Pressable
           onPress={() => {
             this.props.updateSelectedMonth(this.props.month);
             this.props.changeCalendar();
           }}
-            style={({ pressed }) => [{ backgroundColor: pressed ? "#999" : "transparent" },
-            { pointerEvents: "box-only" }]}
+          style={({ pressed }) => [
+            { backgroundColor: pressed ? "#999" : "transparent" },
+            { pointerEvents: "box-only" },
+          ]}
         >
           <Text
             theme={
               this.props.state.selectedMonth.includes(this.props.month)
                 ? this.props.state.theme === "light"
-                  ? "dark" 
+                  ? "dark"
                   : "light"
                 : this.props.state.theme
             }
@@ -218,10 +236,10 @@ class MonthCalendarTile extends Component<MonthCalendarTileProps> {
 }
 
 interface DayCalendarProps {
-  state: PickerWindowState
-  updatePickedDate: (day: number, month: number, year: number) => void
-  togglePickerWindow: () => void
-  blurDatePicker: () => void
+  state: PickerWindowState;
+  updatePickedDate: (day: number, month: number, year: number) => void;
+  togglePickerWindow: () => void;
+  blurDatePicker: () => void;
 }
 
 class DayCalendar extends Component<DayCalendarProps> {
@@ -236,18 +254,28 @@ class DayCalendar extends Component<DayCalendarProps> {
         <View style={this.styles.calendarHeader}>
           <FlatList
             data={weekdaysNames}
-            renderItem={({ item }) =>
-              <Text style={this.styles.weekdayTile} theme={this.props.state.theme}>{item}</Text>
-            }
+            renderItem={({ item }) => (
+              <Text
+                style={this.styles.weekdayTile}
+                theme={this.props.state.theme}
+              >
+                {item}
+              </Text>
+            )}
             numColumns={7}
           />
         </View>
         <View style={this.styles.calendarBody}>
           <FlatList
             data={this.props.state.dayCalendarContent}
-            renderItem={({ item }) =>
-              <DayCalendarTile {...this.props} day={item.day} month={item.month} year={item.year} />
-            }
+            renderItem={({ item }) => (
+              <DayCalendarTile
+                {...this.props}
+                day={item.day}
+                month={item.month}
+                year={item.year}
+              />
+            )}
             numColumns={7}
           />
         </View>
@@ -258,7 +286,7 @@ class DayCalendar extends Component<DayCalendarProps> {
   styles = StyleSheet.create({
     calendar: {
       flex: 6,
-      paddingHorizontal: 5, 
+      paddingHorizontal: 5,
     },
     calendarHeader: {
       flex: 1,
@@ -277,70 +305,96 @@ class DayCalendar extends Component<DayCalendarProps> {
 }
 
 interface CalendarTileProps {
-  day: number
-  month: string
-  year: number
-};
-
-interface DayCalendarTileProps extends CalendarTileProps {
-  state: PickerWindowState
-  updatePickedDate: (day: number, month: number, year: number) => void
-  togglePickerWindow: () => void
-  blurDatePicker: () => void
+  day: number;
+  month: string;
+  year: number;
 }
 
-class DayCalendarTile extends Component<DayCalendarTileProps, {isHovered: boolean}> {    
+interface DayCalendarTileProps extends CalendarTileProps {
+  state: PickerWindowState;
+  updatePickedDate: (day: number, month: number, year: number) => void;
+  togglePickerWindow: () => void;
+  blurDatePicker: () => void;
+}
+
+class DayCalendarTile extends Component<
+  DayCalendarTileProps,
+  { isHovered: boolean }
+> {
   constructor(props: any) {
     super(props);
 
     this.state = {
-      isHovered: false
-    }
+      isHovered: false,
+    };
   }
 
   toggleIsHovered = () => {
     if (this.state.isHovered) {
-      this.setState({ isHovered:false });
-    }  
-  }
+      this.setState({ isHovered: false });
+    }
+  };
 
   render() {
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     return (
       <Pressable
-        onPress={() => {          
-          this.props.updatePickedDate(this.props.day, months.indexOf(this.props.month) + 1, this.props.year);
+        onPress={() => {
+          this.props.updatePickedDate(
+            this.props.day,
+            months.indexOf(this.props.month) + 1,
+            this.props.year
+          );
           this.props.togglePickerWindow();
           this.props.blurDatePicker();
         }}
         style={({ pressed }) => [
           this.styles.calendarTile,
           {
-            opacity: this.props.state.selectedMonth.includes(this.props.month) ? 1 : 0.5,
-            backgroundColor: pressed ? "#999" : "transparent"
+            opacity: this.props.state.selectedMonth.includes(this.props.month)
+              ? 1
+              : 0.5,
+            backgroundColor: pressed ? "#999" : "transparent",
           },
           {
-            backgroundColor: 
-            (this.props.state.selectedYear === this.props.state.pickedYear
-              && this.props.state.pickedMonth.includes(this.props.month)
-              && this.props.day === this.props.state.pickedDay
-            ) ? this.props.state.theme === "light" ? "#99E" : "#B7B7DD"
-            : this.state.isHovered 
-              ? this.props.state.theme === "light" ? "#DDF" : "#668"
-            : "transparent"
+            backgroundColor:
+              this.props.state.selectedYear === this.props.state.pickedYear &&
+              this.props.state.pickedMonth.includes(this.props.month) &&
+              this.props.day === this.props.state.pickedDay
+                ? this.props.state.theme === "light"
+                  ? "#99E"
+                  : "#B7B7DD"
+                : this.state.isHovered
+                ? this.props.state.theme === "light"
+                  ? "#DDF"
+                  : "#668"
+                : "transparent",
           },
-          { pointerEvents: "box-only" }
+          { pointerEvents: "box-only" },
         ]}
         onHoverIn={() => this.setState({ isHovered: true })}
         onHoverOut={() => this.setState({ isHovered: false })}
       >
         <Text
           theme={
-            this.props.state.selectedYear === this.props.state.pickedYear
-            && this.props.state.pickedMonth.includes(this.props.month)
-            && this.props.day === this.props.state.pickedDay
+            this.props.state.selectedYear === this.props.state.pickedYear &&
+            this.props.state.pickedMonth.includes(this.props.month) &&
+            this.props.day === this.props.state.pickedDay
               ? this.props.state.theme === "light"
-                ? "dark" 
+                ? "dark"
                 : "light"
               : this.props.state.theme
           }
@@ -364,33 +418,33 @@ class DayCalendarTile extends Component<DayCalendarTileProps, {isHovered: boolea
 }
 
 interface PickerWindowProps {
-  pickedDate: Date
-  pickedDay?: number
-  pickedMonth?: string
-  pickedYear?: number
+  pickedDate: Date;
+  pickedDay?: number;
+  pickedMonth?: string;
+  pickedYear?: number;
 
-  theme: "dark" | "light"
+  theme: "dark" | "light";
 
-  updatePickedDate: (day: number, month: number, year: number) => void
-  updateDisplayDate: (day: string, month: string, year: string) => void
-  togglePickerWindow: () => void
-  blurDatePicker: () => void
+  updatePickedDate: (day: number, month: number, year: number) => void;
+  updateDisplayDate: (day: string, month: string, year: string) => void;
+  togglePickerWindow: () => void;
+  blurDatePicker: () => void;
 }
 
 interface PickerWindowState {
-  pickedDate: Date
-  pickedDay: number
-  pickedMonth: string
-  pickedYear: number
-  selectedDate: Date
-  selectedMonth: string
-  selectedYear: number
+  pickedDate: Date;
+  pickedDay: number;
+  pickedMonth: string;
+  pickedYear: number;
+  selectedDate: Date;
+  selectedMonth: string;
+  selectedYear: number;
 
-  selectedCalendar: "DayCalendar" | "YearCalendar"
-  dayCalendarContent: CalendarTileProps[]
-  monthCalendarContent: string[]
-  yearCalendarContent: number[]
-  theme: "dark" | "light"
+  selectedCalendar: "DayCalendar" | "YearCalendar";
+  dayCalendarContent: CalendarTileProps[];
+  monthCalendarContent: string[];
+  yearCalendarContent: number[];
+  theme: "dark" | "light";
 }
 
 class PickerWindow extends Component<PickerWindowProps, PickerWindowState> {
@@ -407,50 +461,72 @@ class PickerWindow extends Component<PickerWindowProps, PickerWindowState> {
       selectedDate: currentDate,
       selectedMonth: currentDate.toLocaleString("locale", { month: "long" }),
       selectedYear: currentDate.getFullYear(),
-  
+
       selectedCalendar: "DayCalendar",
       dayCalendarContent: [],
-      monthCalendarContent: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      monthCalendarContent: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
       yearCalendarContent: [],
       theme: props.theme,
-    }; 
+    };
   }
 
   componentDidUpdate(prevProps: Readonly<PickerWindowProps>): void {
     if (this.props.theme !== prevProps.theme) {
-      this.setState({theme: this.props.theme});
+      this.setState({ theme: this.props.theme });
     }
   }
 
   componentDidMount(): void {
     this.updateDayCalendarContent();
-    this.updateYearCalendarContent(); 
+    this.updateYearCalendarContent();
   }
 
-  changeCalendar = (): void  => {
+  changeCalendar = (): void => {
     this.state.selectedCalendar === "DayCalendar"
       ? this.setState({ selectedCalendar: "YearCalendar" })
       : this.setState({ selectedCalendar: "DayCalendar" });
-    
+
     this.updateDayCalendarContent();
     this.updateYearCalendarContent();
-  }
-  
+  };
+
   updateDayCalendarContent = (): void => {
     let firstDayDate = new Date(this.state.selectedDate);
     firstDayDate.setDate(1);
     let firstDayPos = firstDayDate.getDay();
-    
+
     let previousMonth = new Date(this.state.selectedDate);
     let nextMonth = new Date(this.state.selectedDate);
     previousMonth.setMonth(previousMonth.getMonth() - 1);
     nextMonth.setMonth(nextMonth.getMonth() + 1);
-    const previousMonthShort = previousMonth.toLocaleString("locale", { month: "short" });
-    const selectedMonthShort = this.state.selectedDate.toLocaleString("locale", { month: "short" });
-    const nextMonthShort = nextMonth.toLocaleString("locale", { month: "short" });
-    
-    let daysInPreviousMonth = this.Months[previousMonthShort as keyof typeof this.Months].days;
-    let daysInSelectedMonth = this.Months[selectedMonthShort as keyof typeof this.Months].days;
+    const previousMonthShort = previousMonth.toLocaleString("locale", {
+      month: "short",
+    });
+    const selectedMonthShort = this.state.selectedDate.toLocaleString(
+      "locale",
+      { month: "short" }
+    );
+    const nextMonthShort = nextMonth.toLocaleString("locale", {
+      month: "short",
+    });
+
+    let daysInPreviousMonth =
+      this.Months[previousMonthShort as keyof typeof this.Months].days;
+    let daysInSelectedMonth =
+      this.Months[selectedMonthShort as keyof typeof this.Months].days;
 
     if (firstDayPos === 0) firstDayPos = 7;
 
@@ -462,55 +538,71 @@ class PickerWindow extends Component<PickerWindowProps, PickerWindowState> {
     }
 
     let content: CalendarTileProps[] = [];
-    for (let day = daysInPreviousMonth - firstDayPos + 2; day <= daysInPreviousMonth; day++) {
+    for (
+      let day = daysInPreviousMonth - firstDayPos + 2;
+      day <= daysInPreviousMonth;
+      day++
+    ) {
       content.push({
         day: day,
         month: previousMonthShort,
-        year: previousMonth.getFullYear()
+        year: previousMonth.getFullYear(),
       });
     }
     for (let day = 1; day <= daysInSelectedMonth; day++) {
       content.push({
         day: day,
         month: selectedMonthShort,
-        year: this.state.selectedYear
+        year: this.state.selectedYear,
       });
     }
-    for (let day = 1; day <= 42 - (daysInSelectedMonth + (firstDayPos - 1)); day++) {
+    for (
+      let day = 1;
+      day <= 42 - (daysInSelectedMonth + (firstDayPos - 1));
+      day++
+    ) {
       content.push({
         day: day,
         month: nextMonthShort,
-        year: nextMonth.getFullYear()
+        year: nextMonth.getFullYear(),
       });
     }
 
     this.setState({ dayCalendarContent: content });
-  }
-  
+  };
+
   updateYearCalendarContent = (): void => {
-    let yearsContent: number[] = []
+    let yearsContent: number[] = [];
     for (let year = 1900; year <= 2100; year++) {
       yearsContent.push(year);
     }
 
     this.setState({ yearCalendarContent: yearsContent });
-  }
+  };
 
   previousMonth = (): void => {
-    this.state.selectedDate.setMonth(this.state.selectedDate.getMonth() - 1)
-    this.setState({ selectedMonth: this.state.selectedDate.toLocaleString("locale", { month: "long" }) });
+    this.state.selectedDate.setMonth(this.state.selectedDate.getMonth() - 1);
+    this.setState({
+      selectedMonth: this.state.selectedDate.toLocaleString("locale", {
+        month: "long",
+      }),
+    });
     this.setState({ selectedYear: this.state.selectedDate.getFullYear() });
 
     this.updateDayCalendarContent();
-  }
+  };
 
   nextMonth = (): void => {
-    this.state.selectedDate.setMonth(this.state.selectedDate.getMonth() + 1)
-    this.setState({ selectedMonth: this.state.selectedDate.toLocaleString("locale", { month: "long" }) });
+    this.state.selectedDate.setMonth(this.state.selectedDate.getMonth() + 1);
+    this.setState({
+      selectedMonth: this.state.selectedDate.toLocaleString("locale", {
+        month: "long",
+      }),
+    });
     this.setState({ selectedYear: this.state.selectedDate.getFullYear() });
-    
+
     this.updateDayCalendarContent();
-  }
+  };
 
   setDateToPresent = (): void => {
     const presentDate = new Date();
@@ -518,42 +610,49 @@ class PickerWindow extends Component<PickerWindowProps, PickerWindowState> {
     const month = presentDate.getMonth() + 1;
     const year = presentDate.getFullYear();
 
-    this.props.updatePickedDate( day, month, year );
+    this.props.updatePickedDate(day, month, year);
 
     this.setState({
       selectedDate: presentDate,
       selectedMonth: presentDate.toLocaleString("locale", { month: "long" }),
-      selectedYear: presentDate.getFullYear()
+      selectedYear: presentDate.getFullYear(),
     });
 
     this.setState({}, () => {
       this.updateDayCalendarContent();
       this.updateYearCalendarContent();
     });
-  }
-      
-  updateSelectedMonth = (month: string): void => {  
-    this.state.selectedDate.setMonth(this.state.monthCalendarContent.indexOf(month));
-    this.setState({ selectedMonth: this.Months[month as keyof typeof this.Months].name });
-  }
+  };
 
-  updateSelectedYear = (year: number): void => {    
+  updateSelectedMonth = (month: string): void => {
+    this.state.selectedDate.setMonth(
+      this.state.monthCalendarContent.indexOf(month)
+    );
+    this.setState({
+      selectedMonth: this.Months[month as keyof typeof this.Months].name,
+    });
+  };
+
+  updateSelectedYear = (year: number): void => {
     this.state.selectedDate.setFullYear(year);
     this.setState({ selectedYear: year });
-  }
+  };
 
   render() {
     return (
-      <View theme={this.state.theme} style={[
-        this.styles.container,
-        { borderColor: this.props.theme === "light" ? "black" : "#666"},
-      ]} >
+      <View
+        theme={this.state.theme}
+        style={[
+          this.styles.container,
+          { borderColor: this.props.theme === "light" ? "black" : "#666" },
+        ]}
+      >
         <View style={this.styles.header}>
           <Pressable
             onPress={this.changeCalendar}
             style={({ pressed }) => [
               { backgroundColor: pressed ? "#AAA" : "transparent" },
-              { pointerEvents: "box-only" }
+              { pointerEvents: "box-only" },
             ]}
           >
             <View style={this.styles.dateButton}>
@@ -572,7 +671,7 @@ class PickerWindow extends Component<PickerWindowProps, PickerWindowState> {
               onPress={this.previousMonth}
               style={({ pressed }) => [
                 { backgroundColor: pressed ? "#AAA" : "transparent" },
-                { pointerEvents: "box-only" }
+                { pointerEvents: "box-only" },
               ]}
             >
               <AntDesign
@@ -586,7 +685,7 @@ class PickerWindow extends Component<PickerWindowProps, PickerWindowState> {
               onPress={this.nextMonth}
               style={({ pressed }) => [
                 { backgroundColor: pressed ? "#AAA" : "transparent" },
-                { pointerEvents: "box-only" }
+                { pointerEvents: "box-only" },
               ]}
             >
               <AntDesign
@@ -599,35 +698,43 @@ class PickerWindow extends Component<PickerWindowProps, PickerWindowState> {
           </View>
         </View>
         <View style={this.styles.calendar}>
-          {
-            this.state.selectedCalendar === "DayCalendar"
-              ? <DayCalendar
-                state={this.state}
-                updatePickedDate={this.props.updatePickedDate}
-                togglePickerWindow={this.props.togglePickerWindow}
-                blurDatePicker={this.props.blurDatePicker}
-              />
-              : <YearCalendar
-                state={this.state}
-                updateSelectedYear={this.updateSelectedYear}
-                updateSelectedMonth={this.updateSelectedMonth}
-                changeCalendar={this.changeCalendar}
-              />
-          }
+          {this.state.selectedCalendar === "DayCalendar" ? (
+            <DayCalendar
+              state={this.state}
+              updatePickedDate={this.props.updatePickedDate}
+              togglePickerWindow={this.props.togglePickerWindow}
+              blurDatePicker={this.props.blurDatePicker}
+            />
+          ) : (
+            <YearCalendar
+              state={this.state}
+              updateSelectedYear={this.updateSelectedYear}
+              updateSelectedMonth={this.updateSelectedMonth}
+              changeCalendar={this.changeCalendar}
+            />
+          )}
         </View>
         <View style={this.styles.footer}>
           <Pressable
             onPress={() => this.props.updateDisplayDate("dd", "mm", "yyyy")}
-            style={({ pressed }) => [{ backgroundColor: pressed ? "#BBB" : "transparent" }]}
+            style={({ pressed }) => [
+              { backgroundColor: pressed ? "#BBB" : "transparent" },
+            ]}
           >
-            <Text theme={this.state.theme} selectable={false} >Clear</Text>
+            <Text theme={this.state.theme} selectable={false}>
+              Clear
+            </Text>
           </Pressable>
           <Pressable
             onPress={this.setDateToPresent}
-              style={({ pressed }) => [{ backgroundColor: pressed ? "#BBB" : "transparent" },
-              { pointerEvents: "box-only" }]}
+            style={({ pressed }) => [
+              { backgroundColor: pressed ? "#BBB" : "transparent" },
+              { pointerEvents: "box-only" },
+            ]}
           >
-            <Text theme={this.state.theme} selectable={false} >Today</Text>
+            <Text theme={this.state.theme} selectable={false}>
+              Today
+            </Text>
           </Pressable>
         </View>
       </View>
@@ -678,163 +785,166 @@ class PickerWindow extends Component<PickerWindowProps, PickerWindowState> {
       justifyContent: "space-between",
       paddingHorizontal: 15,
       marginVertical: 5,
-    }
+    },
   });
 
   Months = {
-    "Jan": {
-      "name": "January",
-      "short": "Jan",
-      "number": 1,
-      "days": 31
+    Jan: {
+      name: "January",
+      short: "Jan",
+      number: 1,
+      days: 31,
     },
-    "Feb": {
-      "name": "February",
-      "short": "Feb",
-      "number": 2,
-      "days": 28
+    Feb: {
+      name: "February",
+      short: "Feb",
+      number: 2,
+      days: 28,
     },
-    "Mar": {
-      "name": "March",
-      "short": "Mar",
-      "number": 3,
-      "days": 31
+    Mar: {
+      name: "March",
+      short: "Mar",
+      number: 3,
+      days: 31,
     },
-    "Apr": {
-      "name": "April",
-      "short": "Apr",
-      "number": 4,
-      "days": 30
+    Apr: {
+      name: "April",
+      short: "Apr",
+      number: 4,
+      days: 30,
     },
-    "May": {
-      "name": "May",
-      "short": "May",
-      "number": 5,
-      "days": 31
+    May: {
+      name: "May",
+      short: "May",
+      number: 5,
+      days: 31,
     },
-    "Jun": {
-      "name": "June",
-      "short": "Jun",
-      "number": 6,
-      "days": 30
+    Jun: {
+      name: "June",
+      short: "Jun",
+      number: 6,
+      days: 30,
     },
-    "Jul": {
-      "name": "July",
-      "short": "Jul",
-      "number": 7,
-      "days": 31
+    Jul: {
+      name: "July",
+      short: "Jul",
+      number: 7,
+      days: 31,
     },
-    "Aug": {
-      "name": "August",
-      "short": "Aug",
-      "number": 8,
-      "days": 31
+    Aug: {
+      name: "August",
+      short: "Aug",
+      number: 8,
+      days: 31,
     },
-    "Sep": {
-      "name": "September",
-      "short": "Sep",
-      "number": 9,
-      "days": 30
+    Sep: {
+      name: "September",
+      short: "Sep",
+      number: 9,
+      days: 30,
     },
-    "Oct": {
-      "name": "October",
-      "short": "Oct",
-      "number": 10,
-      "days": 31
+    Oct: {
+      name: "October",
+      short: "Oct",
+      number: 10,
+      days: 31,
     },
-    "Nov": {
-      "name": "November",
-      "short": "Nov",
-      "number": 11,
-      "days": 30
+    Nov: {
+      name: "November",
+      short: "Nov",
+      number: 11,
+      days: 30,
     },
-    "Dec": {
-      "name": "December",
-      "short": "Dec",
-      "number": 12,
-      "days": 31
-    }
-  }
+    Dec: {
+      name: "December",
+      short: "Dec",
+      number: 12,
+      days: 31,
+    },
+  };
 }
 
 interface DatePickerStyles {
-  borderWidth?: number
-  borderColor?: string
-  borderColorFocused?: string
-  borderRadius?: number
-  fontSize?: number
-  backgroundColor?: string
-  padding?: number
-  margin?: number
+  borderWidth?: number;
+  borderColor?: string;
+  borderColorFocused?: string;
+  borderRadius?: number;
+  fontSize?: number;
+  backgroundColor?: string;
+  padding?: number;
+  margin?: number;
 }
 
 interface DatePickerProps {
-  onDateChange: (date: Date) => void
-  onFocus?: () => void
-  onBlur?: () => void
-  selectedDate?: Date
-  theme?: "dark" | "light"
-  width?: DimensionValue
-  height?: DimensionValue
-  icon: boolean
-  iconPosition?: "start" | "end"
-  style?: DatePickerStyles & ViewStyle
+  onDateChange: (date: Date) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  selectedDate?: Date;
+  theme?: "dark" | "light";
+  width?: DimensionValue;
+  height?: DimensionValue;
+  icon: boolean;
+  iconPosition?: "start" | "end";
+  style?: DatePickerStyles & ViewStyle;
 }
-  
+
 interface DatePickerState {
-  pickedDate: Date
-  pickedDay: number
-  pickedMonth: number
-  pickedYear: number
+  pickedDate: Date;
+  pickedDay: number;
+  pickedMonth: number;
+  pickedYear: number;
 
-  displayDay: string
-  displayMonth: string
-  displayYear: string
+  displayDay: string;
+  displayMonth: string;
+  displayYear: string;
 
-  monthCalendarContent: string[]
+  monthCalendarContent: string[];
 
-  dayInputWidth: number
-  monthInputWidth: number
-  yearInputWidth: number
-  isDatePickerInputFocused: boolean
-  isDayInputFocused: boolean
-  isMonthInputFocused: boolean
-  isYearInputFocused: boolean
-  newYearInputEvent: boolean
-  isPickerWindowOpened: boolean
-  isNativePickerOpen: boolean
-  theme: "dark" | "light"
-  width: DimensionValue 
-  height: DimensionValue
-} 
+  dayInputWidth: number;
+  monthInputWidth: number;
+  yearInputWidth: number;
+  isDatePickerInputFocused: boolean;
+  isDayInputFocused: boolean;
+  isMonthInputFocused: boolean;
+  isYearInputFocused: boolean;
+  newYearInputEvent: boolean;
+  isPickerWindowOpened: boolean;
+  isNativePickerOpen: boolean;
+  theme: "dark" | "light";
+  width: DimensionValue;
+  height: DimensionValue;
+}
 
 /**
-   * A date picker with mm/dd/yyyy text inputs 
-   * as well as a calendar date picker.
-   * 
-   * @prop onDateChange Date change handler.
-   * @prop (optional) selectedDate The currently selected date - default is the present date
-   * @prop (optional) theme: "light" | "dark" - default: light 
-   * @prop (optional) width: DimensionValue | undefined - default: 100
-   * @prop (optional) height: DimensionValue | undefined - default: 20
-   * @prop (optional) icon: boolean - default: true 
-   * @prop (optional) iconPosition: "start" | "end" - default: end 
-   * @prop (optional) style: DatePickerStyles 
-   * { borderWidth: number
-   * , borderColor: string
-   * , borderRadius: number
-   * , backgroundColor: string
-   * , padding: number
-   * , margin: number 
-   * } & ViewStyle
-   */
-export default class DatePicker extends Component<DatePickerProps, DatePickerState> {
+ * A date picker with mm/dd/yyyy text inputs
+ * as well as a calendar date picker.
+ *
+ * @prop onDateChange Date change handler.
+ * @prop (optional) selectedDate The currently selected date - default is the present date
+ * @prop (optional) theme: "light" | "dark" - default: light
+ * @prop (optional) width: DimensionValue | undefined - default: 100
+ * @prop (optional) height: DimensionValue | undefined - default: 20
+ * @prop (optional) icon: boolean - default: true
+ * @prop (optional) iconPosition: "start" | "end" - default: end
+ * @prop (optional) style: DatePickerStyles
+ * { borderWidth: number
+ * , borderColor: string
+ * , borderRadius: number
+ * , backgroundColor: string
+ * , padding: number
+ * , margin: number
+ * } & ViewStyle
+ */
+export default class DatePicker extends Component<
+  DatePickerProps,
+  DatePickerState
+> {
   inputPressableRef: RefObject<any>;
   monthInputRef: RefObject<DefaultTextInput | null>;
   dayInputRef: RefObject<DefaultTextInput | null>;
   yearInputRef: RefObject<DefaultTextInput | null>;
   pickerWindowRef: RefObject<any>;
-  
+
   static defaultProps = {
     theme: "light" as "dark" | "light",
     width: 100,
@@ -842,11 +952,11 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     icon: true,
     iconPosition: "end",
     fontSize: 15,
-  }
+  };
 
   constructor(props: DatePickerProps) {
     super(props);
-    
+
     let currentDate = props.selectedDate ?? new Date();
     this.inputPressableRef = createRef<any>();
     this.monthInputRef = createRef<DefaultTextInput>();
@@ -855,8 +965,10 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     this.pickerWindowRef = createRef<any>();
 
     if (props.style && props.style.fontSize && props.height) {
-      if (Number.isInteger(props.height)) { //@ts-ignore
-        if(props.style.fontSize > props.height) props.style.fontSize = props.height
+      if (Number.isInteger(props.height)) {
+        //@ts-ignore
+        if (props.style.fontSize > props.height)
+          props.style.fontSize = props.height;
       } else {
         props.style.fontSize = DatePicker.defaultProps.fontSize;
       }
@@ -872,11 +984,27 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
       displayMonth: currentDate.getMonth().toString(),
       displayYear: currentDate.getFullYear().toString(),
 
-      monthCalendarContent: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      monthCalendarContent: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
 
-      dayInputWidth: (this.props.style?.fontSize ?? DatePicker.defaultProps.fontSize) * 1.25,
-      monthInputWidth: (this.props.style?.fontSize ?? DatePicker.defaultProps.fontSize) * 1.25,
-      yearInputWidth: (this.props.style?.fontSize ?? DatePicker.defaultProps.fontSize) * 2.5,
+      dayInputWidth:
+        (this.props.style?.fontSize ?? DatePicker.defaultProps.fontSize) * 1.25,
+      monthInputWidth:
+        (this.props.style?.fontSize ?? DatePicker.defaultProps.fontSize) * 1.25,
+      yearInputWidth:
+        (this.props.style?.fontSize ?? DatePicker.defaultProps.fontSize) * 2.5,
       isDatePickerInputFocused: false,
       isDayInputFocused: false,
       isMonthInputFocused: false,
@@ -886,19 +1014,26 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
       isNativePickerOpen: false,
       theme: props.theme ?? DatePicker.defaultProps.theme,
       width: props.width ?? DatePicker.defaultProps.width,
-      height: props.height ?? DatePicker.defaultProps.height
-    }
+      height: props.height ?? DatePicker.defaultProps.height,
+    };
 
     this.handleOutsideClick = this.handleOutsideClick.bind(this);
   }
 
   componentDidMount(): void {
-    this.updateDisplayDate(this.state.pickedDay, this.state.pickedMonth, this.state.pickedYear);
+    this.updateDisplayDate(
+      this.state.pickedDay,
+      this.state.pickedMonth,
+      this.state.pickedYear
+    );
   }
 
   componentDidUpdate(prevProps: DatePickerProps): void {
-    if (this.props.theme !== prevProps.theme && this.props.theme !== undefined) {
-      this.setState({theme: this.props.theme});
+    if (
+      this.props.theme !== prevProps.theme &&
+      this.props.theme !== undefined
+    ) {
+      this.setState({ theme: this.props.theme });
     }
   }
 
@@ -907,17 +1042,17 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
       this.setState({ isPickerWindowOpened: false });
       this.focus();
     } else {
-      this.setState({isPickerWindowOpened: true});
+      this.setState({ isPickerWindowOpened: true });
     }
-  }
+  };
 
   closePickerWindow = (): void => {
-    this.setState({isPickerWindowOpened: false});
-  }
+    this.setState({ isPickerWindowOpened: false });
+  };
 
   blurDatePicker = (): void => {
-    this.setState({ isDatePickerInputFocused: false })
-  }
+    this.setState({ isDatePickerInputFocused: false });
+  };
 
   handleOutsideClick(event: MouseEvent) {
     if (
@@ -925,7 +1060,10 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
       !this.pickerWindowRef.current.contains(event.target as Node) &&
       !this.inputPressableRef.current.contains(event.target as Node)
     ) {
-      this.setState({ isPickerWindowOpened: false, isDatePickerInputFocused: false });
+      this.setState({
+        isPickerWindowOpened: false,
+        isDatePickerInputFocused: false,
+      });
     }
   }
 
@@ -937,45 +1075,56 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     const year = presentDate.getFullYear();
 
     this.updatePickedDate(day, month, year);
-    this.updateDisplayDate(day, month, year)
-  }
+    this.updateDisplayDate(day, month, year);
+  };
 
   /**
    * Update display date states
-   * 
+   *
    * @param day number in range 1-31
    * @param month number in range 1-12
    * @param year number (4-digit)
-   * 
-   * @Override 
+   *
+   * @Override
    * Update display date states with string values
-   * 
+   *
    * @param day string 2-characters
    * @param month string 2-characters
    * @param year string 4-characters
    */
   updateDisplayDate: {
-    (day: number, month: number, year: number):void;
+    (day: number, month: number, year: number): void;
     (day: string, month: string, year: string): void;
-  } = (day: number | string, month: number | string, year: number | string): void => {
-    if (typeof day === 'string' && typeof month === 'string' && typeof year === 'string') {
+  } = (
+    day: number | string,
+    month: number | string,
+    year: number | string
+  ): void => {
+    if (
+      typeof day === "string" &&
+      typeof month === "string" &&
+      typeof year === "string"
+    ) {
       this.setState({
         displayDay: day,
         displayMonth: month,
-        displayYear: year
+        displayYear: year,
       });
-    } 
-    else if (typeof day === 'number' && typeof month === 'number' && typeof year === 'number') {
-      if (day < 1 || day > 31 ) {
+    } else if (
+      typeof day === "number" &&
+      typeof month === "number" &&
+      typeof year === "number"
+    ) {
+      if (day < 1 || day > 31) {
         throw new Error("Display date update day out of range.");
       }
       if (month < 1 || month > 12) {
         throw new Error("Display date update month out of range.");
-      } 
+      }
       if (year < 1000 || year > 9999) {
         throw new Error("Display date update year out of range.");
       }
-  
+
       let dayString = "01";
       let monthString = "01";
       if (day < 10) dayString = "0" + day.toString();
@@ -985,24 +1134,24 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
       this.setState({
         displayDay: dayString,
         displayMonth: monthString,
-        displayYear: year.toString()
+        displayYear: year.toString(),
       });
     }
-  }
+  };
 
   /**
    * Update picked date states
-   * 
+   *
    * @param day number in range 1-31
    * @param month number in range 1-12
    * @param year number (4-digit)
    */
-  updatePickedDate = (day: number, month: number, year: number): void => { 
-    day < 1 ? day = 1 : day > 31 ? day = 31 : null;
-    month < 1 ? month = 1 : month > 12 ? month = 12 : null;
-    year < 1000 ? year = 1000 : year > 9999 ? year = 9999 : null;
+  updatePickedDate = (day: number, month: number, year: number): void => {
+    day < 1 ? (day = 1) : day > 31 ? (day = 31) : null;
+    month < 1 ? (month = 1) : month > 12 ? (month = 12) : null;
+    year < 1000 ? (year = 1000) : year > 9999 ? (year = 9999) : null;
 
-    const newDate = new Date(year, month-1, day);
+    const newDate = new Date(year, month - 1, day);
     this.setState({
       pickedDate: newDate,
       pickedDay: day,
@@ -1011,15 +1160,15 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     });
     this.updateDisplayDate(day, month, year);
     this.props.onDateChange(newDate);
-  }
+  };
 
   onDayKeyPress(key: string) {
     let newText = "";
     let oldText = this.state.displayDay;
-    let numbers = '0123456789';
-    let months_31_day = [ 1, 3, 5, 7, 8, 10, 12];
-    
-    if(numbers.indexOf(key) < 0 && key !== "Backspace") {
+    let numbers = "0123456789";
+    let months_31_day = [1, 3, 5, 7, 8, 10, 12];
+
+    if (numbers.indexOf(key) < 0 && key !== "Backspace") {
       return;
     }
     const oldTextInt = parseInt(oldText);
@@ -1030,35 +1179,33 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
         displayDay: newText,
       });
       return;
-    }
-    else {
+    } else {
       if ((oldTextInt > 3 || oldTextInt <= 0) && keyInt != 0) {
         newText = "0" + key;
-      } 
-      else if (oldTextInt <= 0 && keyInt <= 0) {
+      } else if (oldTextInt <= 0 && keyInt <= 0) {
         newText = "01";
-      }
-      else if (oldTextInt == 3) {
-        if (keyInt > 1 || // not a 31-day month
-        (months_31_day.indexOf(this.state.pickedMonth) < 0 && keyInt != 0 )) {
+      } else if (oldTextInt == 3) {
+        if (
+          keyInt > 1 || // not a 31-day month
+          (months_31_day.indexOf(this.state.pickedMonth) < 0 && keyInt != 0)
+        ) {
           newText = "0" + key;
-        }
-        else newText = oldTextInt.toString() + key;
-      }
-      else if (oldTextInt <= 2) {
-        if (keyInt == 9 && this.state.pickedMonth == 2 && this.state.pickedYear % 4 != 0) {
+        } else newText = oldTextInt.toString() + key;
+      } else if (oldTextInt <= 2) {
+        if (
+          keyInt == 9 &&
+          this.state.pickedMonth == 2 &&
+          this.state.pickedYear % 4 != 0
+        ) {
           newText = "0" + key;
-        }
-        else newText = oldTextInt.toString() + key;
-      } 
-      else if (oldText.length <= 1) {
+        } else newText = oldTextInt.toString() + key;
+      } else if (oldText.length <= 1) {
         newText = oldTextInt.toString() + key;
-      } 
-      else {
+      } else {
         newText = "01";
       }
     }
-    
+
     this.setState({
       displayDay: newText,
     });
@@ -1067,34 +1214,30 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
   onMonthKeyPress(key: string) {
     let newText = "";
     let oldText = this.state.displayMonth;
-    let numbers = '0123456789';
-    
-    if(numbers.indexOf(key) < 0 && key !== "Backspace") {
+    let numbers = "0123456789";
+
+    if (numbers.indexOf(key) < 0 && key !== "Backspace") {
       return;
     }
-    
+
     if (key === "Backspace") {
       newText = "mm";
       this.setState({
         displayMonth: newText,
       });
       return;
-    }
-    else {
-      if (parseInt(oldText) == 1 && parseInt(key) <= 2 ) {
+    } else {
+      if (parseInt(oldText) == 1 && parseInt(key) <= 2) {
         newText = parseInt(oldText).toString() + key;
-      }
-      else if (parseInt(oldText) == 1 && parseInt(key) > 2 ) {
+      } else if (parseInt(oldText) == 1 && parseInt(key) > 2) {
         newText = "0" + key;
-      }
-      else if (parseInt(oldText) != 1 && parseInt(key) != 0) {
+      } else if (parseInt(oldText) != 1 && parseInt(key) != 0) {
         newText = "0" + key;
-      }
-      else {
+      } else {
         newText = "01";
       }
     }
-    
+
     this.setState({
       displayMonth: newText,
     });
@@ -1103,9 +1246,9 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
   onYearKeyPress(key: string) {
     let newText = "";
     let oldText = this.state.displayYear;
-    let numbers = '0123456789';
+    let numbers = "0123456789";
 
-    if(numbers.indexOf(key) < 0 && key !== "Backspace") {
+    if (numbers.indexOf(key) < 0 && key !== "Backspace") {
       return;
     }
     if (key === "Backspace") {
@@ -1119,11 +1262,10 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
     if (this.state.newYearInputEvent) {
       if (parseInt(key) < 1 || parseInt(key) > 2) return;
       newText = "000" + key;
-    } 
-    else {
+    } else {
       newText = oldText.substring(1, 4) + key;
-    } 
-    
+    }
+
     this.setState({
       newYearInputEvent: false,
       displayYear: newText,
@@ -1158,7 +1300,7 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
           }}
           onBlur={() => {
             this.setState({ isDatePickerInputFocused: false });
-            this.setState({ isPickerWindowOpened: false })
+            this.setState({ isPickerWindowOpened: false });
             this.props.onBlur;
           }}
         >
@@ -1167,34 +1309,45 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
             style={[
               this.styles.datePickerInput,
               this.props.style,
-              this.state.isDatePickerInputFocused ? this.styles.inputFocused : this.styles.inputUnfocused,
+              this.state.isDatePickerInputFocused
+                ? this.styles.inputFocused
+                : this.styles.inputUnfocused,
             ]}
           >
-            <View style={this.styles.inputsWrapper} >
+            <View style={this.styles.inputsWrapper}>
               <TextInput
                 ref={this.monthInputRef}
                 theme={this.state.theme}
                 style={[
                   this.styles.textInput,
                   { width: this.state.monthInputWidth },
-                  { backgroundColor: this.state.isMonthInputFocused ? inputsBgColor : "transparent" },
+                  {
+                    backgroundColor: this.state.isMonthInputFocused
+                      ? inputsBgColor
+                      : "transparent",
+                  },
                   Platform.OS === "web" //@ts-ignore
-                  ? { outline: "none" }: null
+                    ? { outline: "none" }
+                    : null,
                 ]}
                 value={this.state.displayMonth}
-                onKeyPress={(e) => { this.onMonthKeyPress(e.nativeEvent.key); }}
+                onKeyPress={(e) => {
+                  this.onMonthKeyPress(e.nativeEvent.key);
+                }}
                 caretHidden={true}
                 inputMode="numeric"
-                enterKeyHint='next'
+                enterKeyHint="next"
                 readOnly={Platform.OS === "web" ? true : false}
-                onFocus={() => this.setState({ 
-                  isMonthInputFocused: true,
-                  isDatePickerInputFocused: true
-                })}
+                onFocus={() =>
+                  this.setState({
+                    isMonthInputFocused: true,
+                    isDatePickerInputFocused: true,
+                  })
+                }
                 onBlur={() => {
-                  this.setState({ 
+                  this.setState({
                     isMonthInputFocused: false,
-                    isDatePickerInputFocused: false 
+                    isDatePickerInputFocused: false,
                   });
                   this.updatePickedDate(
                     parseInt(this.state.displayDay),
@@ -1206,31 +1359,42 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                 onSubmitEditing={() => this.dayInputRef.current?.focus()}
                 maxLength={2}
               />
-              <Text theme={this.state.theme} style={this.styles.slash} >/</Text>
+              <Text theme={this.state.theme} style={this.styles.slash}>
+                /
+              </Text>
               <TextInput
                 theme={this.state.theme}
                 style={[
                   this.styles.textInput,
                   { width: this.state.dayInputWidth },
-                  { backgroundColor: this.state.isDayInputFocused ? inputsBgColor : "transparent" },
+                  {
+                    backgroundColor: this.state.isDayInputFocused
+                      ? inputsBgColor
+                      : "transparent",
+                  },
                   Platform.OS === "web" //@ts-ignore
-                  ? { outline: "none" }: null
+                    ? { outline: "none" }
+                    : null,
                 ]}
                 value={this.state.displayDay}
                 ref={this.dayInputRef}
-                onKeyPress={(e) => { this.onDayKeyPress(e.nativeEvent.key); }}
+                onKeyPress={(e) => {
+                  this.onDayKeyPress(e.nativeEvent.key);
+                }}
                 caretHidden={true}
                 inputMode="numeric"
-                enterKeyHint='next'
+                enterKeyHint="next"
                 readOnly={Platform.OS === "web" ? true : false}
-                onFocus={() => this.setState({ 
-                  isDayInputFocused: true,
-                  isDatePickerInputFocused: true
-                })}
+                onFocus={() =>
+                  this.setState({
+                    isDayInputFocused: true,
+                    isDatePickerInputFocused: true,
+                  })
+                }
                 onBlur={() => {
-                  this.setState({ 
+                  this.setState({
                     isDayInputFocused: false,
-                    isDatePickerInputFocused: false
+                    isDatePickerInputFocused: false,
                   });
                   this.updatePickedDate(
                     parseInt(this.state.displayDay),
@@ -1242,32 +1406,43 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                 onSubmitEditing={() => this.yearInputRef.current?.focus()}
                 maxLength={2}
               />
-              <Text theme={this.state.theme} style={this.styles.slash} >/</Text>
+              <Text theme={this.state.theme} style={this.styles.slash}>
+                /
+              </Text>
               <TextInput
                 theme={this.state.theme}
                 style={[
                   this.styles.textInput,
                   { width: this.state.yearInputWidth },
-                  { backgroundColor: this.state.isYearInputFocused ? inputsBgColor : "transparent" },
+                  {
+                    backgroundColor: this.state.isYearInputFocused
+                      ? inputsBgColor
+                      : "transparent",
+                  },
                   Platform.OS === "web" //@ts-ignore
-                  ? { outline: "none" }: null
+                    ? { outline: "none" }
+                    : null,
                 ]}
                 value={this.state.displayYear}
                 ref={this.yearInputRef}
-                onKeyPress={(e) => { this.onYearKeyPress(e.nativeEvent.key); }}
+                onKeyPress={(e) => {
+                  this.onYearKeyPress(e.nativeEvent.key);
+                }}
                 caretHidden={true}
                 inputMode="numeric"
-                enterKeyHint='done'
+                enterKeyHint="done"
                 readOnly={Platform.OS === "web" ? true : false}
-                onFocus={() => this.setState({
-                  isYearInputFocused: true, 
-                  isDatePickerInputFocused: true,
-                  newYearInputEvent: true 
-                })}
+                onFocus={() =>
+                  this.setState({
+                    isYearInputFocused: true,
+                    isDatePickerInputFocused: true,
+                    newYearInputEvent: true,
+                  })
+                }
                 onBlur={() => {
                   this.setState({
                     isYearInputFocused: false,
-                    isDatePickerInputFocused: false
+                    isDatePickerInputFocused: false,
                   });
                   this.updatePickedDate(
                     parseInt(this.state.displayDay),
@@ -1278,35 +1453,45 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                 maxLength={4}
               />
             </View>
-            {this.props.icon ?
-            <Pressable
-              onPressIn={() => this.setState({ isDatePickerInputFocused: true })}
-              onPress={() => this.togglePickerWindow()}
-              style={[
-                this.styles.button,
-                {
-                  backgroundColor: this.state.isPickerWindowOpened ? this.state.theme === "dark" ? "#777" : "#FBB" : "transparent"
+            {this.props.icon ? (
+              <Pressable
+                onPressIn={() =>
+                  this.setState({ isDatePickerInputFocused: true })
                 }
-              ]}
-            >
-              <AntDesign
-                name="calendar"
-                size={this.styles.slash.fontSize}
-                color={this.state.theme === "light" ? "black" : "white"}
-              />
-            </Pressable> : null}
+                onPress={() => this.togglePickerWindow()}
+                style={[
+                  this.styles.button,
+                  {
+                    backgroundColor: this.state.isPickerWindowOpened
+                      ? this.state.theme === "dark"
+                        ? "#777"
+                        : "#FBB"
+                      : "transparent",
+                  },
+                ]}
+              >
+                <AntDesign
+                  name="calendar"
+                  size={this.styles.slash.fontSize}
+                  color={this.state.theme === "light" ? "black" : "white"}
+                />
+              </Pressable>
+            ) : null}
           </View>
         </Pressable>
-        {
-        this.state.isPickerWindowOpened
-        ? Platform.OS === ("android")
-          ? <NativeDatePicker // Native component works only in development build
+        {this.state.isPickerWindowOpened ? (
+          Platform.OS === "android" ? (
+            <NativeDatePicker // Native component works only in development build
               modal={true}
               mode="date"
               open={this.state.isPickerWindowOpened}
               date={this.state.pickedDate}
               onConfirm={(date) => {
-                this.updatePickedDate(date.getDay(),date.getMonth() - 1, date.getFullYear());
+                this.updatePickedDate(
+                  date.getDay(),
+                  date.getMonth() - 1,
+                  date.getFullYear()
+                );
                 this.setState({ isPickerWindowOpened: false });
               }}
               onCancel={() => {
@@ -1314,9 +1499,8 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
               }}
               theme={this.state.theme}
             />
-          : <View 
-              style={{ zIndex: 20}}
-            >
+          ) : (
+            <View style={{ zIndex: 20 }}>
               <PickerWindow
                 pickedDate={this.state.pickedDate}
                 theme={this.state.theme}
@@ -1326,10 +1510,10 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
                 blurDatePicker={this.blurDatePicker}
               />
             </View>
-        : null
-        }
+          )
+        ) : null}
       </View>
-    );  
+    );
   }
 
   styles = StyleSheet.create({
@@ -1363,17 +1547,20 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
       borderColor: this.props.style?.borderColorFocused ?? "#CCC",
       borderWidth:
         this.props.style?.borderWidth === undefined
-        ? 2
-          : this.props.style.borderWidth === 0 ? 0 : this.props.style.borderWidth + 1,
-      padding: 
+          ? 2
+          : this.props.style.borderWidth === 0
+          ? 0
+          : this.props.style.borderWidth + 1,
+      padding:
         this.props.style?.padding === undefined
-        ? this.props.style?.borderWidth === 0
-          ? 2 : 1
-        : this.props.style?.borderWidth === undefined
+          ? this.props.style?.borderWidth === 0
+            ? 2
+            : 1
+          : this.props.style?.borderWidth === undefined
           ? this.props.style.padding
-          : this.props.style.borderWidth === 0 
-            ? this.props.style.padding : this.props.style.padding - 1,
-            
+          : this.props.style.borderWidth === 0
+          ? this.props.style.padding
+          : this.props.style.padding - 1,
     },
     textInput: {
       margin: 0,
@@ -1395,6 +1582,6 @@ export default class DatePicker extends Component<DatePickerProps, DatePickerSta
       paddingVertical: 2,
       paddingHorizontal: 8,
       borderRadius: 3,
-    }
+    },
   });
 }

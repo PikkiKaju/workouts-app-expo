@@ -1,20 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
-import { usePanelContext } from "@/components/Providers/PanelContextProvider";
-import AnimatedArrow from "@/components/UI/AnimatedArrow";
-import { useTheme } from "@/components/Providers/ThemeProvider";
+import { usePanelContext } from "providers/PanelContextProvider";
+import AnimatedArrow from "components/UI/AnimatedArrow";
+import { useTheme } from "providers/ThemeProvider";
 import { Animated, Pressable, StyleSheet, View } from "react-native";
-import Colors from "@/constants/Colors";
+import Colors from "constants/Colors";
 import { AntDesign } from "@expo/vector-icons";
 
 export default function PanelToggler() {
   const { theme, toggleTheme } = useTheme();
   const { panelToggled, togglePanel } = usePanelContext();
-  const [ hover, setHover ] = useState<boolean>(false); 
-  const transformAnim = useRef(new Animated.Value(panelToggled ? 1 : 0)).current;
+  const [hover, setHover] = useState<boolean>(false);
+  const transformAnim = useRef(
+    new Animated.Value(panelToggled ? 1 : 0)
+  ).current;
 
   const interpolatedAnim = transformAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ["0deg", "180deg"]
+    outputRange: ["0deg", "180deg"],
   });
 
   useEffect(() => {
@@ -27,14 +29,16 @@ export default function PanelToggler() {
 
   return (
     <View style={styles.container}>
-      <Pressable 
+      <Pressable
         style={[
           styles.button,
           {
-            backgroundColor: hover ? theme === "dark" 
-            ? "#3F3F3F" : "#FFF5F5"
-            : "transparent"
-          }
+            backgroundColor: hover
+              ? theme === "dark"
+                ? "#3F3F3F"
+                : "#FFF5F5"
+              : "transparent",
+          },
         ]}
         onHoverIn={() => setHover(true)}
         onHoverOut={() => setHover(false)}
@@ -42,7 +46,7 @@ export default function PanelToggler() {
       >
         <Animated.View
           style={{
-            transform: [{ rotateY: interpolatedAnim }]
+            transform: [{ rotateY: interpolatedAnim }],
           }}
         >
           <AntDesign
@@ -59,7 +63,7 @@ export default function PanelToggler() {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    alignItems: 'center',
+    alignItems: "center",
   },
   button: {
     height: 38,
@@ -71,5 +75,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderLeftWidth: 0,
     borderColor: Colors.global.themeColorSecond,
-  }
+  },
 });

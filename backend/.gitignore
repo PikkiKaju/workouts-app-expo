@@ -1,0 +1,28 @@
+
+# dependencies
+/node_modules
+# Ignore build output
+/dist
+# Ignore logs
+/logs
+# Ignore coverage reports
+/coverage
+# Ignore temporary files
+/tmp
+# Ignore IDE specific files
+/.idea
+# Ignore VS Code specific files
+/.vscode
+
+# Ignore local environment files
+.env.local
+# Ignore local environment files
+.env.development.local
+# Ignore local environment files
+.env.test.local
+# Ignore local environment files
+.env.production.local
+# Ignore local environment files
+.env.development
+# Ignore local environment files
+.env.test

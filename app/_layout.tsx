@@ -7,6 +7,8 @@ import App from './app';
 import { ThemeProvider } from '@/components/Providers/ThemeProvider';
 import { PanelContextProvider } from '@/components/Providers/PanelContextProvider';
 
+import 'i18n'; // Import i18n configuration
+
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,

@@ -26,6 +26,7 @@ export default function App() {
   const { theme, toggleTheme } = useTheme();
   const { panelToggled, togglePanel } = usePanelContext();
 
+
   const panelMoveAnim = useRef(new Animated.Value(0)).current;
   const panelWidthAnim = useRef(new Animated.Value(0)).current;
   const contentMarginAnim = useRef(new Animated.Value(0)).current;

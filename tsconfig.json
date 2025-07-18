@@ -9,6 +9,7 @@
       "components/*": ["./components/*"],
       "constants/*": ["./constants/*"],
       "data/*": ["./data/*"],
+      "i18n": ["./i18n.js"],
     },
     "esModuleInterop": true,
     "resolveJsonModule": true

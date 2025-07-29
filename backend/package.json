@@ -1,18 +1,22 @@
 {
-    "name": "workouts-backend",
-    "version": "1.0.0",
-    "main": "index.js",
-    "type": "module",
-    "scripts": {
-        "start": "node dist/index.js",
-        "dev": "ts-node src/index.ts",
-        "build": "tsc"
-    },
-    "dependencies": {
-        "express": "^5.1.0",
-        "zod": "^3.25.67"
-    },
-    "devDependencies": {
+  "name": "workouts-backend",
+  "version": "0.0.0",
+  "main": "app.ts",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "dev": "ts-node src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "morgan": "~1.9.1"
+  },
+  "devDependencies": {
         "@types/express": "^5.0.3",
         "@types/node": "^24.0.10",
         "nodemon": "^3.1.10",

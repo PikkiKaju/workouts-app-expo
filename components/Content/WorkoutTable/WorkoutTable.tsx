@@ -79,5 +79,6 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     flexDirection: "column",
+    zIndex: 1
   },
 });

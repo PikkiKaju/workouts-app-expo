@@ -76,7 +76,6 @@ export default function MenuButton({
 
 const styles = StyleSheet.create({
   menuWrap: {
-    zIndex: 20,
     position: 'relative',
   },
   menuButton: {

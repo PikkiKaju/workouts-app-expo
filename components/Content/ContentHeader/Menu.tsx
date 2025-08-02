@@ -153,7 +153,6 @@ const styles = StyleSheet.create({
       right: 0,
       width: 150,
       padding: 5,
-      zIndex: 11,
       borderWidth: 1,
       borderRadius: 5,
       elevation: 3,
@@ -164,7 +163,6 @@ const styles = StyleSheet.create({
       ...(Platform.OS === 'web' ? {
         position: "absolute",
         right: 0,
-        zIndex: 11,
       } : {})
     },
     menuContentBackground: {

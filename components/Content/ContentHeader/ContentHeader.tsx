@@ -146,13 +146,13 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     borderBottomWidth: 1,
     borderColor: Colors.global.tableLines,
+    zIndex: 2,
   },
   visibleWrap: {
     flexDirection: "row",
     alignItems: "flex-start",
     paddingVertical: 5,
     justifyContent: "space-between",
-    zIndex: 10,
   },
   inputs: {
     flex: 1, 

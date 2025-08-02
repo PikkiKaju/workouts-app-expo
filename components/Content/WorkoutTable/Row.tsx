@@ -17,12 +17,17 @@ interface RowProps extends Exercise {
   style?: ViewStyle;
 }
 
+
 export default function Row({ ...props }: RowProps) {
   const { theme } = useTheme();
   const { tableStyles } = useWorkoutTableContext();
   const columnWidths = tableStyles.columns?.widths || {};
   const [ isExpanded, setIsExpanded ] = useState(true);
  
+  function toggleExpanded() {
+    setIsExpanded(!isExpanded);
+  }
+
   const setsNumber = props.sets.length;
   const weightsString = `${props.sets[0].weight} - ${props.sets[props.sets.length - 1].weight}`;
 
@@ -37,12 +42,13 @@ export default function Row({ ...props }: RowProps) {
       ]}>
         <View style={[{ width: columnWidths.dragColumn }]}>
           <Pressable 
+            style={styles.dragButton} 
+            onPress={() => console.log("Drag exercise")}
           >
             <MaterialIcons 
               name="drag-handle" 
               size={24} 
-    <View style={[styles.container, style]}>
-              } 
+              color={Colors[theme].textMuted}
             />
           </Pressable>
         </View>
@@ -89,7 +95,6 @@ export default function Row({ ...props }: RowProps) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
-  },
   },
   header: {
     flexDirection: "row",

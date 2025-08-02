@@ -10,12 +10,15 @@ interface workoutProps extends Workout {
 }
 
 interface ContentState {
-  
+  exercises: Exercise[];
 }
 
 export default class Content extends Component<workoutProps, ContentState>{
   constructor(props: workoutProps) {
     super(props);
+    this.state = {
+      exercises: props.exercises,
+    };
   }
 
   render() {
@@ -42,10 +45,8 @@ export default class Content extends Component<workoutProps, ContentState>{
                   name={exercise.name} 
                   description={exercise.description} 
                   sets={exercise.sets}
-                  onMoveExercise={this.moveExercise}
                 />
-              )
-              )}
+              ))}
             </WorkoutTable>
           </View>
         </Pressable>

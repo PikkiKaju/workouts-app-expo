@@ -12,7 +12,7 @@ i18next
                 translation: {
                     workout_table_header: {
                         exercise_name: "Exercise Name",
-                        series: "Series",
+                        sets: "Sets",
                         weights: "Weights",
                     }
                 }

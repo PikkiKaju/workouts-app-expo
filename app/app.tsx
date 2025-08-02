@@ -15,11 +15,34 @@ import { View } from '@/components/UI/Themed';
 import Header from '@/components/Header';
 import Panel from '@/components/Panel/Panel';
 import Colors from '@/constants/Colors';
-import PanelToggler from '@/components/Panel/PanelToggler';
 import Content from '@/components/Content/Content';
 import Dimensions from '@/constants/Dimensions';
 import { useEffect, useRef } from 'react';
 import { usePanelContext } from '@/components/Providers/PanelContextProvider';
+import { Workout } from '@/components/Content/WorkoutTable/types';
+
+const examplaryWorkout: Workout = {
+    name: "Full Body Workout",
+    date: new Date(),
+    exercises: [
+      {
+        name: "Bench Press",
+        description: "A great exercise for chest and triceps.",
+        sets: [
+          { reps: 10, weight: 100 },
+          { reps: 8, weight: 110 },
+        ],
+      },
+      {
+        name: "Squats",
+        description: "A great exercise for legs and glutes.",
+        sets: [
+          { reps: 15, weight: 150 },
+          { reps: 8, weight: 160 },
+        ],
+      },
+    ],
+  };
 
 export default function App() {
   const { height, width, scale, fontScale } = useWindowDimensions();
@@ -81,9 +104,7 @@ export default function App() {
           <Panel />
         </Animated.View>
         <Animated.View style={[styles.content, {marginLeft: contentMarginAnim }]}>
-          { Platform.OS !== "ios" && Platform.OS !== "android" 
-          ? <PanelToggler /> : null }
-          <Content name='' date={new Date()} />
+          <Content name={examplaryWorkout.name} date={examplaryWorkout.date} exercises={examplaryWorkout.exercises} />
         </Animated.View>
       </View>
     </View>

@@ -1,20 +1,16 @@
-import React, { useState, useCallback } from "react";
-import {
-  Platform,
-  StyleSheet,
-} from "react-native"
-import { View } from "../../UI/Themed";
-import DatePicker from "../../DatePicker/DatePicker";
-import { useTheme } from "../../Providers/ThemeProvider";
+import React, { useState } from "react";
+import { Platform, StyleSheet } from "react-native"
+import { View } from "@/components/UI/Themed";
+import DatePicker from "@/components/DatePicker/DatePicker";
+import { useTheme } from "@/components/Providers/ThemeProvider";
 import Colors from "@/constants/Colors";
 
-// import WorkoutData from "@/data/sample_workout_data/workout_data.json";
 import MenuButton, { MenuItem } from "./MenuButton"; 
 import DescriptionInput from "./DescriptionInput"; 
 import WorkoutNameInput from "./WorkoutNameInput";
 import DescriptionToggle from "./DescriptionToggle";
-import { useResponsiveLayout } from "../../Hooks/useResponsiveLayout"; 
-import { useWorkoutForm } from "../../Hooks/useWorkoutForm"; 
+import { useResponsiveLayout } from "@/components/Hooks/useResponsiveLayout"; 
+import { useWorkoutForm } from "@/components/Hooks/useWorkoutForm"; 
 
 
 interface ContentHeaderProps {
@@ -35,6 +31,7 @@ export default function ContentHeader(props: ContentHeaderProps) {
     handleWorkoutNameChange, saveWorkoutName,
     handleWorkoutDateChange,
     setWorkoutDescription, saveWorkoutDescription,
+    deleteWorkout,
     requestFocusNameInput, requestFocusDateInput, requestFocusDescriptionInput,
   } = useWorkoutForm();
 
@@ -44,11 +41,6 @@ export default function ContentHeader(props: ContentHeaderProps) {
     setDescriptionToggled(!descriptionToggled);
   }
   
-    function deleteWorkout() {
-    console.log("Delete workout action (implement logic)");
-    // Add logic to delete the workout
-  }
-
   // Define menu items for the MenuButton component
   const menuItems: MenuItem[] = [
     {

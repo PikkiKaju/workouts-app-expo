@@ -8,7 +8,7 @@ export function useWorkoutForm(
   initialDescription = ""
 ) {
   const nameInputRef = useRef<RNTextInput>(null);
-  const dateInputRef = useRef<DatePicker>(null); // Assuming DatePicker is a class component or its type is directly usable for refs
+  const dateInputRef = useRef<DatePicker>(null);
   const descInputRef = useRef<RNTextInput>(null);
 
   const [workoutName, setWorkoutName] = useState<string>(initialName);
@@ -16,7 +16,8 @@ export function useWorkoutForm(
   const [workoutDescription, setWorkoutDescription] = useState<string>(initialDescription);
 
   useEffect(() => {
-    // Simulates initial data loading, replace with actual data fetching if needed
+    // TODO: Fetch initial workout data 
+    // For now, set initial values directly
     setWorkoutName("Workout 1");
     setWorkoutDate(new Date());
     setWorkoutDescription("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ");
@@ -42,6 +43,11 @@ export function useWorkoutForm(
     // Add logic to save the workout description
   }, [workoutDescription]);
 
+  const deleteWorkout = useCallback(() => {
+    console.log("Workout deleted (implement delete logic)");
+    // Add logic to delete the workout
+  }, []);
+
   const requestFocusNameInput = useCallback(() => {
     dateInputRef.current?.blur();
     descInputRef.current?.blur();
@@ -65,11 +71,12 @@ export function useWorkoutForm(
     workoutName,
     workoutDate,
     workoutDescription,
-    setWorkoutDescription, // For direct updates from DescriptionInput
+    setWorkoutDescription,   // For direct updates from DescriptionInput
     handleWorkoutNameChange, // For onChangeText
     saveWorkoutName,         // For onBlur
     handleWorkoutDateChange, // For onDateChange
     saveWorkoutDescription,  // For onBlur
+    deleteWorkout,
     requestFocusNameInput,
     requestFocusDateInput,
     requestFocusDescriptionInput,

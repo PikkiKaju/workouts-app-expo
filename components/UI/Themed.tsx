@@ -78,7 +78,7 @@ export const TextInput = forwardRef<DefaultTextInput, TextInputProps>((props, re
   return <DefaultTextInput ref={ref} style={[{ color }, style]} {...otherProps} />;
 });
 
-export function View(props: ViewProps) {
+export const View = forwardRef<DefaultView, ViewProps>((props, ref) => {
   const { style, theme, ...otherProps } = props;
   
   const lightColor = "#fff";
@@ -88,5 +88,5 @@ export function View(props: ViewProps) {
     backgroundColor = theme === "light" ? lightColor : darkColor;
   }
   
-  return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
-}
+  return <DefaultView ref={ref} style={[{ backgroundColor }, style]} {...otherProps} />;
+});

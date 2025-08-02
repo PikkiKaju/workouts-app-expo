@@ -1,8 +1,8 @@
 import React from "react";
 import { Pressable, StyleSheet, TextStyle, ViewStyle } from "react-native";
 
-import { View, Text } from "@/components/UI/Themed";
-import { Set } from "./types";
+import { View } from "@/components/UI/Themed";
+import { CursorText as Text } from "@/components/Content/CursorText";
 import { useTheme } from "@/components/Providers/ThemeProvider";
 import Colors from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";

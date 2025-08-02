@@ -1,8 +1,8 @@
 import React from "react";
 import { StyleSheet, ViewStyle } from "react-native";
 
-import { View, Text } from "@/components/UI/Themed";
-import Header, { HeaderType } from "./Header";
+import { View } from "@/components/UI/Themed";
+import Header from "./Header";
 import Row from "./Row";
 import Footer from "./Footer";
 import { WorkoutTableContextProvider } from "./WorkoutTableContextProvider";

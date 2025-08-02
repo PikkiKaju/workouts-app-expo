@@ -2,7 +2,7 @@ import React from "react";
 
 import { StyleSheet } from "react-native";
 
-import { View, Text } from "@/components/UI/Themed";
+import { View } from "@/components/UI/Themed";
 
 interface FooterProps {
   children: React.ReactNode;

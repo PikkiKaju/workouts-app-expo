@@ -1,0 +1,198 @@
+import React, { useRef, useEffect, useState } from 'react';
+import { View, StyleSheet, Platform, Pressable } from 'react-native';
+import Modal from 'react-native-modal';
+import { Text } from "@/components/UI/Themed";
+import Colors from '@/constants/Colors';
+
+// Define the structure for a menu item
+export interface MenuItem {
+  text: string;
+  onPressAction: () => void;
+  isSeparator?: boolean;
+}
+
+// Props for the internal MenuRowButton
+interface MenuRowButtonProps {
+  item: MenuItem;
+  theme: 'light' | 'dark';
+  closeMenu: () => void;
+}
+
+const menuToggleDuration = 200;
+
+function MenuRowButton({ item, theme, closeMenu }: MenuRowButtonProps) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  if (item.isSeparator) {
+    return (
+      <View style={styles.menuElem}>
+        <View style={[
+          styles.menuLine,
+          theme === 'light' ? { backgroundColor: "#AAA" } : { backgroundColor: "#555" }
+        ]}></View>
+      </View>
+    );
+  }
+
+  return (
+    <Pressable
+      onPress={() => {
+        closeMenu();
+        setTimeout(() => {
+          item.onPressAction();
+        }, menuToggleDuration);
+      }}
+      onHoverIn={() => setIsHovered(true)}
+      onHoverOut={() => setIsHovered(false)}
+      style={({ pressed }) => [
+        styles.menuElem,
+        isHovered ? theme === "light" ? { backgroundColor: "#DDD" } : { backgroundColor: "#555" } : null,
+        pressed ? theme === "light" ? { backgroundColor: "#CCC" } : { backgroundColor: "#666" } : null
+      ]}
+    >
+      <Text theme={theme} style={styles.menuText}>{item.text}</Text>
+    </Pressable>
+  );
+}
+
+interface MenuProps {
+  isVisible: boolean;
+  onClose: () => void;
+  menuItems: MenuItem[];
+  theme: 'light' | 'dark';
+  buttonLayout: { x: number, y: number, width: number, height: number } | null;
+  iconSize: number;
+  menuWrapRef: React.RefObject<View>;
+}
+
+export default function Menu({ onClose, menuItems, theme, buttonLayout, iconSize, menuWrapRef }: Omit<MenuProps, 'isVisible'>) {
+  const menuRef = useRef<View>(null);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') {
+      return;
+    }
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (event.target && menuWrapRef.current && menuRef.current) {
+        if (
+          !(menuWrapRef.current as unknown as Node).contains(event.target as Node) &&
+          !(menuRef.current as unknown as Node).contains(event.target as Node)
+        ) {
+          onClose();
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [onClose, menuWrapRef]);
+
+  const MenuContent = (
+    <View
+      ref={Platform.OS === 'web' ? menuRef : null}
+      style={[
+        styles.menu,
+        theme === "light" ? styles.menuContentBackground : styles.menuContentBackgroundDark,
+        theme === "light" ? styles.menuContentBorder : styles.menuContentBorderDark,
+        Platform.OS === 'web'
+          ? { top: iconSize + 5 }
+          : buttonLayout
+            ? {
+                position: 'absolute',
+                top: buttonLayout.y + buttonLayout.height + 5,
+                left: buttonLayout.x + buttonLayout.width - 150,
+                width: 150,
+              }
+            : {},
+      ]}
+    >
+      {menuItems.map((item, index) => (
+        <MenuRowButton
+          key={item.text + index}
+          item={item}
+          theme={theme}
+          closeMenu={onClose}
+        />
+      ))}
+    </View>
+  );
+
+  if (!menuItems) {
+    return null;
+  }
+
+  return (
+    Platform.OS === 'web'
+      ? MenuContent
+      : (
+        <Modal
+          isVisible={true}
+          onBackButtonPress={onClose}
+          onBackdropPress={onClose}
+          animationIn={"fadeIn"}
+          animationOut={"fadeOut"}
+          animationInTiming={menuToggleDuration}
+          animationOutTiming={menuToggleDuration}
+          presentationStyle="overFullScreen"
+        >
+          {MenuContent}
+        </Modal>
+      )
+  );
+}
+
+const styles = StyleSheet.create({
+    menu: {
+      position: "absolute",
+      right: 0,
+      width: 150,
+      padding: 5,
+      zIndex: 11,
+      borderWidth: 1,
+      borderRadius: 5,
+      elevation: 3,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 3,
+      ...(Platform.OS === 'web' ? {
+        position: "absolute",
+        right: 0,
+        zIndex: 11,
+      } : {})
+    },
+    menuContentBackground: {
+      backgroundColor: "#FBFBFB",
+    },
+    menuContentBackgroundDark: {
+      backgroundColor: "#3a3a3a",
+    },
+    menuContentBorder: {
+      borderColor: Colors.global.tableLines,
+    },
+    menuContentBorderDark: {
+      borderColor: "#555",
+    },
+    menuElem: {
+      flex: 1,
+      marginVertical: 2,
+      paddingVertical: 6,
+      paddingHorizontal: 8,
+      borderRadius: 4,
+    },
+    menuText: {
+      fontSize: 16,
+      textAlign: "left",
+    },
+    menuLine: {
+      height: 1,
+      marginVertical: 5,
+    },
+  });
+  

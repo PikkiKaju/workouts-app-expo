@@ -5,7 +5,8 @@ import DatePicker from "@/components/DatePicker/DatePicker";
 import { useTheme } from "@/components/Providers/ThemeProvider";
 import Colors from "@/constants/Colors";
 
-import MenuButton, { MenuItem } from "./MenuButton"; 
+import MenuButton from "./MenuButton";
+import { MenuItem } from "./Menu"; 
 import DescriptionInput from "./DescriptionInput"; 
 import WorkoutNameInput from "./WorkoutNameInput";
 import DescriptionToggle from "./DescriptionToggle";

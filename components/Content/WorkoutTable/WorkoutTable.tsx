@@ -1,27 +1,45 @@
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, ViewStyle } from "react-native";
 
 import { View, Text } from "@/components/UI/Themed";
 import Header, { HeaderType } from "./Header";
-import Footer from "./Footer";
 import Row from "./Row";
+import Footer from "./Footer";
+import { WorkoutTableContextProvider } from "./WorkoutTableContextProvider";
 
 interface WorkoutTableState {}
 
-type AllowedChildren = 
-  React.ReactElement<typeof Header> 
-  | React.ReactElement<typeof Footer> 
-  | React.ReactElement<typeof Row>;
+// More precise type definitions for allowed children
+type HeaderElement = React.ReactElement<React.ComponentProps<typeof Header>>;
+type RowElement = React.ReactElement<React.ComponentProps<typeof Row>>;
+type FooterElement = React.ReactElement<React.ComponentProps<typeof Footer>>;
+
+type AllowedChildren = HeaderElement | RowElement | FooterElement;
 
 interface WorkoutTableProps {
-  children: AllowedChildren | AllowedChildren[];
-  style?: React.CSSProperties;
+  children: React.ReactNode;
+  style?: ViewStyle;
 }
 
 const WorkoutTable = ({ children, style }: WorkoutTableProps) => {
+  // Validate that all children are of allowed types
+  const childrenArray = React.Children.toArray(children);
+  
+  // Type guard function to check if a child is an allowed type
+  const isAllowedChild = (child: React.ReactNode): child is AllowedChildren => {
+    return React.isValidElement(child) && 
+           (child.type === Header || child.type === Row || child.type === Footer);
+  };
 
+  // Validate all children
+  const invalidChildren = childrenArray.filter(child => !isAllowedChild(child));
+  if (invalidChildren.length > 0) {
+    console.log("Invalid children detected in WorkoutTable:", invalidChildren);
+    console.error("WorkoutTable only accepts Header, Row, and Footer components as children.");
+    throw new Error("WorkoutTable only accepts Header, Row, and Footer components as children.");
+  }
 
-  const header = React.Children.toArray(children).find(
+  const header = childrenArray.find(
     (child) => React.isValidElement(child) && child.type === Header
   ) as React.ReactElement | undefined;
   
@@ -30,29 +48,36 @@ const WorkoutTable = ({ children, style }: WorkoutTableProps) => {
     throw new Error("WorkoutTable requires a Header component as a child.");
   }
 
-  const rows = React.Children.toArray(children).filter(
-    (child) => React.isValidElement(child) && child.type === typeof Row
-  );
+  const rows = childrenArray.filter(
+    (child) => React.isValidElement(child) && child.type === Row
+  ) as React.ReactElement[];
 
-  const footer = React.Children.toArray(children).find(
-    (child) => React.isValidElement(child) && child.type === typeof Footer
+  const footer = childrenArray.find(
+    (child) => React.isValidElement(child) && child.type === Footer
   );
   
   return(
-    <View>
+    <WorkoutTableContextProvider>
       <View style={[styles.container, style]}>
-        {header}
-        {rows.map((RowComponent, index) => (
-          <Row key={index} {...RowComponent.props} />
+        {React.cloneElement(header as React.ReactElement<any>, {})}
+        {rows.map((row, index) => (
+          React.cloneElement(row, { key: index })
         ))}
         {footer}
       </View>
-    </View>
+    </WorkoutTableContextProvider>
   );
 }
+
+WorkoutTable.Header = Header;
+WorkoutTable.Row = Row;
+WorkoutTable.Footer = Footer;
 
 export default WorkoutTable;
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    width: "100%",
+    flexDirection: "column",
+  },
 });

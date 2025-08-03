@@ -6,12 +6,12 @@ import { useTheme } from "@/components/Providers/ThemeProvider";
 import Colors from "@/constants/Colors";
 
 import MenuButton from "./MenuButton";
-import { MenuItem } from "./Menu"; 
-import DescriptionInput from "./DescriptionInput"; 
+import { MenuItem } from "./Menu";
 import WorkoutNameInput from "./WorkoutNameInput";
 import DescriptionToggle from "./DescriptionToggle";
 import { useResponsiveLayout } from "@/components/Hooks/useResponsiveLayout"; 
 import { useWorkoutForm } from "@/components/Hooks/useWorkoutForm"; 
+import AutoExpandingTextInput from "@/components/UI/AutoExpandingTextInput";
 
 
 interface ContentHeaderProps {
@@ -98,10 +98,10 @@ export default function ContentHeader(props: ContentHeaderProps) {
             selectedDate={workoutDate}
             theme={theme}
             width={170}
-            height={30} // Consider making height dynamic or using padding
+            height={30} 
             style={{ 
               ...styles.datePicker,
-              fontSize: textFontSize, // Ensure font size is consistent
+              fontSize: textFontSize, 
               borderColorFocused: theme === "light" ? Colors.light.text : Colors.global.themeColorSecond, 
             }}
           />
@@ -124,9 +124,13 @@ export default function ContentHeader(props: ContentHeaderProps) {
 
       {/* Description Input Area */}
       {descriptionToggled && (
-        <DescriptionInput
+        <AutoExpandingTextInput
           inputRef={refs.descInputRef}
           theme={theme}
+          style={[
+            //@ts-ignore
+            Platform.OS === "web" ? { outlineStyle: "none" } : null
+          ]}
           value={workoutDescription}
           onChangeText={setWorkoutDescription}
           onFocus={requestFocusDescriptionInput}
@@ -161,6 +165,7 @@ const styles = StyleSheet.create({
     marginRight: 15, 
   },
   datePicker: {
+    flexDirection: "row-reverse",
     borderWidth: 0,
     borderBottomWidth: 1,
     borderRadius: 0,

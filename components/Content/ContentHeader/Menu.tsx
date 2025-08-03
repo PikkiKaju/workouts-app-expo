@@ -67,6 +67,7 @@ interface MenuProps {
 
 export default function Menu({ onClose, menuItems, theme, buttonLayout, iconSize, menuWrapRef }: Omit<MenuProps, 'isVisible'>) {
   const menuRef = useRef<View>(null);
+  const [ modalVisible, setModalVisible ] = useState(true);
 
   useEffect(() => {
     if (Platform.OS !== 'web') {
@@ -79,7 +80,7 @@ export default function Menu({ onClose, menuItems, theme, buttonLayout, iconSize
           !(menuWrapRef.current as unknown as Node).contains(event.target as Node) &&
           !(menuRef.current as unknown as Node).contains(event.target as Node)
         ) {
-          onClose();
+          setModalVisible(false);
         }
       }
     };
@@ -91,7 +92,7 @@ export default function Menu({ onClose, menuItems, theme, buttonLayout, iconSize
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
     };
-  }, [onClose, menuWrapRef]);
+  }, [onClose, menuWrapRef, modalVisible]);
 
   const MenuContent = (
     <View
@@ -117,7 +118,7 @@ export default function Menu({ onClose, menuItems, theme, buttonLayout, iconSize
           key={item.text + index}
           item={item}
           theme={theme}
-          closeMenu={onClose}
+          closeMenu={() => setModalVisible(false)}
         />
       ))}
     </View>
@@ -132,14 +133,18 @@ export default function Menu({ onClose, menuItems, theme, buttonLayout, iconSize
       ? MenuContent
       : (
         <Modal
-          isVisible={true}
-          onBackButtonPress={onClose}
-          onBackdropPress={onClose}
+          isVisible={modalVisible}
+          onBackButtonPress={() => setModalVisible(false)}
+          onBackdropPress={() => setModalVisible(false)}
+          onModalHide={onClose}
           animationIn={"fadeIn"}
           animationOut={"fadeOut"}
           animationInTiming={menuToggleDuration}
           animationOutTiming={menuToggleDuration}
+          backdropTransitionInTiming={menuToggleDuration}
+          backdropTransitionOutTiming={menuToggleDuration}
           presentationStyle="overFullScreen"
+          backdropOpacity={0.2}
         >
           {MenuContent}
         </Modal>

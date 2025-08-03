@@ -1,5 +1,6 @@
 
 import {
+  Platform,
   Text as DefaultText,
   TextInput as DefaultTextInput,
   View as DefaultView,
@@ -46,13 +47,16 @@ export function Text(props: TextProps) {
       providerTheme = "light"; // fallback to light theme if context is not available
     }
   }
+
+  const cursorStyle = Platform.OS === 'web' ? { cursor: 'text' } : { cursor: "auto" };
+
   const lightColor = "#000";
   const darkColor = "#fff";
   const color = theme 
     ? (theme === "light" ? lightColor : darkColor) // use the props theme if provided
     : (providerTheme === "light" ? lightColor : darkColor); // use the context theme if available
 
-  return <DefaultText style={[{ color }, style]} {...otherProps} />;
+  return <DefaultText style={[{ color }, style, cursorStyle as any]} {...otherProps} />;
 }
 
 export const TextInput = forwardRef<DefaultTextInput, TextInputProps>((props, ref) => {

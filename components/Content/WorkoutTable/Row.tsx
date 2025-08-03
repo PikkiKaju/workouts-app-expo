@@ -4,8 +4,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { useWorkoutTableContext } from "./WorkoutTableContextProvider";
 import { Pressable, StyleSheet, ViewStyle } from "react-native";
-import { View } from "@/components/UI/Themed";
-import { CursorText as Text } from "@/components/Content/CursorText";
+import { View, Text } from "@/components/UI/Themed";
 import { Exercise } from "./types";
 import SetRow from "./SetRow";
 import AnimatedArrow from "@/components/UI/AnimatedArrow";

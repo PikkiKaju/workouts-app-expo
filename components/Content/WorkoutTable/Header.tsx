@@ -1,7 +1,6 @@
 import React from "react";
 import { StyleSheet } from "react-native";
-import { View } from "@/components/UI/Themed";
-import { CursorText as Text } from "@/components/Content/CursorText";
+import { View, Text } from "@/components/UI/Themed";
 
 import { useTranslation } from 'react-i18next';
 import Colors from "@/constants/Colors";

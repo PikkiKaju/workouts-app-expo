@@ -10,6 +10,7 @@ import SetRow from "./SetRow";
 import AnimatedArrow from "@/components/UI/AnimatedArrow";
 import { useTheme } from "@/components/Providers/ThemeProvider";
 import Colors from "@/constants/Colors";
+import HoverableView from "@/components/UI/HoverableView";
 
 
 interface RowProps extends Exercise {
@@ -22,6 +23,7 @@ export default function Row({ ...props }: RowProps) {
   const { theme } = useTheme();
   const { tableStyles } = useWorkoutTableContext();
   const columnWidths = tableStyles.columns?.widths || {};
+  const [ isHovered, setIsHovered ] = useState(false);
   const [ isExpanded, setIsExpanded ] = useState(true);
  
   function toggleExpanded() {
@@ -32,15 +34,17 @@ export default function Row({ ...props }: RowProps) {
   const weightsString = `${props.sets[0].weight} - ${props.sets[props.sets.length - 1].weight}`;
 
   return (
-    <View style={[
-      styles.container, 
-      props.style,
-    ]}>
+    <HoverableView
+      onHoverIn={() => setIsHovered(true)}
+      onHoverOut={() => setIsHovered(false)} 
+      style={[ styles.container, props.style ]}
+      hoverStyle={{ backgroundColor: Colors[theme].backgroundHover }}
+    >
       <View style={[
         styles.header, 
         { borderBottomColor: Colors[theme].textMuted },
       ]}>
-        <View style={[{ width: columnWidths.dragColumn }]}>
+        <View style={[styles.dragButton, { width: columnWidths.dragColumn }]}>
           <Pressable 
             style={styles.dragButton} 
             onPress={() => console.log("Drag exercise")}
@@ -88,7 +92,7 @@ export default function Row({ ...props }: RowProps) {
         
       </View>
       )}
-    </View>
+    </HoverableView>
   );
 }
 

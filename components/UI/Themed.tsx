@@ -48,7 +48,7 @@ export function Text(props: TextProps) {
     }
   }
 
-  const cursorStyle = Platform.OS === 'web' ? { cursor: 'text' } : { cursor: "auto" };
+  // const cursorStyle = Platform.OS === 'web' ? (cursor ? { cursor } : { cursor: 'text' }) : { cursor: "auto" };
 
   const lightColor = "#000";
   const darkColor = "#fff";
@@ -56,7 +56,7 @@ export function Text(props: TextProps) {
     ? (theme === "light" ? lightColor : darkColor) // use the props theme if provided
     : (providerTheme === "light" ? lightColor : darkColor); // use the context theme if available
 
-  return <DefaultText style={[{ color }, style, cursorStyle as any]} {...otherProps} />;
+  return <DefaultText style={[{ color }, style]} {...otherProps} />;
 }
 
 export const TextInput = forwardRef<DefaultTextInput, TextInputProps>((props, ref) => {

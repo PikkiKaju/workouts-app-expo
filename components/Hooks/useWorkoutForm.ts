@@ -49,20 +49,14 @@ export function useWorkoutForm(
   }, []);
 
   const requestFocusNameInput = useCallback(() => {
-    dateInputRef.current?.blur();
-    descInputRef.current?.blur();
     nameInputRef.current?.focus();
   }, []);
 
   const requestFocusDateInput = useCallback(() => {
-    nameInputRef.current?.blur();
-    descInputRef.current?.blur();
     dateInputRef.current?.focus();
   }, []);
 
   const requestFocusDescriptionInput = useCallback(() => {
-    nameInputRef.current?.blur();
-    dateInputRef.current?.blur();
     descInputRef.current?.focus();
   }, []);
 

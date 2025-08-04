@@ -34,7 +34,6 @@ const WorkoutTable = ({ children, style }: WorkoutTableProps) => {
   // Validate all children
   const invalidChildren = childrenArray.filter(child => !isAllowedChild(child));
   if (invalidChildren.length > 0) {
-    console.log("Invalid children detected in WorkoutTable:", invalidChildren);
     console.error("WorkoutTable only accepts Header, Row, and Footer components as children.");
     throw new Error("WorkoutTable only accepts Header, Row, and Footer components as children.");
   }

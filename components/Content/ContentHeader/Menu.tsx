@@ -15,10 +15,8 @@ export interface MenuItem {
 interface MenuRowButtonProps {
   item: MenuItem;
   theme: 'light' | 'dark';
-  closeMenu: () => void;
+  closeMenu: (onHideCallback?: () => void) => void; // Function to close the menu and execute an optional callback
 }
-
-const menuToggleDuration = 200;
 
 function MenuRowButton({ item, theme, closeMenu }: MenuRowButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
@@ -36,12 +34,7 @@ function MenuRowButton({ item, theme, closeMenu }: MenuRowButtonProps) {
 
   return (
     <Pressable
-      onPress={() => {
-        closeMenu();
-        setTimeout(() => {
-          item.onPressAction();
-        }, menuToggleDuration);
-      }}
+      onPress={() => closeMenu(item.onPressAction)}
       onHoverIn={() => setIsHovered(true)}
       onHoverOut={() => setIsHovered(false)}
       style={({ pressed }) => [
@@ -57,17 +50,32 @@ function MenuRowButton({ item, theme, closeMenu }: MenuRowButtonProps) {
 
 interface MenuProps {
   isVisible: boolean;
-  onClose: () => void;
+  onClose: (onHideCallback?: () => void) => void; // Function to close the menu and execute an optional callback
   menuItems: MenuItem[];
   theme: 'light' | 'dark';
   buttonLayout: { x: number, y: number, width: number, height: number } | null;
   iconSize: number;
   menuWrapRef: React.RefObject<View>;
+  menuToggleDuration: number;
 }
 
-export default function Menu({ onClose, menuItems, theme, buttonLayout, iconSize, menuWrapRef }: Omit<MenuProps, 'isVisible'>) {
+export default function Menu({ onClose, menuItems, theme, buttonLayout, iconSize, menuWrapRef, menuToggleDuration }: Omit<MenuProps, 'isVisible'>) {
   const menuRef = useRef<View>(null);
   const [ modalVisible, setModalVisible ] = useState(true);
+  const onHideCallbackRef = useRef<(() => void) | null>(null);
+
+  // Function to handle closing the menu and executing any callback
+  const handleClose = (callback?: () => void) => {
+    if (Platform.OS === 'web') {
+      onClose(callback);
+    } else {
+      if (callback) {
+        // Store the callback to be executed after the modal closes
+        onHideCallbackRef.current = callback;
+      }
+      setModalVisible(false);
+    }
+  };
 
   useEffect(() => {
     if (Platform.OS !== 'web') {
@@ -80,7 +88,7 @@ export default function Menu({ onClose, menuItems, theme, buttonLayout, iconSize
           !(menuWrapRef.current as unknown as Node).contains(event.target as Node) &&
           !(menuRef.current as unknown as Node).contains(event.target as Node)
         ) {
-          setModalVisible(false);
+          handleClose();
         }
       }
     };
@@ -118,7 +126,7 @@ export default function Menu({ onClose, menuItems, theme, buttonLayout, iconSize
           key={item.text + index}
           item={item}
           theme={theme}
-          closeMenu={() => setModalVisible(false)}
+          closeMenu={handleClose}
         />
       ))}
     </View>
@@ -134,9 +142,16 @@ export default function Menu({ onClose, menuItems, theme, buttonLayout, iconSize
       : (
         <Modal
           isVisible={modalVisible}
-          onBackButtonPress={() => setModalVisible(false)}
-          onBackdropPress={() => setModalVisible(false)}
-          onModalHide={onClose}
+          onBackButtonPress={() => handleClose()}
+          onBackdropPress={() => handleClose()}
+          onModalHide={() => {
+            onClose();
+            // Execute the callback if it was set
+            if (onHideCallbackRef.current) {
+              onHideCallbackRef.current();
+              onHideCallbackRef.current = null; // Clear the callback after execution
+            }
+          }}
           animationIn={"fadeIn"}
           animationOut={"fadeOut"}
           animationInTiming={menuToggleDuration}

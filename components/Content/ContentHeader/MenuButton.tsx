@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { View, Pressable, StyleSheet, Platform } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import Menu, { MenuItem } from './Menu'; // Import the new Menu component and MenuItem interface
+import Menu, { MenuItem } from './Menu';
 
 // Props for the MenuButton component
 interface MenuButtonProps {
@@ -25,6 +25,8 @@ export default function MenuButton({
 
   const [buttonLayout, setButtonLayout] = useState<{ x: number, y: number, width: number, height: number } | null>(null);
 
+  const menuToggleDuration = 200;
+
   function toggleMenu() {
     if (!menuToggled && Platform.OS !== 'web') {
       buttonRef.current?.measureInWindow((x, y, width, height) => {
@@ -36,8 +38,16 @@ export default function MenuButton({
     }
   }
 
-  function closeMenu() {
+  // Close the menu and execute any action if provided
+  function closeMenu(onHideCallback?: () => void) {
     setMenuToggled(false);
+    // Execute the callback if provided
+    if (onHideCallback) {
+      // On web, the menu isn't in a modal, so callback can execute immediately.
+      if (Platform.OS === 'web') {
+        setTimeout(onHideCallback, menuToggleDuration);
+      }
+    }
   }
 
   return (
@@ -68,6 +78,7 @@ export default function MenuButton({
           buttonLayout={buttonLayout}
           iconSize={iconSize}
           menuWrapRef={menuWrapRef}
+          menuToggleDuration={menuToggleDuration}
         />
       )}
     </View>

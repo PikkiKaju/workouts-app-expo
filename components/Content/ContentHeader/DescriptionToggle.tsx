@@ -3,6 +3,7 @@ import { Pressable, StyleSheet } from 'react-native';
 import { Text } from '../../UI/Themed';
 import AnimatedArrow from '../../UI/AnimatedArrow'; // Path relative to this file
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 interface DescriptionToggleProps {
   toggled: boolean;
@@ -12,6 +13,8 @@ interface DescriptionToggleProps {
 }
 
 export default function DescriptionToggle({ toggled, onPress, theme, textFontSize }: DescriptionToggleProps) {
+  const { t } = useTranslation();
+
   return (
     <Pressable style={styles.descriptionToggle} onPress={onPress}>
       <AnimatedArrow
@@ -22,7 +25,7 @@ export default function DescriptionToggle({ toggled, onPress, theme, textFontSiz
         toggled={toggled}
       />
       <Text theme={theme} style={{ fontSize: textFontSize }}>
-        Description
+        {t('content.header.description_toggle')}
       </Text>
     </Pressable>
   );

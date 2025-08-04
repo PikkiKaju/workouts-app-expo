@@ -11,9 +11,29 @@ i18next
             en: {
                 translation: {
                     workout_table_header: {
-                        exercise_name: "Exercise Name",
+                        exercise_name: "Name",
                         sets: "Sets",
                         weights: "Weights",
+                    },
+                    content: {
+                        header: {
+                            description_toggle: "Description",
+                            description_input_placeholder: "Add description here...",
+                            menu: {
+                                edit_name: "Rename",
+                                edit_date: "Change Date",
+                                edit_description: "Edit Description",
+                                save: "Save",
+                                cancel: "Cancel",
+                                delete: {
+                                    title: "Delete Workout",
+                                    message: "Are you sure you want to delete this workout?",
+                                    confirm: "Delete",
+                                    cancel: "Cancel",
+                                },
+                            }
+                        },
+                        exercisesHeading: "Exercises List:",
                     }
                 }
             },

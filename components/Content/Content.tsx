@@ -5,15 +5,16 @@ import ContentHeader from "./ContentHeader/ContentHeader";
 import WorkoutTable from "./WorkoutTable/WorkoutTable";
 import Footer from "./WorkoutTable/Footer";
 import { Set, Exercise, Workout } from "./WorkoutTable/types";
+import { withTranslation, WithTranslation } from "react-i18next";
 
-interface workoutProps extends Workout {
+interface workoutProps extends Workout, WithTranslation {
 }
 
 interface ContentState {
   exercises: Exercise[];
 }
 
-export default class Content extends Component<workoutProps, ContentState>{
+class Content extends Component<workoutProps, ContentState>{
   constructor(props: workoutProps) {
     super(props);
     this.state = {
@@ -36,6 +37,7 @@ export default class Content extends Component<workoutProps, ContentState>{
         >
           <View style={this.styles.innerContainer}>
             <ContentHeader name={this.props.name} />
+            <Text style={this.styles.exercisesHeading}>{this.props.t('content.exercisesHeading')}</Text>
             <WorkoutTable>
               <WorkoutTable.Header />
               {this.state.exercises.map((exercise: Exercise, exerciseIndex: number) =>  (
@@ -59,7 +61,13 @@ export default class Content extends Component<workoutProps, ContentState>{
     },
     innerContainer: {
       flex: 1,
-      marginHorizontal: 10,
+      marginHorizontal: 20,
     },
+    exercisesHeading: {
+      fontSize: 20,
+      marginBottom: 15,
+    }
   });
 }
+
+export default withTranslation()(Content);

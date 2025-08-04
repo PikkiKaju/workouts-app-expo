@@ -23,7 +23,7 @@ export default function Header({ style }: HeaderProps): React.ReactElement {
   return (
     <View style={[
       styles.container, style,
-      { borderBottomColor: Colors[theme].textMuted },
+      { borderBottomColor: Colors.global.themeColorFirst },
     ]}>
       <View style={{ width: columnWidths.dragColumn }}></View>
       <View style={{ width: columnWidths.keyColumn || 'auto' }}></View>
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     alignContent: "space-between",
-    borderBottomWidth: 1,
+    borderBottomWidth: 2,
     paddingVertical: 10,
   },
   header: {

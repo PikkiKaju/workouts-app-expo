@@ -34,11 +34,11 @@ interface DescriptionInputProps
   onBlur?: () => void;
   onPress?: () => void;
   theme: "light" | "dark";
+  placeholder: string;
+  placeholderTextColor?: string;
   inputRef?: React.RefObject<RNTextInput | null>;
   style?: StyleProp<TextStyle>;
   containerStyle?: StyleProp<ViewStyle>;
-  placeholder?: string;
-  placeholderTextColor?: string;
 }
 
 const inputAccessoryViewID = "descriptionInputAccessoryView";
@@ -53,7 +53,7 @@ export default function AutoExpandingTextInput({
   inputRef,
   style,
   containerStyle,
-  placeholder = "Add description here...",
+  placeholder,
   placeholderTextColor,
   ...restProps
 }: DescriptionInputProps) {

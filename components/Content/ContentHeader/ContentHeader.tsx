@@ -12,6 +12,7 @@ import DescriptionToggle from "./DescriptionToggle";
 import { useResponsiveLayout } from "@/components/Hooks/useResponsiveLayout"; 
 import { useWorkoutForm } from "@/components/Hooks/useWorkoutForm"; 
 import AutoExpandingTextInput from "@/components/UI/AutoExpandingTextInput";
+import { useTranslation } from "react-i18next";
 
 
 interface ContentHeaderProps {
@@ -25,6 +26,7 @@ const textFontSize = Platform.OS === "web" ? textFontSizeWeb : textFontSizeMobil
 
 export default function ContentHeader(props: ContentHeaderProps) {
   const { theme } = useTheme(); 
+  const { t } = useTranslation();
   const { isRowLayout, handleLayout } = useResponsiveLayout();
   const {
     refs,
@@ -45,15 +47,15 @@ export default function ContentHeader(props: ContentHeaderProps) {
   // Define menu items for the MenuButton component
   const menuItems: MenuItem[] = [
     {
-      text: "Rename",
+      text: t('content.header.menu.edit_name'),
       onPressAction: requestFocusNameInput,
     },
     {
-      text: "Change date",
+      text: t('content.header.menu.edit_date'),
       onPressAction: requestFocusDateInput,
     },
     {
-      text: "Edit description",
+      text: t('content.header.menu.edit_description'),
       onPressAction: requestFocusDescriptionInput,
     },
     {
@@ -61,7 +63,7 @@ export default function ContentHeader(props: ContentHeaderProps) {
       text: 'sep1', onPressAction: () => { }
     }, // Separator item
     {
-      text: "Delete",
+      text: t('content.header.menu.delete.title'),
       onPressAction: deleteWorkout,
     },
   ];
@@ -132,6 +134,7 @@ export default function ContentHeader(props: ContentHeaderProps) {
             Platform.OS === "web" ? { outlineStyle: "none" } : null
           ]}
           value={workoutDescription}
+          placeholder={t('content.header.description_input_placeholder')}
           onChangeText={setWorkoutDescription}
           onFocus={requestFocusDescriptionInput}
           onBlur={saveWorkoutDescription}
@@ -144,8 +147,7 @@ export default function ContentHeader(props: ContentHeaderProps) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
-    rowGap: 15, 
-    marginHorizontal: 20, 
+    rowGap: 15,  
     padding: 5,
     paddingBottom: 10,
     borderBottomWidth: 1,

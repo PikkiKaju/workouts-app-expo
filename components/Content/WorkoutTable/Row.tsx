@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { useWorkoutTableContext } from "./WorkoutTableContextProvider";
-import { Pressable, StyleSheet, ViewStyle } from "react-native";
+import { Animated, GestureResponderEvent, Pressable, StyleSheet, ViewStyle } from "react-native";
 import { View, Text } from "@/components/UI/Themed";
 import { Exercise } from "./types";
 import SetRow from "./SetRow";
@@ -23,21 +23,48 @@ export default function Row({ ...props }: RowProps) {
   const { theme } = useTheme();
   const { tableStyles } = useWorkoutTableContext();
   const columnWidths = tableStyles.columns?.widths || {};
-  const [ isHovered, setIsHovered ] = useState(false);
   const [ isExpanded, setIsExpanded ] = useState(true);
- 
+  const [ isDragged, setIsDragged ] = useState(false);
+  const scaleAnim = useState(new Animated.Value(0))[0];
+
   function toggleExpanded() {
     setIsExpanded(!isExpanded);
   }
+
+  function handleDragStart(e: GestureResponderEvent) {
+    setIsDragged(true);
+    console.log(e.nativeEvent.pageX, e.nativeEvent.pageY);
+  }
+
+  function handleDragEnd(e: GestureResponderEvent) {
+    setIsDragged(false);
+    console.log(e.nativeEvent.pageX, e.nativeEvent.pageY);
+    
+  }
+
+  useEffect(() => {
+    console.log(`Row ${props.exerciseIndex + 1} is ${isDragged ? 'being dragged' : 'not being dragged'}`);
+    Animated.timing(scaleAnim, {
+      toValue: isDragged ? 1 : 0,
+      duration: 50,
+      useNativeDriver: false,
+    }).start();
+  }, [isDragged]);
+
+  const scale = scaleAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [1, 1.005],
+    });
 
   const setsNumber = props.sets.length;
   const weightsString = `${props.sets[0].weight} - ${props.sets[props.sets.length - 1].weight}`;
 
   return (
     <HoverableView
-      onHoverIn={() => setIsHovered(true)}
-      onHoverOut={() => setIsHovered(false)} 
-      style={[ styles.container, props.style ]}
+      style={[ 
+        styles.container, props.style,
+        { transform: [{ scale: scale }]}
+      ]}
       hoverStyle={{ backgroundColor: Colors[theme].backgroundHover }}
     >
       <View style={[
@@ -47,7 +74,8 @@ export default function Row({ ...props }: RowProps) {
         <View style={[styles.dragButton, { width: columnWidths.dragColumn }]}>
           <Pressable 
             style={styles.dragButton} 
-            onPress={() => console.log("Drag exercise")}
+            onPressIn={handleDragStart}
+            onPressOut={handleDragEnd}
           >
             <MaterialIcons 
               name="drag-handle" 

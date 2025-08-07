@@ -1,16 +1,16 @@
 import React from "react";
-import { ViewProps } from "@/components/UI/Themed";
-import { Animated, Platform, Pressable, StyleProp, StyleSheet, ViewStyle } from "react-native";
+import { View, ViewProps } from "@/components/UI/Themed";
+import { Animated, ColorValue, Platform, Pressable, StyleProp, StyleSheet, ViewStyle } from "react-native";
 
-interface HoveredViewStyle extends ViewStyle {
+interface HoverableViewStyle extends ViewStyle {
   scale?: number;
-  backgroundColor?: string;
+  backgroundColor?: ColorValue;
 }
 
 interface HoverableViewProps extends ViewProps {
   children: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
-  hoverStyle?: StyleProp<HoveredViewStyle>;
+  style?: StyleProp<ViewStyle> | StyleProp<HoverableViewStyle>;
+  hoverStyle?: StyleProp<HoverableViewStyle>;
   transitionDuration?: number; // Duration for hover effect
   onHoverIn?: () => void;
   onHoverOut?: () => void;
@@ -63,29 +63,20 @@ export default class HoverableView extends React.Component<HoverableViewProps, H
 
   render() {
     const { children, style, hoverStyle: hoverStyleProp } = this.props;
-    const { isHovered } = this.state;
 
     const flatStyle = StyleSheet.flatten(style) as ViewStyle;
     // Combine the default hoverStyle with the one from props
     const flatHoverStyle = StyleSheet.flatten([
       HoverableView.defaultProps.hoverStyle, 
       hoverStyleProp
-    ]) as HoveredViewStyle;
+    ]) as HoverableViewStyle;
 
     const scale = this.animValue.interpolate({
       inputRange: [0, 1],
       outputRange: [1, flatHoverStyle?.scale || 1.04],
     });
 
-    const themeBackgroundColor = 
-      this.props.theme 
-      ? this.props.theme === "light" 
-        ? this.props.lightColor 
-        : this.props.darkColor 
-      : flatStyle?.backgroundColor || HoverableView.defaultProps.hoverStyle.backgroundColor;
-
     const backgroundColor = this.animValue.interpolate({
-      
       inputRange: [0, 1],
       outputRange: [
         (flatStyle?.backgroundColor as string) || HoverableView.defaultProps.hoverStyle.backgroundColor,
@@ -93,24 +84,26 @@ export default class HoverableView extends React.Component<HoverableViewProps, H
       ],
     });
 
+    const hoverProps = {
+    };
+
     return (
-      <Pressable
+      <View
         style={[Platform.OS === "web" ? { cursor: "auto" } : {}]}
-        onHoverIn={this.handleHoverIn}
-        onHoverOut={this.handleHoverOut}
+        onPointerEnter={this.handleHoverIn}
+        onPointerLeave={this.handleHoverOut}
       >
         <Animated.View
           style={[
             style,
-            { 
-              backgroundColor,
-              transform: [{ scale: scale }] 
-            },
+            flatHoverStyle.backgroundColor && { backgroundColor },
+            flatHoverStyle.scale !== 1 ? { transform: [{ scale: scale }] } : {} 
           ]}
+          {...(Platform.OS === "web" ? hoverProps : {})}
         >
           {children}
         </Animated.View>
-      </Pressable>
+      </View>
     );
   }
 }

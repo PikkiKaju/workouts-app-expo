@@ -1,9 +1,9 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { useWorkoutTableContext } from "./WorkoutTableContextProvider";
-import { Animated, GestureResponderEvent, Pressable, StyleSheet, ViewStyle } from "react-native";
+import { Animated, GestureResponderEvent, Pressable, StyleSheet, ViewStyle, PanResponder, Platform } from "react-native";
 import { View, Text } from "@/components/UI/Themed";
 import { Exercise } from "./types";
 import SetRow from "./SetRow";
@@ -25,57 +25,107 @@ export default function Row({ ...props }: RowProps) {
   const columnWidths = tableStyles.columns?.widths || {};
   const [ isExpanded, setIsExpanded ] = useState(true);
   const [ isDragged, setIsDragged ] = useState(false);
+  const isDraggedRef = useRef(false);
+  const initialPositionRef = useRef({ x: 0, y: 0 });
+  const [ isOnPlace, setIsOnPlace ] = useState(true);
+  const pan = useRef(new Animated.ValueXY()).current;
   const scaleAnim = useState(new Animated.Value(0))[0];
+  const scaleRef = useRef(scaleAnim.interpolate({ inputRange: [0,1], outputRange: [1,1] }));
 
   function toggleExpanded() {
     setIsExpanded(!isExpanded);
   }
 
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: (event) => {
+        setIsOnPlace(false);
+        handleDragStart(event);
+      },
+      onPanResponderMove: (evt) => {
+        if (isDraggedRef.current) {
+          setIsOnPlace(false);
+          const { pageX, pageY } = evt.nativeEvent;
+          const deltaX = pageX - initialPositionRef.current.x;
+          const deltaY = pageY - initialPositionRef.current.y;
+          pan.setValue({ x: deltaX, y: deltaY });
+        }
+      },
+      onPanResponderRelease: (event) => {
+        if (isDraggedRef.current) {
+          pan.flattenOffset();
+          // Snap back to original position
+          Animated.spring(pan, {
+            toValue: { x: 0, y: 0 },
+            bounciness: 4,
+            useNativeDriver: false,
+          }).start(() => setIsOnPlace(true));
+          handleDragEnd(event);
+        }
+      },
+    })
+  ).current;
+
+  const scaleAnimTransition = 50; // Duration for scale animation
+
   function handleDragStart(e: GestureResponderEvent) {
     setIsDragged(true);
-    console.log(e.nativeEvent.pageX, e.nativeEvent.pageY);
+    isDraggedRef.current = true;
+    const { pageX, pageY } = e.nativeEvent;
+    initialPositionRef.current = { x: pageX, y: pageY };
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: scaleAnimTransition,
+      useNativeDriver: false,
+    }).start();
   }
 
   function handleDragEnd(e: GestureResponderEvent) {
     setIsDragged(false);
-    console.log(e.nativeEvent.pageX, e.nativeEvent.pageY);
-    
+    isDraggedRef.current = false;
+    Animated.timing(scaleAnim, {
+      toValue: 0,
+      duration: scaleAnimTransition,
+      useNativeDriver: false,
+    }).start(() => {});
   }
 
-  useEffect(() => {
-    console.log(`Row ${props.exerciseIndex + 1} is ${isDragged ? 'being dragged' : 'not being dragged'}`);
-    Animated.timing(scaleAnim, {
-      toValue: isDragged ? 1 : 0,
-      duration: 50,
-      useNativeDriver: false,
-    }).start();
-  }, [isDragged]);
-
-  const scale = scaleAnim.interpolate({
+  scaleRef.current = scaleAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: [1, 1.005],
+      outputRange: [1, Platform.OS === "web" ? 1.01 : 1.02],
     });
 
   const setsNumber = props.sets.length;
   const weightsString = `${props.sets[0].weight} - ${props.sets[props.sets.length - 1].weight}`;
 
   return (
-    <HoverableView
+    <Animated.View
       style={[ 
-        styles.container, props.style,
-        { transform: [{ scale: scale }]}
-      ]}
-      hoverStyle={{ backgroundColor: Colors[theme].backgroundHover }}
+        styles.container, 
+        props.style,
+        !isOnPlace ? { zIndex: 1000 } : {},
+        { 
+          transform: [
+            { scale: scaleRef.current },
+            { translateY: pan.y },
+          ]
+        }
+      ]}  
+      {...panResponder.panHandlers}
     >
+      <HoverableView
+        style={[styles.container]}
+        hoverStyle={{ backgroundColor: Colors[theme].backgroundHover }}
+      >
       <View style={[
         styles.header, 
         { borderBottomColor: Colors[theme].textMuted },
       ]}>
         <View style={[styles.dragButton, { width: columnWidths.dragColumn }]}>
           <Pressable 
-            style={styles.dragButton} 
-            onPressIn={handleDragStart}
-            onPressOut={handleDragEnd}
+            style={styles.dragButton}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <MaterialIcons 
               name="drag-handle" 
@@ -120,7 +170,8 @@ export default function Row({ ...props }: RowProps) {
         
       </View>
       )}
-    </HoverableView>
+      </HoverableView>
+    </Animated.View>
   );
 }
 

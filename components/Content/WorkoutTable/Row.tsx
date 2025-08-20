@@ -17,7 +17,7 @@ import { rowsPositionsType } from "./WorkoutTable";
 
 interface RowProps extends Exercise {
   exerciseIndex: number;
-  rowsPositions: rowsPositionsType[];
+  rowsPositions?: rowsPositionsType[];
   onMeasure?: (position: rowsPositionsType) => void;
   updateRowsPositions?: (rowsPositions: rowsPositionsType[]) => void;
   style?: ViewStyle;
@@ -42,8 +42,11 @@ export default function Row({ ...props }: RowProps) {
   function toggleExpanded() {
     setIsExpanded(!isExpanded);
   }
-  
 
+  if (!props.rowsPositions) {
+    throw new Error("Row component requires rowsPositions prop to be defined.");
+  }
+  
   function updateDragHandleRect() {
     const node = dragHandleRef.current;
     if (node && typeof node.measureInWindow === 'function') {
@@ -82,7 +85,7 @@ export default function Row({ ...props }: RowProps) {
         initialPositionRef.current = { x: pageX, y: pageY };
       },
       onPanResponderMove: (evt) => {
-        if (isDraggedRef.current) {
+        if (isDraggedRef.current && props.rowsPositions) {
           setIsOnPlace(false);
           const { pageY } = evt.nativeEvent;
           // Calculate the maximum distance to move up or down based on the current row positions
@@ -103,7 +106,7 @@ export default function Row({ ...props }: RowProps) {
           for (let i = 0; i < props.rowsPositions.length; i++) {
             sumHeight += props.rowsPositions[i].height;            
             if (maxBefore + deltaY < sumHeight - props.rowsPositions[i].height/2) {
-              props.rowsPositions[i] = props.rowsPositions[props.exerciseIndex];
+              // props.rowsPositions[i] = props.rowsPositions[props.exerciseIndex];
               console.log(`Moving row ${props.exerciseIndex} to position ${i}`);
               break;
             }

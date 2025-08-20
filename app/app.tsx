@@ -22,27 +22,43 @@ import { usePanelContext } from '@/components/Providers/PanelContextProvider';
 import { Workout } from '@/components/Content/WorkoutTable/types';
 
 const examplaryWorkout: Workout = {
-    name: "Full Body Workout",
-    date: new Date(),
-    exercises: [
-      {
-        name: "Bench Press",
-        description: "A great exercise for chest and triceps.",
-        sets: [
-          { reps: 10, weight: 100 },
-          { reps: 8, weight: 110 },
-        ],
-      },
-      {
-        name: "Squats",
-        description: "A great exercise for legs and glutes.",
-        sets: [
-          { reps: 15, weight: 150 },
-          { reps: 8, weight: 160 },
-        ],
-      },
-    ],
-  };
+  name: "Full Body Workout",
+  date: new Date(),
+  exercises: [
+    {
+      name: "Bench Press",
+      description: "A great exercise for chest and triceps.",
+      sets: [
+        { reps: 10, weight: 100 },
+        { reps: 8, weight: 110 },
+      ],
+    },
+    {
+      name: "Squats",
+      description: "A great exercise for legs and glutes.",
+      sets: [
+        { reps: 15, weight: 150 },
+        { reps: 8, weight: 160 },
+      ],
+    },
+    {
+      name: "Deadlift",
+      description: "Targets the entire posterior chain.",
+      sets: [
+        { reps: 10, weight: 180 },
+        { reps: 6, weight: 200 },
+      ],
+    },
+    {
+      name: "Pull Ups",
+      description: "Excellent for back and biceps.",
+      sets: [
+        { reps: 12, weight: 0 },
+        { reps: 8, weight: 0 },
+      ],
+    },
+  ],
+};
 
 export default function App() {
   const { height, width, scale, fontScale } = useWindowDimensions();

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import * as Haptics from 'expo-haptics';
 
 import { useWorkoutTableContext } from "./WorkoutTableContextProvider";
-import { Animated, GestureResponderEvent, Pressable, StyleSheet, ViewStyle, PanResponder, Platform } from "react-native";
+import { Animated, GestureResponderEvent, Pressable, StyleSheet, ViewStyle, PanResponder, Platform, View as RNView } from "react-native";
 import { View, Text } from "@/components/UI/Themed";
 import { Exercise } from "./types";
 import SetRow from "./SetRow";
@@ -24,24 +25,57 @@ export default function Row({ ...props }: RowProps) {
   const { tableStyles } = useWorkoutTableContext();
   const columnWidths = tableStyles.columns?.widths || {};
   const [ isExpanded, setIsExpanded ] = useState(true);
-  const [ isDragged, setIsDragged ] = useState(false);
   const isDraggedRef = useRef(false);
   const initialPositionRef = useRef({ x: 0, y: 0 });
   const [ isOnPlace, setIsOnPlace ] = useState(true);
   const pan = useRef(new Animated.ValueXY()).current;
   const scaleAnim = useState(new Animated.Value(0))[0];
   const scaleRef = useRef(scaleAnim.interpolate({ inputRange: [0,1], outputRange: [1,1] }));
+  const dragHandleRef = useRef<any>(null);
+  const dragHandleRectRef = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
+  const pressingHandleRef = useRef(false);
 
   function toggleExpanded() {
     setIsExpanded(!isExpanded);
   }
+  
+
+  function updateDragHandleRect() {
+    const node = dragHandleRef.current;
+    if (node && typeof node.measureInWindow === 'function') {
+      node.measureInWindow((x: number, y: number, width: number, height: number) => {
+        dragHandleRectRef.current = { x, y, width, height };
+      });
+    }
+  }
+
+  function isPointInDragHandle(pageX: number, pageY: number) {
+    const rect = dragHandleRectRef.current;
+    if (!rect) return pressingHandleRef.current; // fallback if we couldn't measure
+    return (
+      pageX >= rect.x &&
+      pageX <= rect.x + rect.width &&
+      pageY >= rect.y &&
+      pageY <= rect.y + rect.height
+    );
+  }
 
   const panResponder = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderGrant: (event) => {
+      onStartShouldSetPanResponderCapture: (e) => {
+        const { pageX, pageY } = e.nativeEvent;
+        return isPointInDragHandle(pageX, pageY);
+      },
+      onMoveShouldSetPanResponderCapture: (e) => {
+        const { pageX, pageY } = e.nativeEvent;
+        return isPointInDragHandle(pageX, pageY);
+      },
+      onPanResponderGrant: (e) => {
+        handleDragStart();
         setIsOnPlace(false);
-        handleDragStart(event);
+        isDraggedRef.current = true;
+        const { pageX, pageY } = e.nativeEvent;
+        initialPositionRef.current = { x: pageX, y: pageY };
       },
       onPanResponderMove: (evt) => {
         if (isDraggedRef.current) {
@@ -52,28 +86,37 @@ export default function Row({ ...props }: RowProps) {
           pan.setValue({ x: deltaX, y: deltaY });
         }
       },
-      onPanResponderRelease: (event) => {
+      onPanResponderRelease: () => {
         if (isDraggedRef.current) {
           pan.flattenOffset();
-          // Snap back to original position
           Animated.spring(pan, {
             toValue: { x: 0, y: 0 },
-            bounciness: 4,
+            bounciness: 2,
             useNativeDriver: false,
           }).start(() => setIsOnPlace(true));
-          handleDragEnd(event);
+          handleDragEnd();
         }
+        pressingHandleRef.current = false;
+      },
+      onPanResponderTerminate: () => {
+        // Another component has become the responder, reset
+        if (isDraggedRef.current) {
+          Animated.spring(pan, {
+            toValue: { x: 0, y: 0 },
+            bounciness: 2,
+            useNativeDriver: false,
+          }).start(() => setIsOnPlace(true));
+          handleDragEnd();
+        }
+        pressingHandleRef.current = false;
       },
     })
   ).current;
 
   const scaleAnimTransition = 50; // Duration for scale animation
 
-  function handleDragStart(e: GestureResponderEvent) {
-    setIsDragged(true);
-    isDraggedRef.current = true;
-    const { pageX, pageY } = e.nativeEvent;
-    initialPositionRef.current = { x: pageX, y: pageY };
+  function handleDragStart() {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); // Trigger haptic feedback
     Animated.timing(scaleAnim, {
       toValue: 1,
       duration: scaleAnimTransition,
@@ -81,8 +124,7 @@ export default function Row({ ...props }: RowProps) {
     }).start();
   }
 
-  function handleDragEnd(e: GestureResponderEvent) {
-    setIsDragged(false);
+  function handleDragEnd() {
     isDraggedRef.current = false;
     Animated.timing(scaleAnim, {
       toValue: 0,
@@ -113,22 +155,35 @@ export default function Row({ ...props }: RowProps) {
         }
       ]}  
       {...panResponder.panHandlers}
+      onLayout={updateDragHandleRect}
     >
       <HoverableView
-        style={[styles.container]}
+        style={[
+          styles.container,
+          isDraggedRef.current ? { 
+            backgroundColor: Colors[theme].backgroundHover,
+            borderRadius: 10,
+           } : {},
+        ]}
         hoverStyle={{ backgroundColor: Colors[theme].backgroundHover }}
       >
       <View style={[
         styles.header, 
         { borderBottomColor: Colors[theme].textMuted },
       ]}>
-        <View style={[styles.dragButton, { width: columnWidths.dragColumn }]}>
+        <View 
+          ref={dragHandleRef}
+          onLayout={updateDragHandleRect}
+          style={[styles.dragButton, { width: columnWidths.dragColumn }]}
+        >
           <Pressable 
             style={styles.dragButton}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            onPressIn={() => { pressingHandleRef.current = true; }}
+            onPressOut={() => { pressingHandleRef.current = false; }}
           >
             <MaterialIcons 
-              name="drag-handle" 
+              name="drag-handle"
               size={24} 
               color={Colors[theme].textMuted}
             />

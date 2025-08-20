@@ -12,10 +12,14 @@ import AnimatedArrow from "@/components/UI/AnimatedArrow";
 import { useTheme } from "@/components/Providers/ThemeProvider";
 import Colors from "@/constants/Colors";
 import HoverableView from "@/components/UI/HoverableView";
+import { rowsPositionsType } from "./WorkoutTable";
 
 
 interface RowProps extends Exercise {
   exerciseIndex: number;
+  rowsPositions: rowsPositionsType[];
+  onMeasure?: (position: rowsPositionsType) => void;
+  updateRowsPositions?: (rowsPositions: rowsPositionsType[]) => void;
   style?: ViewStyle;
 }
 
@@ -51,7 +55,7 @@ export default function Row({ ...props }: RowProps) {
 
   function isPointInDragHandle(pageX: number, pageY: number) {
     const rect = dragHandleRectRef.current;
-    if (!rect) return pressingHandleRef.current; // fallback if we couldn't measure
+    if (!rect) return pressingHandleRef.current; // fallback if couldn't measure
     return (
       pageX >= rect.x &&
       pageX <= rect.x + rect.width &&
@@ -80,10 +84,30 @@ export default function Row({ ...props }: RowProps) {
       onPanResponderMove: (evt) => {
         if (isDraggedRef.current) {
           setIsOnPlace(false);
-          const { pageX, pageY } = evt.nativeEvent;
-          const deltaX = pageX - initialPositionRef.current.x;
-          const deltaY = pageY - initialPositionRef.current.y;
-          pan.setValue({ x: deltaX, y: deltaY });
+          const { pageY } = evt.nativeEvent;
+          // Calculate the maximum distance to move up or down based on the current row positions
+          // This ensures the row can only be dragged within the bounds of the other rows
+          let maxBefore = 0;
+          let maxAfter = 0;
+          for (let i = 0; i < props.rowsPositions.length; i++) {
+            if (i < props.exerciseIndex) maxBefore += props.rowsPositions[i].height;
+            else if (i > props.exerciseIndex) maxAfter += props.rowsPositions[i].height;
+          }
+          let deltaY = pageY - initialPositionRef.current.y;
+          if (deltaY < -maxBefore) deltaY = -maxBefore;
+          else if (deltaY > maxAfter) deltaY = maxAfter;
+          pan.setValue({ x: 0, y: deltaY });
+
+          // Update the position in the rowsPositions array
+          let sumHeight = 0;          
+          for (let i = 0; i < props.rowsPositions.length; i++) {
+            sumHeight += props.rowsPositions[i].height;            
+            if (maxBefore + deltaY < sumHeight - props.rowsPositions[i].height/2) {
+              props.rowsPositions[i] = props.rowsPositions[props.exerciseIndex];
+              console.log(`Moving row ${props.exerciseIndex} to position ${i}`);
+              break;
+            }
+          }          
         }
       },
       onPanResponderRelease: () => {
@@ -155,7 +179,16 @@ export default function Row({ ...props }: RowProps) {
         }
       ]}  
       {...panResponder.panHandlers}
-      onLayout={updateDragHandleRect}
+      onLayout={(event) => {
+        updateDragHandleRect();
+        props.onMeasure?.({
+          exerciseIndex: props.exerciseIndex, 
+          x: event.nativeEvent.layout.x,
+          y: event.nativeEvent.layout.y,
+          width: event.nativeEvent.layout.width,
+          height: event.nativeEvent.layout.height,
+        });
+      }}
     >
       <HoverableView
         style={[

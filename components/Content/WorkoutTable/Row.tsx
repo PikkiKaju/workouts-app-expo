@@ -12,41 +12,39 @@ import AnimatedArrow from "@/components/UI/AnimatedArrow";
 import { useTheme } from "@/components/Providers/ThemeProvider";
 import Colors from "@/constants/Colors";
 import HoverableView from "@/components/UI/HoverableView";
-import { rowsPositionsType } from "./WorkoutTable";
+import { rowPositionType } from "./types";
+import { RowElement } from "./WorkoutTable";
 
-
-interface RowProps extends Exercise {
+// Internal props used by WorkoutTable (required integration props)
+export interface RowProps extends Exercise {
   exerciseIndex: number;
-  rowsPositions?: rowsPositionsType[];
-  onMeasure?: (position: rowsPositionsType) => void;
-  updateRowsPositions?: (rowsPositions: rowsPositionsType[]) => void;
   style?: ViewStyle;
 }
 
-
 export default function Row({ ...props }: RowProps) {
   const { theme } = useTheme();
-  const { tableStyles } = useWorkoutTableContext();
+  const { tableStyles, tableRows, tableRowsPositions, setTableRowPosition } = useWorkoutTableContext();
   const columnWidths = tableStyles.columns?.widths || {};
   const [ isExpanded, setIsExpanded ] = useState(true);
-  const isDraggedRef = useRef(false);
-  const initialPositionRef = useRef({ x: 0, y: 0 });
-  const [ isOnPlace, setIsOnPlace ] = useState(true);
   const pan = useRef(new Animated.ValueXY()).current;
+  const isDraggedRef = useRef(false);
+  const dragHandleRef = useRef<any>(null);
+  const dragHandleRectRef = useRef<rowPositionType | null>(null);
+  const pressingHandleRef = useRef(false);
+  const initialPositionRef = useRef({ x: 0, y: 0 });
+  const tableRowsPositionsRef = useRef<rowPositionType[]>(tableRowsPositions);
+  const [ isOnPlace, setIsOnPlace ] = useState(true);
   const scaleAnim = useState(new Animated.Value(0))[0];
   const scaleRef = useRef(scaleAnim.interpolate({ inputRange: [0,1], outputRange: [1,1] }));
-  const dragHandleRef = useRef<any>(null);
-  const dragHandleRectRef = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
-  const pressingHandleRef = useRef(false);
 
   function toggleExpanded() {
     setIsExpanded(!isExpanded);
-  }
+  }  
 
-  if (!props.rowsPositions) {
-    throw new Error("Row component requires rowsPositions prop to be defined.");
-  }
-  
+  useEffect(() => {
+    tableRowsPositionsRef.current = tableRowsPositions;
+  }, [tableRowsPositions])
+
   function updateDragHandleRect() {
     const node = dragHandleRef.current;
     if (node && typeof node.measureInWindow === 'function') {
@@ -70,14 +68,17 @@ export default function Row({ ...props }: RowProps) {
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponderCapture: (e) => {
+        if (!tableRows) return false;
         const { pageX, pageY } = e.nativeEvent;
         return isPointInDragHandle(pageX, pageY);
       },
       onMoveShouldSetPanResponderCapture: (e) => {
+        if (!tableRows) return false;
         const { pageX, pageY } = e.nativeEvent;
         return isPointInDragHandle(pageX, pageY);
       },
       onPanResponderGrant: (e) => {
+        if (!tableRows) return;        
         handleDragStart();
         setIsOnPlace(false);
         isDraggedRef.current = true;
@@ -85,32 +86,46 @@ export default function Row({ ...props }: RowProps) {
         initialPositionRef.current = { x: pageX, y: pageY };
       },
       onPanResponderMove: (evt) => {
-        if (isDraggedRef.current && props.rowsPositions) {
+        if (!tableRows) return;        
+        if (isDraggedRef.current && tableRows) {
           setIsOnPlace(false);
           const { pageY } = evt.nativeEvent;
+          
           // Calculate the maximum distance to move up or down based on the current row positions
           // This ensures the row can only be dragged within the bounds of the other rows
           let maxBefore = 0;
           let maxAfter = 0;
-          for (let i = 0; i < props.rowsPositions.length; i++) {
-            if (i < props.exerciseIndex) maxBefore += props.rowsPositions[i].height;
-            else if (i > props.exerciseIndex) maxAfter += props.rowsPositions[i].height;
+          for (let i = 0; i < tableRowsPositionsRef.current.length; i++) {
+            const rowPosition = tableRowsPositionsRef.current[i];            
+            if (i < props.exerciseIndex) maxBefore += rowPosition.height ?? 0;
+            else if (i > props.exerciseIndex) maxAfter += rowPosition.height ?? 0;
           }
           let deltaY = pageY - initialPositionRef.current.y;
           if (deltaY < -maxBefore) deltaY = -maxBefore;
           else if (deltaY > maxAfter) deltaY = maxAfter;
+          
           pan.setValue({ x: 0, y: deltaY });
 
           // Update the position in the rowsPositions array
-          let sumHeight = 0;          
-          for (let i = 0; i < props.rowsPositions.length; i++) {
-            sumHeight += props.rowsPositions[i].height;            
-            if (maxBefore + deltaY < sumHeight - props.rowsPositions[i].height/2) {
-              // props.rowsPositions[i] = props.rowsPositions[props.exerciseIndex];
-              console.log(`Moving row ${props.exerciseIndex} to position ${i}`);
-              break;
-            }
-          }          
+          // let sumHeight = 0;          
+          // for (let i = 0; i < props.rows.length; i++) {
+          //   sumHeight += props.rows[i].props.position.height;            
+          //   if (maxBefore + deltaY < sumHeight - props.rows[i].props.position.height/2) {
+          //     if (i !== props.exerciseIndex) {
+          //       // Move the row to the new position in the array
+          //       let movedRow = props.rows[props.exerciseIndex];
+          //       props.rows[props.exerciseIndex] = props.rows[i];
+
+          //       props.rows[i] = movedRow;
+          //       // console.log(`Moving row ${props.exerciseIndex} to position ${i}`);
+          //       console.log(`Rows order: ${props.rows.map(row => row.props.exerciseIndex).join(", ")}`);
+                
+          //     }
+          //     break;
+          //   }
+          // }          
+
+          // NOTE: rows reordering side-effects removed here due to missing rowsPositions prop
         }
       },
       onPanResponderRelease: () => {
@@ -181,17 +196,16 @@ export default function Row({ ...props }: RowProps) {
           ]
         }
       ]}  
-      {...panResponder.panHandlers}
       onLayout={(event) => {
-        updateDragHandleRect();
-        props.onMeasure?.({
-          exerciseIndex: props.exerciseIndex, 
+        updateDragHandleRect();        
+        setTableRowPosition(props.exerciseIndex, { 
           x: event.nativeEvent.layout.x,
           y: event.nativeEvent.layout.y,
           width: event.nativeEvent.layout.width,
           height: event.nativeEvent.layout.height,
-        });
+        } as rowPositionType);
       }}
+      {...panResponder.panHandlers}
     >
       <HoverableView
         style={[
@@ -265,6 +279,7 @@ export default function Row({ ...props }: RowProps) {
     </Animated.View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

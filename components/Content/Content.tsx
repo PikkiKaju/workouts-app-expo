@@ -45,7 +45,7 @@ class Content extends Component<workoutProps, ContentState>{
                   key={exerciseIndex} 
                   exerciseIndex={exerciseIndex}
                   name={exercise.name} 
-                  description={exercise.description} 
+                  description={exercise.description}
                   sets={exercise.sets}
                 />
               ))}

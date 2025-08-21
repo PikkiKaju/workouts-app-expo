@@ -15,3 +15,11 @@ export interface Workout {
   date: Date 
   exercises: Exercise[]
 }
+
+// Shared type used by WorkoutTable rows to track measured layout
+export type rowPositionType = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}

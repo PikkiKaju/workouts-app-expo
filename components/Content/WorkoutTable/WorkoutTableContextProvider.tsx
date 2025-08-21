@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 import { DimensionValue, Platform } from "react-native";
+import { RowElement } from "./WorkoutTable";
+import { rowPositionType } from "./types";
 
 export type panelToggled = true | false;
 
@@ -57,16 +59,39 @@ const workoutTableStyles = {
 
 interface WorkoutTableContextType {
   tableStyles: typeof workoutTableStyles;
+  tableRowsPositions: rowPositionType[];
+  setTableRowsPositions: (positions: rowPositionType[]) => void;
+  setTableRowPosition: (index: number, position: rowPositionType) => void;
+  tableRows: RowElement[];
+  setTableRows: (rows: RowElement[]) => void;
+  setTableRow: (index: number, row: RowElement) => void;
 }
 
 const WorkoutTableContext = createContext<WorkoutTableContextType | undefined>(undefined);
 
 export const WorkoutTableContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tableStyles, setStyles] = useState<typeof workoutTableStyles>(workoutTableStyles);
+  const [tableRowsPositions, setTableRowsPositions] = useState<rowPositionType[]>([]);
+  const [tableRows, setTableRows] = useState<RowElement[]>([]);
 
+  const setTableRow = (index: number, row: RowElement) => {
+    setTableRows((prevRows) => {
+      const newRows = [...prevRows];
+      newRows[index] = row;
+      return newRows;
+    });
+  }
+
+  const setTableRowPosition = (index: number, position: rowPositionType) => {
+    setTableRowsPositions((prevPositions) => {
+      const newPositions = [...prevPositions];
+      newPositions[index] = position;
+      return newPositions;
+    });
+  };
 
   return (
-    <WorkoutTableContext.Provider value={{ tableStyles }} >
+    <WorkoutTableContext.Provider value={{ tableStyles, tableRowsPositions, setTableRowsPositions, setTableRowPosition, tableRows, setTableRows, setTableRow }} >
       {children}
     </WorkoutTableContext.Provider>
   );

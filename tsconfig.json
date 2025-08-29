@@ -1,6 +1,8 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "baseUrl": ".",            // ensure "paths" work
+    "jsx": "react-jsx",        // ensure TSX compiles even if extends fails
     "strict": true,
     "paths": {
       "@/*": ["./*"],

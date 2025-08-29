@@ -11,7 +11,7 @@ interface PanelContextType {
 const PanelContext = createContext<PanelContextType | undefined>(undefined);
 
 export const PanelContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [panelToggled, setPanelToggled] = useState<panelToggled>(true);
+  const [panelToggled, setPanelToggled] = useState<panelToggled>(false);
 
   const togglePanel = () => {
     const newTheme = panelToggled === true ? false : true;

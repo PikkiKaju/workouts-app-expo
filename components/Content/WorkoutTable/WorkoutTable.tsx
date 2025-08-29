@@ -20,7 +20,7 @@ interface WorkoutTableProps {
 }
 
 const WorkoutTableContent = ({ children, style }: WorkoutTableProps) => {
-  const { tableRows, setTableRows, setTableRowsPositions} = useWorkoutTableContext();
+  const { tableRows, setTableRows, setTableRowsPositions, registerRowRef } = useWorkoutTableContext();
   const childrenArray = React.Children.toArray(children);
         
   // Type guard function to check if a child is an allowed type
@@ -61,12 +61,19 @@ const WorkoutTableContent = ({ children, style }: WorkoutTableProps) => {
   return(
     <View style={[styles.container, style]}>
       {header}
-      {tableRows.map((row, index) =>
-        React.cloneElement(row, {
-          key: index,
-          exerciseIndex: index,
-        })
-      )}
+      <View style={styles.container}>
+        {tableRows.map((row, index) => {
+          const stableKey = (row.key ?? row.props?.name ?? `row-${index}`) as string;
+          return (
+            <Row
+              key={stableKey}
+              ref={(ref) => registerRowRef(index, ref)}
+              {...row.props}
+              exerciseIndex={index}
+            />
+          );
+        })}
+      </View>
       {footer}
     </View>
   );

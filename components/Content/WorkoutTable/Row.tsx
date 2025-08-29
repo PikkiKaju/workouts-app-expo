@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useImperativeHandle } from "react";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Haptics from 'expo-haptics';
@@ -6,158 +6,117 @@ import * as Haptics from 'expo-haptics';
 import { useWorkoutTableContext } from "./WorkoutTableContextProvider";
 import { Animated, GestureResponderEvent, Pressable, StyleSheet, ViewStyle, PanResponder, Platform, View as RNView } from "react-native";
 import { View, Text } from "@/components/UI/Themed";
-import { Exercise } from "./types";
+import { Exercise, RowHandle } from "./types";
 import SetRow from "./SetRow";
 import AnimatedArrow from "@/components/UI/AnimatedArrow";
 import { useTheme } from "@/components/Providers/ThemeProvider";
 import Colors from "@/constants/Colors";
 import HoverableView from "@/components/UI/HoverableView";
 import { rowPositionType } from "./types";
-import { RowElement } from "./WorkoutTable";
 
-// Internal props used by WorkoutTable (required integration props)
+
 export interface RowProps extends Exercise {
   exerciseIndex: number;
   style?: ViewStyle;
 }
 
-export default function Row({ ...props }: RowProps) {
+
+export default React.forwardRef<RowHandle, RowProps>(function Row({ ...props }: RowProps, ref) {
   const { theme } = useTheme();
-  const { tableStyles, tableRows, tableRowsPositions, setTableRowPosition } = useWorkoutTableContext();
+  const { tableStyles, tableRows, setTableRow, setTableRows, tableRowsPositions, setTableRowPosition, getRowRef } = useWorkoutTableContext();
   const columnWidths = tableStyles.columns?.widths || {};
   const [ isExpanded, setIsExpanded ] = useState(true);
   const pan = useRef(new Animated.ValueXY()).current;
+  const displaceY = useRef(new Animated.Value(0)).current; // Animated displacement applied when another row is being dragged
   const isDraggedRef = useRef(false);
   const dragHandleRef = useRef<any>(null);
-  const dragHandleRectRef = useRef<rowPositionType | null>(null);
   const pressingHandleRef = useRef(false);
   const initialPositionRef = useRef({ x: 0, y: 0 });
+  const newPositionRef = useRef({ x: 0, y: 0 });
+  const targetIndexRef = useRef<number>(props.exerciseIndex);
   const tableRowsPositionsRef = useRef<rowPositionType[]>(tableRowsPositions);
   const [ isOnPlace, setIsOnPlace ] = useState(true);
   const scaleAnim = useState(new Animated.Value(0))[0];
   const scaleRef = useRef(scaleAnim.interpolate({ inputRange: [0,1], outputRange: [1,1] }));
+  const hasMovedRef = useRef<-1|0|1>(0); // To track if the row has moved during drag
 
-  function toggleExpanded() {
-    setIsExpanded(!isExpanded);
-  }  
+  const moveDuration = 100; // Duration for moveUp/moveDown animations
+  const animate = false; // Instant displacement during drag for stability
 
   useEffect(() => {
     tableRowsPositionsRef.current = tableRowsPositions;
   }, [tableRowsPositions])
 
-  function updateDragHandleRect() {
-    const node = dragHandleRef.current;
-    if (node && typeof node.measureInWindow === 'function') {
-      node.measureInWindow((x: number, y: number, width: number, height: number) => {
-        dragHandleRectRef.current = { x, y, width, height };
-      });
-    }
-  }
+  // Imperative API for siblings/parent
+  useImperativeHandle(ref, () => {
+    const setDisplacement = (to: number) => {
+      // Stop any existing animation before applying a new displacement
+      // @ts-ignore
+      (displaceY as any).stopAnimation?.();
+      if (animate) {
+        Animated.timing(displaceY, {
+          toValue: to,
+          duration: moveDuration,
+          useNativeDriver: false,
+        }).start();
+      } else {
+        displaceY.setValue(to);
+      }
+    };
+    return {
+      // Set this row's temporary displacement explicitly each frame
+      moveUp: (_index: number) => {
+        const h = tableRowsPositionsRef.current[props.exerciseIndex]?.height ?? 0;
+        setDisplacement(-h);
+      },
+      moveDown: (_index: number) => {
+        const h = tableRowsPositionsRef.current[props.exerciseIndex]?.height ?? 0;
+        setDisplacement(h);
+      },
+      // Immediately clear temporary displacement without animation
+      resetDisplacement: () => {
+        // Stop any ongoing animation on this value, then zero it
+        // @ts-ignore - Animated.Value has stopAnimation at runtime
+        (displaceY as any).stopAnimation?.();
+        displaceY.setValue(0);
+      },
+      isDragging: () => isDraggedRef.current,
+      getHeight: () => tableRowsPositionsRef.current[props.exerciseIndex].height,
+    };
+  });
 
-  function isPointInDragHandle(pageX: number, pageY: number) {
-    const rect = dragHandleRectRef.current;
-    if (!rect) return pressingHandleRef.current; // fallback if couldn't measure
-    return (
-      pageX >= rect.x &&
-      pageX <= rect.x + rect.width &&
-      pageY >= rect.y &&
-      pageY <= rect.y + rect.height
-    );
-  }
+  function toggleExpanded() {
+    setIsExpanded(!isExpanded);
+  }  
 
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponderCapture: (e) => {
-        if (!tableRows) return false;
-        const { pageX, pageY } = e.nativeEvent;
-        return isPointInDragHandle(pageX, pageY);
-      },
-      onMoveShouldSetPanResponderCapture: (e) => {
-        if (!tableRows) return false;
-        const { pageX, pageY } = e.nativeEvent;
-        return isPointInDragHandle(pageX, pageY);
-      },
-      onPanResponderGrant: (e) => {
-        if (!tableRows) return;        
-        handleDragStart();
-        setIsOnPlace(false);
-        isDraggedRef.current = true;
-        const { pageX, pageY } = e.nativeEvent;
-        initialPositionRef.current = { x: pageX, y: pageY };
-      },
-      onPanResponderMove: (evt) => {
-        if (!tableRows) return;        
-        if (isDraggedRef.current && tableRows) {
-          setIsOnPlace(false);
-          const { pageY } = evt.nativeEvent;
-          
-          // Calculate the maximum distance to move up or down based on the current row positions
-          // This ensures the row can only be dragged within the bounds of the other rows
-          let maxBefore = 0;
-          let maxAfter = 0;
-          for (let i = 0; i < tableRowsPositionsRef.current.length; i++) {
-            const rowPosition = tableRowsPositionsRef.current[i];            
-            if (i < props.exerciseIndex) maxBefore += rowPosition.height ?? 0;
-            else if (i > props.exerciseIndex) maxAfter += rowPosition.height ?? 0;
-          }
-          let deltaY = pageY - initialPositionRef.current.y;
-          if (deltaY < -maxBefore) deltaY = -maxBefore;
-          else if (deltaY > maxAfter) deltaY = maxAfter;
-          
-          pan.setValue({ x: 0, y: deltaY });
-
-          // Update the position in the rowsPositions array
-          // let sumHeight = 0;          
-          // for (let i = 0; i < props.rows.length; i++) {
-          //   sumHeight += props.rows[i].props.position.height;            
-          //   if (maxBefore + deltaY < sumHeight - props.rows[i].props.position.height/2) {
-          //     if (i !== props.exerciseIndex) {
-          //       // Move the row to the new position in the array
-          //       let movedRow = props.rows[props.exerciseIndex];
-          //       props.rows[props.exerciseIndex] = props.rows[i];
-
-          //       props.rows[i] = movedRow;
-          //       // console.log(`Moving row ${props.exerciseIndex} to position ${i}`);
-          //       console.log(`Rows order: ${props.rows.map(row => row.props.exerciseIndex).join(", ")}`);
-                
-          //     }
-          //     break;
-          //   }
-          // }          
-
-          // NOTE: rows reordering side-effects removed here due to missing rowsPositions prop
-        }
-      },
-      onPanResponderRelease: () => {
-        if (isDraggedRef.current) {
-          pan.flattenOffset();
-          Animated.spring(pan, {
-            toValue: { x: 0, y: 0 },
-            bounciness: 2,
-            useNativeDriver: false,
-          }).start(() => setIsOnPlace(true));
-          handleDragEnd();
-        }
-        pressingHandleRef.current = false;
-      },
-      onPanResponderTerminate: () => {
-        // Another component has become the responder, reset
-        if (isDraggedRef.current) {
-          Animated.spring(pan, {
-            toValue: { x: 0, y: 0 },
-            bounciness: 2,
-            useNativeDriver: false,
-          }).start(() => setIsOnPlace(true));
-          handleDragEnd();
-        }
-        pressingHandleRef.current = false;
-      },
+      onStartShouldSetPanResponder: (evt) => handlePanResponderStart(evt),
+      onMoveShouldSetPanResponder: (evt) => handlePanResponderStart(evt),
+      onPanResponderGrant: (evt) => handlePanResponderGrant(evt),
+      onPanResponderMove: (evt) => handlePanResponderMove(evt),
+      onPanResponderRelease: handlePanResponderRelease,
+      onPanResponderTerminate: handlePanResponderRelease,
+      onPanResponderTerminationRequest: () => false,
     })
   ).current;
 
-  const scaleAnimTransition = 50; // Duration for scale animation
+  const handlePanResponderStart = (evt: GestureResponderEvent) => {
+    if (!tableRows) return false;
+    return true; // We attach pan handlers to the handle, so always start
+  }
 
-  function handleDragStart() {
+  const handlePanResponderGrant = (evt: GestureResponderEvent) => {
+    if (!tableRows) return;        
+    setIsOnPlace(false);
+    isDraggedRef.current = true;
+    const { pageX, pageY } = evt.nativeEvent;
+    initialPositionRef.current = { x: pageX, y: pageY };
+    newPositionRef.current = { x: 0, y: 0 };
+    hasMovedRef.current = 0;
+    // Use offset pattern so repeated drags start from current position without jump
+    pan.extractOffset();
+    pan.setValue({ x: 0, y: 0 });
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); // Trigger haptic feedback
     Animated.timing(scaleAnim, {
       toValue: 1,
@@ -166,14 +125,115 @@ export default function Row({ ...props }: RowProps) {
     }).start();
   }
 
-  function handleDragEnd() {
-    isDraggedRef.current = false;
-    Animated.timing(scaleAnim, {
-      toValue: 0,
-      duration: scaleAnimTransition,
-      useNativeDriver: false,
-    }).start(() => {});
+  const handlePanResponderMove = (evt: GestureResponderEvent) => {
+    if (!tableRows) return;        
+    if (isDraggedRef.current && tableRows) {
+      setIsOnPlace(false);
+      const { pageY, locationY } = evt.nativeEvent;
+      
+      // Calculate the maximum distance to move up or down based on the current row positions
+      // This ensures the row can only be dragged within the bounds of the other rows
+      let maxBefore = 0;
+      let maxAfter = 0;
+      for (let i = 0; i < tableRowsPositionsRef.current.length; i++) {
+        const rowPosition = tableRowsPositionsRef.current[i];            
+        if (i < props.exerciseIndex) maxBefore += rowPosition.height ?? 0;
+        else if (i > props.exerciseIndex) maxAfter += rowPosition.height ?? 0;
+      }
+      let deltaY = pageY - initialPositionRef.current.y;
+      if (deltaY < -maxBefore) deltaY = -maxBefore;
+      else if (deltaY > maxAfter) deltaY = maxAfter;
+      
+      pan.setValue({ x: 0, y: deltaY });
+
+      // Compute the dragged row midpoint in the list coordinate space
+      let rowMiddleY = maxBefore + deltaY + tableRowsPositionsRef.current[props.exerciseIndex].height/2;
+
+      // Compute target index using row midpoints
+      let targetIndex = 0;
+      for (let i = 0; i < tableRowsPositionsRef.current.length; i++) {
+        if (i === props.exerciseIndex) continue;
+        const other = tableRowsPositionsRef.current[i];
+        const otherMid = other.y + other.height / 2;
+        if (otherMid < rowMiddleY) targetIndex++;
+      }
+
+      // Compute displacement from original index to target index using row heights
+      let displacement = 0;
+      if (targetIndex > props.exerciseIndex) {
+        for (let i = props.exerciseIndex + 1; i <= targetIndex; i++) {
+          displacement += tableRowsPositionsRef.current[i].height;
+        }
+      } else if (targetIndex < props.exerciseIndex) {
+        for (let i = targetIndex; i < props.exerciseIndex; i++) {
+          displacement -= tableRowsPositionsRef.current[i].height;
+        }
+      }
+      targetIndexRef.current = targetIndex;
+      newPositionRef.current = { x: 0, y: displacement };
+
+      // Deterministically set each sibling's displacement based on index ranges
+      const from = props.exerciseIndex;
+      const to = targetIndexRef.current;
+      for (let i = 0; i < tableRows.length; i++) {
+        if (i === from) continue;
+        if (to > from && i >= from + 1 && i <= to) {
+          // Dragging down: rows between from+1..to move up to make space
+          getRowRef(i)?.moveUp(from);
+        } else if (to < from && i >= to && i <= from - 1) {
+          // Dragging up: rows between to..from-1 move down to make space
+          getRowRef(i)?.moveDown(from);
+        } else {
+          // Not involved: ensure displacement is cleared
+          getRowRef(i)?.resetDisplacement?.();
+        }
+      }
+    }
   }
+
+  function handlePanResponderRelease() {
+    if (isDraggedRef.current) {
+      // Ensure any running animation is stopped before starting a new one
+      pan.stopAnimation();
+      // Merge any offset accumulated during previous drags
+      pan.flattenOffset();
+      // Immediately clear siblings' temporary displacements so they don't animate post-drop
+      if (tableRows) {
+        for (let i = 0; i < tableRows.length; i++) {
+          if (i === props.exerciseIndex) continue;
+          getRowRef(i)?.resetDisplacement?.();
+        }
+      }
+      // Commit the new order in context by moving the dragged row to targetIndex
+      const from = props.exerciseIndex;
+      const to = targetIndexRef.current;
+      if (to !== from) {
+        setTableRows((prev) => {
+          const next = prev.slice();
+          const [moved] = next.splice(from, 1);
+          next.splice(to, 0, moved);
+          return next;
+        });
+      }
+
+      // Reset transient animations and flags immediately to avoid post-drop animation
+      pan.setValue({ x: 0, y: 0 });
+      displaceY.setValue(0);
+      newPositionRef.current = { x: 0, y: 0 };
+      hasMovedRef.current = 0;
+  setIsOnPlace(true);
+      isDraggedRef.current = false;
+      hasMovedRef.current = 0;
+      Animated.timing(scaleAnim, {
+        toValue: 0,
+        duration: scaleAnimTransition,
+        useNativeDriver: false,
+      }).start(() => {});
+    }
+    pressingHandleRef.current = false;
+  }
+
+  const scaleAnimTransition = 50; // Duration for scale animation
 
   scaleRef.current = scaleAnim.interpolate({
       inputRange: [0, 1],
@@ -192,12 +252,11 @@ export default function Row({ ...props }: RowProps) {
         { 
           transform: [
             { scale: scaleRef.current },
-            { translateY: pan.y },
+            { translateY: Animated.add(pan.y, displaceY) },
           ]
         }
       ]}  
       onLayout={(event) => {
-        updateDragHandleRect();        
         setTableRowPosition(props.exerciseIndex, { 
           x: event.nativeEvent.layout.x,
           y: event.nativeEvent.layout.y,
@@ -205,7 +264,6 @@ export default function Row({ ...props }: RowProps) {
           height: event.nativeEvent.layout.height,
         } as rowPositionType);
       }}
-      {...panResponder.panHandlers}
     >
       <HoverableView
         style={[
@@ -223,8 +281,8 @@ export default function Row({ ...props }: RowProps) {
       ]}>
         <View 
           ref={dragHandleRef}
-          onLayout={updateDragHandleRect}
           style={[styles.dragButton, { width: columnWidths.dragColumn }]}
+          {...panResponder.panHandlers}
         >
           <Pressable 
             style={styles.dragButton}
@@ -278,7 +336,7 @@ export default function Row({ ...props }: RowProps) {
       </HoverableView>
     </Animated.View>
   );
-}
+});
 
 
 const styles = StyleSheet.create({

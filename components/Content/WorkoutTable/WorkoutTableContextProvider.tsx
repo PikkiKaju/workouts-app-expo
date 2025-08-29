@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useRef, useState } from "react";
 import { DimensionValue, Platform } from "react-native";
 import { RowElement } from "./WorkoutTable";
-import { rowPositionType } from "./types";
+import { RowHandle, rowPositionType } from "./types";
 
 export type panelToggled = true | false;
 
@@ -63,23 +63,31 @@ interface WorkoutTableContextType {
   setTableRowsPositions: (positions: rowPositionType[]) => void;
   setTableRowPosition: (index: number, position: rowPositionType) => void;
   tableRows: RowElement[];
-  setTableRows: (rows: RowElement[]) => void;
+  setTableRows: React.Dispatch<React.SetStateAction<RowElement[]>>;
   setTableRow: (index: number, row: RowElement) => void;
+  // Registry of Row refs to control rows from siblings/parent
+  registerRowRef: (index: number, ref: RowHandle | null) => void;
+  getRowRef: (index: number) => RowHandle | undefined;
 }
 
 const WorkoutTableContext = createContext<WorkoutTableContextType | undefined>(undefined);
+
 
 export const WorkoutTableContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tableStyles, setStyles] = useState<typeof workoutTableStyles>(workoutTableStyles);
   const [tableRowsPositions, setTableRowsPositions] = useState<rowPositionType[]>([]);
   const [tableRows, setTableRows] = useState<RowElement[]>([]);
+  // Keep a stable map of row refs by index
+  const rowRefs = useRef<Map<number, RowHandle>>(new Map());
 
   const setTableRow = (index: number, row: RowElement) => {
     setTableRows((prevRows) => {
       const newRows = [...prevRows];
       newRows[index] = row;
+      console.log(`Updated rows order ${newRows.map(r => r.props.name).join(', ')}`);
       return newRows;
     });
+    
   }
 
   const setTableRowPosition = (index: number, position: rowPositionType) => {
@@ -90,8 +98,18 @@ export const WorkoutTableContextProvider: React.FC<{ children: React.ReactNode }
     });
   };
 
+  const registerRowRef = (index: number, ref: RowHandle | null) => {
+    if (ref) {
+      rowRefs.current.set(index, ref);
+    } else {
+      rowRefs.current.delete(index);
+    }
+  };
+
+  const getRowRef = (index: number) => rowRefs.current.get(index);
+
   return (
-    <WorkoutTableContext.Provider value={{ tableStyles, tableRowsPositions, setTableRowsPositions, setTableRowPosition, tableRows, setTableRows, setTableRow }} >
+    <WorkoutTableContext.Provider value={{ tableStyles, tableRowsPositions, setTableRowsPositions, setTableRowPosition, tableRows, setTableRows, setTableRow, registerRowRef, getRowRef }} >
       {children}
     </WorkoutTableContext.Provider>
   );

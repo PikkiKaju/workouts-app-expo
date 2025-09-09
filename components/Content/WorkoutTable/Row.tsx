@@ -4,7 +4,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as Haptics from 'expo-haptics';
 
 import { useWorkoutTableContext } from "./WorkoutTableContextProvider";
-import { Animated, GestureResponderEvent, Pressable, StyleSheet, ViewStyle, PanResponder, Platform, View as RNView } from "react-native";
+import { Animated, GestureResponderEvent, Pressable, StyleSheet, ViewStyle, PanResponder, Platform } from "react-native";
 import { View, Text } from "@/components/UI/Themed";
 import { Exercise, RowHandle } from "./types";
 import SetRow from "./SetRow";
@@ -23,7 +23,7 @@ export interface RowProps extends Exercise {
 
 export default React.forwardRef<RowHandle, RowProps>(function Row({ ...props }: RowProps, ref) {
   const { theme } = useTheme();
-  const { exercises, setExercises, tableStyles, tableRows, setTableRow, setTableRows, tableRowsPositions, setTableRowPosition, getRowRef } = useWorkoutTableContext();
+  const { tableStyles, tableRows, setTableRows, tableRowsPositions, setTableRowsPositions, setTableRowPosition, getRowRef, incrementTableVersion } = useWorkoutTableContext();
   const columnWidths = tableStyles.columns?.widths || {};
   const [ isExpanded, setIsExpanded ] = useState(true);
   const pan = useRef(new Animated.ValueXY()).current;
@@ -65,18 +65,17 @@ export default React.forwardRef<RowHandle, RowProps>(function Row({ ...props }: 
     };
     return {
       // Set this row's temporary displacement explicitly each frame
-      moveUp: (_index: number) => {
-        const h = tableRowsPositionsRef.current[props.exerciseIndex]?.height ?? 0;
+      moveUp: (draggedIndex: number) => {
+        const h = tableRowsPositionsRef.current[draggedIndex]?.height ?? 0;
         setDisplacement(-h);
       },
-      moveDown: (_index: number) => {
-        const h = tableRowsPositionsRef.current[props.exerciseIndex]?.height ?? 0;
+      moveDown: (draggedIndex: number) => {
+        const h = tableRowsPositionsRef.current[draggedIndex]?.height ?? 0;
         setDisplacement(h);
       },
       // Immediately clear temporary displacement without animation
       resetDisplacement: () => {
         // Stop any ongoing animation on this value, then zero it
-        // @ts-ignore - Animated.Value has stopAnimation at runtime
         (displaceY as any).stopAnimation?.();
         displaceY.setValue(0);
       },
@@ -129,16 +128,28 @@ export default React.forwardRef<RowHandle, RowProps>(function Row({ ...props }: 
     if (!tableRows) return;        
     if (isDraggedRef.current && tableRows) {
       setIsOnPlace(false);
-      const { pageY, locationY } = evt.nativeEvent;
+      const { pageY } = evt.nativeEvent;
       
+      // Create an array of row positions fowr easier processing
+      let positions = [];
+      for (let i = 0; i < tableRowsPositionsRef.current.length; i++) {
+        positions.push({
+          index: i,
+          top: tableRowsPositionsRef.current[i].y,
+          height: tableRowsPositionsRef.current[i].height,
+          middle: tableRowsPositionsRef.current[i].y + tableRowsPositionsRef.current[i].height / 2,
+          bottom: tableRowsPositionsRef.current[i].y + tableRowsPositionsRef.current[i].height
+        });
+      }
+
       // Calculate the maximum distance to move up or down based on the current row positions
-      // This ensures the row can only be dragged within the bounds of the other rows
+      // to ensure the row can only be dragged within the bounds of the other rows
       let maxBefore = 0;
       let maxAfter = 0;
-      for (let i = 0; i < tableRowsPositionsRef.current.length; i++) {
-        const rowPosition = tableRowsPositionsRef.current[i];            
-        if (i < props.exerciseIndex) maxBefore += rowPosition.height ?? 0;
-        else if (i > props.exerciseIndex) maxAfter += rowPosition.height ?? 0;
+      for (let i = 0; i < positions.length; i++) {
+        const height = positions[i].height ?? 0;            
+        if (i < props.exerciseIndex) maxBefore += height;
+        else if (i > props.exerciseIndex) maxAfter += height;
       }
       let deltaY = pageY - initialPositionRef.current.y;
       if (deltaY < -maxBefore) deltaY = -maxBefore;
@@ -147,32 +158,47 @@ export default React.forwardRef<RowHandle, RowProps>(function Row({ ...props }: 
       pan.setValue({ x: 0, y: deltaY });
 
       // Compute the dragged row midpoint in the list coordinate space
-      let rowMiddleY = maxBefore + deltaY + tableRowsPositionsRef.current[props.exerciseIndex].height/2;
+      let rowMiddleY = maxBefore + deltaY + positions[props.exerciseIndex].height / 2;
 
       // Compute target index using row midpoints
-      let targetIndex = 0;
-      for (let i = 0; i < tableRowsPositionsRef.current.length; i++) {
-        if (i === props.exerciseIndex) continue;
-        const other = tableRowsPositionsRef.current[i];
-        const otherMid = other.y + other.height / 2;
-        if (otherMid < rowMiddleY) targetIndex++;
+      let targetIndex = props.exerciseIndex; // Default to current position
+
+
+      // Check if dragged above all rows
+      if (positions.length > 0 && rowMiddleY < positions[0].top) {
+        targetIndex = 0;
+      }
+      // Check if dragged below all rows
+      else if (positions.length > 0 && rowMiddleY > positions[positions.length-1].top + positions[positions.length-1].height) {
+        targetIndex = positions.length - 1;
+      }
+      // Check which row the midpoint falls between
+      else {
+        for (let i = 0; i < positions.length; i++) {
+          if (rowMiddleY >= positions[i].top && rowMiddleY < positions[i].top + positions[i].height) {
+            // If original index is before this position, we need to insert after
+            // If original index is after this position, we need to insert at this position
+            targetIndex = positions[i].index;
+            break;
+          }
+        }
       }
 
       // Compute displacement from original index to target index using row heights
       let displacement = 0;
       if (targetIndex > props.exerciseIndex) {
         for (let i = props.exerciseIndex + 1; i <= targetIndex; i++) {
-          displacement += tableRowsPositionsRef.current[i].height;
+          displacement += positions[i].height;
         }
       } else if (targetIndex < props.exerciseIndex) {
         for (let i = targetIndex; i < props.exerciseIndex; i++) {
-          displacement -= tableRowsPositionsRef.current[i].height;
+          displacement -= positions[i].height;
         }
       }
       targetIndexRef.current = targetIndex;
       newPositionRef.current = { x: 0, y: displacement };
 
-      // Deterministically set each sibling's displacement based on index ranges
+      // Set each sibling's displacement based on index ranges
       const from = props.exerciseIndex;
       const to = targetIndexRef.current;
       for (let i = 0; i < tableRows.length; i++) {
@@ -208,6 +234,7 @@ export default React.forwardRef<RowHandle, RowProps>(function Row({ ...props }: 
       const from = props.exerciseIndex;
       const to = targetIndexRef.current;
       if (to !== from) {
+        // Commit rows order
         setTableRows((prev) => {
           const next = prev.slice();
           const [moved] = next.splice(from, 1);

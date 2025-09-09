@@ -18,6 +18,7 @@ export interface Workout {
 
 // Shared type used by WorkoutTable rows to track measured layout
 export type rowPositionType = {
+  index: number;
   x: number;
   y: number;
   width: number;

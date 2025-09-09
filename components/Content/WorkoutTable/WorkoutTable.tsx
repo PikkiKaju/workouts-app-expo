@@ -6,6 +6,7 @@ import Header from "./Header";
 import Row from "./Row";
 import Footer from "./Footer";
 import { WorkoutTableContextProvider, useWorkoutTableContext } from "./WorkoutTableContextProvider";
+import { Exercise } from "./types";
 
 
 type HeaderElement = React.ReactElement<React.ComponentProps<typeof Header>>;
@@ -15,12 +16,13 @@ type FooterElement = React.ReactElement<React.ComponentProps<typeof Footer>>;
 type AllowedChildren = HeaderElement | RowElement | FooterElement;
 
 interface WorkoutTableProps {
+  exercises: Exercise[];
   children: React.ReactNode;
   style?: ViewStyle;
 }
 
 const WorkoutTableContent = ({ children, style }: WorkoutTableProps) => {
-  const { tableRows, setTableRows, setTableRowsPositions, registerRowRef } = useWorkoutTableContext();
+  const { setExercises, tableRows, setTableRows, setTableRowsPositions, registerRowRef, tableVersion} = useWorkoutTableContext();
   const childrenArray = React.Children.toArray(children);
         
   // Type guard function to check if a child is an allowed type
@@ -42,8 +44,14 @@ const WorkoutTableContent = ({ children, style }: WorkoutTableProps) => {
     ) as RowElement[];
 
     setTableRows(rows);
-    setTableRowsPositions(rows.map((row, index) => ({x: 0, y: 0, width: 0, height: 0})));
+    setTableRowsPositions(rows.map((row, index) => ({index: index, x: 0, y: 0, width: 0, height: 0})));
   }, []);
+
+  useEffect(() => {
+    console.log("Table rows: ",tableRows);
+    setExercises(tableRows.map(row => row.props));
+    console.log("Exercises: ", tableRows.map(row => row.props));
+  }, [tableRows]);
 
   const header = childrenArray.find(
     (child) => React.isValidElement(child) && child.type === Header
@@ -63,7 +71,7 @@ const WorkoutTableContent = ({ children, style }: WorkoutTableProps) => {
       {header}
       <View style={styles.container}>
         {tableRows.map((row, index) => {
-          const stableKey = (row.key ?? row.props?.name ?? `row-${index}`) as string;
+          const stableKey = `${tableVersion}-${row.key ?? row.props?.name ?? `row-${index}`}`;
           return (
             <Row
               key={stableKey}
@@ -80,10 +88,10 @@ const WorkoutTableContent = ({ children, style }: WorkoutTableProps) => {
 }
 
 // Public component that provides the context
-const WorkoutTable = ({ children, style }: WorkoutTableProps) => {
+const WorkoutTable = ({ children, style, exercises }: WorkoutTableProps) => {
   return (
     <WorkoutTableContextProvider>
-      <WorkoutTableContent style={style}>{children}</WorkoutTableContent>
+      <WorkoutTableContent style={style} exercises={exercises}>{children}</WorkoutTableContent>
     </WorkoutTableContextProvider>
   );
 };

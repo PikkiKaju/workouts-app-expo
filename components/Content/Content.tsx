@@ -38,7 +38,7 @@ class Content extends Component<workoutProps, ContentState>{
           <View style={this.styles.innerContainer}>
             <ContentHeader name={this.props.name} />
             <Text style={this.styles.exercisesHeading}>{this.props.t('content.exercisesHeading')}</Text>
-            <WorkoutTable>
+            <WorkoutTable exercises={this.state.exercises}>
               <WorkoutTable.Header />
               {this.state.exercises.map((exercise: Exercise, exerciseIndex: number) =>  (
                 <WorkoutTable.Row 

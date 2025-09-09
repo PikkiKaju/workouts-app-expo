@@ -23,7 +23,7 @@ export interface RowProps extends Exercise {
 
 export default React.forwardRef<RowHandle, RowProps>(function Row({ ...props }: RowProps, ref) {
   const { theme } = useTheme();
-  const { tableStyles, tableRows, setTableRow, setTableRows, tableRowsPositions, setTableRowPosition, getRowRef } = useWorkoutTableContext();
+  const { exercises, setExercises, tableStyles, tableRows, setTableRow, setTableRows, tableRowsPositions, setTableRowPosition, getRowRef } = useWorkoutTableContext();
   const columnWidths = tableStyles.columns?.widths || {};
   const [ isExpanded, setIsExpanded ] = useState(true);
   const pan = useRef(new Animated.ValueXY()).current;
@@ -214,21 +214,43 @@ export default React.forwardRef<RowHandle, RowProps>(function Row({ ...props }: 
           next.splice(to, 0, moved);
           return next;
         });
-      }
 
+        // After state updates, force table refresh
+        incrementTableVersion();
+
+        // Normalize measured positions to the new order so the next drag uses correct data
+        setTableRowsPositions((prev) => {
+          const next = prev.slice();
+          const [movedPos] = next.splice(from, 1);
+          next.splice(to, 0, movedPos);
+          // Recompute sequential y and index to avoid stale layout until onLayout fires
+          let y = 0;
+          for (let i = 0; i < next.length; i++) {
+            const h = next[i]?.height ?? 0;
+            next[i] = {
+              ...next[i],
+              index: i,
+              y,
+            };
+            y += h;
+          }
+          return next;
+        });
+      }
+      
       // Reset transient animations and flags immediately to avoid post-drop animation
       pan.setValue({ x: 0, y: 0 });
       displaceY.setValue(0);
       newPositionRef.current = { x: 0, y: 0 };
       hasMovedRef.current = 0;
-  setIsOnPlace(true);
+      setIsOnPlace(true);
       isDraggedRef.current = false;
       hasMovedRef.current = 0;
       Animated.timing(scaleAnim, {
         toValue: 0,
         duration: scaleAnimTransition,
         useNativeDriver: false,
-      }).start(() => {});
+      }).start(() => { });
     }
     pressingHandleRef.current = false;
   }
@@ -258,11 +280,12 @@ export default React.forwardRef<RowHandle, RowProps>(function Row({ ...props }: 
       ]}  
       onLayout={(event) => {
         setTableRowPosition(props.exerciseIndex, { 
+          index: props.exerciseIndex,
           x: event.nativeEvent.layout.x,
           y: event.nativeEvent.layout.y,
           width: event.nativeEvent.layout.width,
           height: event.nativeEvent.layout.height,
-        } as rowPositionType);
+        });
       }}
     >
       <HoverableView

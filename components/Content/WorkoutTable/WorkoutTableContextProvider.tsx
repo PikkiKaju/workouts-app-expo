@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useRef, useState } from "react";
+import React, { createContext, useCallback, useContext, useRef, useState } from "react";
 import { DimensionValue, Platform } from "react-native";
 import { RowElement } from "./WorkoutTable";
-import { RowHandle, rowPositionType } from "./types";
+import { Exercise, RowHandle, rowPositionType } from "./types";
 
 export type panelToggled = true | false;
 
@@ -58,9 +58,11 @@ const workoutTableStyles = {
 }
 
 interface WorkoutTableContextType {
+  exercises: Exercise[];
+  setExercises: React.Dispatch<React.SetStateAction<Exercise[]>>;
   tableStyles: typeof workoutTableStyles;
   tableRowsPositions: rowPositionType[];
-  setTableRowsPositions: (positions: rowPositionType[]) => void;
+  setTableRowsPositions: React.Dispatch<React.SetStateAction<rowPositionType[]>>;
   setTableRowPosition: (index: number, position: rowPositionType) => void;
   tableRows: RowElement[];
   setTableRows: React.Dispatch<React.SetStateAction<RowElement[]>>;
@@ -68,15 +70,20 @@ interface WorkoutTableContextType {
   // Registry of Row refs to control rows from siblings/parent
   registerRowRef: (index: number, ref: RowHandle | null) => void;
   getRowRef: (index: number) => RowHandle | undefined;
+  tableVersion: number;
+  incrementTableVersion: () => void;
 }
 
 const WorkoutTableContext = createContext<WorkoutTableContextType | undefined>(undefined);
 
 
 export const WorkoutTableContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [tableStyles, setStyles] = useState<typeof workoutTableStyles>(workoutTableStyles);
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [tableStyles] = useState<typeof workoutTableStyles>(workoutTableStyles);
   const [tableRowsPositions, setTableRowsPositions] = useState<rowPositionType[]>([]);
   const [tableRows, setTableRows] = useState<RowElement[]>([]);
+  const [tableVersion, setTableVersion] = useState(0);
+
   // Keep a stable map of row refs by index
   const rowRefs = useRef<Map<number, RowHandle>>(new Map());
 
@@ -108,8 +115,20 @@ export const WorkoutTableContextProvider: React.FC<{ children: React.ReactNode }
 
   const getRowRef = (index: number) => rowRefs.current.get(index);
 
+  // Increment the table version to trigger re-renders
+  const incrementTableVersion = useCallback(() => {
+    setTableVersion(prev => prev + 1);
+  }, []);
+
   return (
-    <WorkoutTableContext.Provider value={{ tableStyles, tableRowsPositions, setTableRowsPositions, setTableRowPosition, tableRows, setTableRows, setTableRow, registerRowRef, getRowRef }} >
+    <WorkoutTableContext.Provider value={{
+      exercises, setExercises,
+      tableStyles,
+      tableRowsPositions, setTableRowsPositions, setTableRowPosition,
+      tableRows, setTableRows, setTableRow,
+      registerRowRef, getRowRef,
+      tableVersion, incrementTableVersion
+    }} >
       {children}
     </WorkoutTableContext.Provider>
   );

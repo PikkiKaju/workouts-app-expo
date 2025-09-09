@@ -165,11 +165,11 @@ export default React.forwardRef<RowHandle, RowProps>(function Row({ ...props }: 
 
 
       // Check if dragged above all rows
-      if (positions.length > 0 && rowMiddleY < positions[0].top) {
+      if (positions.length > 0 && maxBefore + deltaY < positions[0].middle) {
         targetIndex = 0;
       }
       // Check if dragged below all rows
-      else if (positions.length > 0 && rowMiddleY > positions[positions.length-1].top + positions[positions.length-1].height) {
+      else if (positions.length > 0 && maxBefore + deltaY + positions[props.exerciseIndex].height > positions[positions.length-1].middle) {
         targetIndex = positions.length - 1;
       }
       // Check which row the midpoint falls between

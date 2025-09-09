@@ -7,7 +7,6 @@ import Colors from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 
 interface SetRowProps {
-    key?: number;
     reps?: number;
     weight?: number;
     remove?: boolean;
@@ -26,7 +25,7 @@ const SetRow = ({ ...props }: SetRowProps ) => {
     }
 
     return (
-    <View key={props.key} style={[ styles.setRow, props.style ]}>
+    <View style={[ styles.setRow, props.style ]}>
         { props.linker && (
         <View style={[styles.linker, props.linkerStyle ]}>
             <View style={[styles.linkerVerticalLine, {backgroundColor: Colors.global.tableLines}]}></View>
@@ -36,8 +35,8 @@ const SetRow = ({ ...props }: SetRowProps ) => {
             )}
         </View>
         )}
-        { props.weight && <Text style={props.textStyle}>{props.weight}</Text>}
-        { props.reps && <Text style={props.textStyle}>{props.reps}</Text>}
+        { props.weight !== undefined && <Text style={props.textStyle}>{props.weight}</Text>}
+        { props.reps !== undefined && <Text style={props.textStyle}>{props.reps}</Text>}
         { props.remove && (
         <Pressable onPress={() => console.log("Delete set")}>
             <Ionicons name="close" size={20} color={Colors[theme].text} />

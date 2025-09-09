@@ -27,13 +27,10 @@ export type rowPositionType = {
 
 // Public imperative API exposed by each Row via forwardRef
 export interface RowHandle {
-  // Moves the row up by "distance" (defaults to own height)
+  // Moves the row up by the height of the dragged row
   moveUp: (index: number) => void;
-  // Moves the row down by "distance" (defaults to own height)
+  // Moves the row down by the height of the dragged row
   moveDown: (index: number) => void;
-  // Resets any temporary displacement back to 0
+  // Resets row's displacement back to its original position
   resetDisplacement: () => void;
-  // Optional helpers
-  isDragging: () => boolean;
-  getHeight: () => number | undefined;
 }

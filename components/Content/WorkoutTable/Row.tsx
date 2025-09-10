@@ -253,59 +253,63 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
       pan.stopAnimation();
       // Merge any offset accumulated during previous drags
       pan.flattenOffset();
-      // Immediately clear siblings' temporary displacements so they don't animate post-drop
-      if (exercises) {
-        for (let i = 0; i < exercises.length; i++) {
-          if (i === props.exerciseIndex) continue;
-          getRowRef(i)?.resetDisplacement?.();
+
+      
+      // Animate the row to its final position before updating state
+      Animated.timing(pan, {
+        toValue: { x: 0, y: newPositionRef.current.y },
+        duration: moveDuration,
+        useNativeDriver: true,
+      }).start(() => {
+        // Reset transient animations and flags before updating state
+        pan.setValue({ x: 0, y: 0 });
+        newPositionRef.current = { x: 0, y: 0 };
+        isDraggedRef.current = false;
+        
+        // Commit the new order in context by moving the dragged row to targetIndex
+        const from = props.exerciseIndex;
+        const to = targetIndexRef.current;
+        
+        if (to !== from) {
+          // Commit rows order
+          setExercises((prev) => {
+            const next = prev.slice();
+            const [moved] = next.splice(from, 1);
+            next.splice(to, 0, moved);
+            return next;
+          });
+
+          // After state updates, force table refresh
+          incrementTableVersion();
+
+          // Normalize measured positions to the new order so the next drag uses correct data
+          setTableRowsPositions((prev) => {
+            const next = prev.slice();
+            const [movedPos] = next.splice(from, 1);
+            next.splice(to, 0, movedPos);
+            // Recompute sequential y and index to avoid stale layout until onLayout fires
+            let y = 0;
+            for (let i = 0; i < next.length; i++) {
+              const h = next[i]?.height ?? 0;
+              next[i] = {
+                ...next[i],
+                index: i,
+                y,
+              };
+              y += h;
+            }
+            return next;
+          });
         }
-      }
-      // Commit the new order in context by moving the dragged row to targetIndex
-      const from = props.exerciseIndex;
-      const to = targetIndexRef.current;
-      if (to !== from) {
-        // Commit rows order
-        setExercises((prev) => {
-          const next = prev.slice();
-          const [moved] = next.splice(from, 1);
-          next.splice(to, 0, moved);
-          return next;
-        });
 
-        // After state updates, force table refresh
-        incrementTableVersion();
-
-        // Normalize measured positions to the new order so the next drag uses correct data
-        setTableRowsPositions((prev) => {
-          const next = prev.slice();
-          const [movedPos] = next.splice(from, 1);
-          next.splice(to, 0, movedPos);
-          // Recompute sequential y and index to avoid stale layout until onLayout fires
-          let y = 0;
-          for (let i = 0; i < next.length; i++) {
-            const h = next[i]?.height ?? 0;
-            next[i] = {
-              ...next[i],
-              index: i,
-              y,
-            };
-            y += h;
-          }
-          return next;
-        });
-      }
-
-      // Reset transient animations and flags immediately to avoid post-drop animation
-      pan.setValue({ x: 0, y: 0 });
-      displaceY.setValue(0);
-      newPositionRef.current = { x: 0, y: 0 };
-      setIsOnPlace(true);
-      isDraggedRef.current = false;
-      Animated.timing(scaleAnim, {
-        toValue: 0,
-        duration: scaleAnimTransition,
-        useNativeDriver: false,
-      }).start(() => {});
+        // Reset visual state
+        setIsOnPlace(true);
+        Animated.timing(scaleAnim, {
+          toValue: 0,
+          duration: scaleAnimTransition,
+          useNativeDriver: false,
+        }).start();
+      });
     }
     pressingHandleRef.current = false;
   }

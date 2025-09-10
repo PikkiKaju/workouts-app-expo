@@ -42,6 +42,7 @@ class Content extends Component<workoutProps, ContentState>{
               <WorkoutTable.Header />
               {this.state.exercises.map((exercise: Exercise, exerciseIndex: number) =>  (
                 <WorkoutTable.Row 
+                  key={exerciseIndex}
                   id={exerciseIndex} 
                   exerciseIndex={exerciseIndex}
                   name={exercise.name} 

@@ -21,9 +21,11 @@ import { useTheme } from "@/components/Providers/ThemeProvider";
 import Colors from "@/constants/Colors";
 import HoverableView from "@/components/UI/HoverableView";
 import { rowPositionType } from "./types";
+import { RowElement } from "./WorkoutTable";
 
 export interface RowProps extends Exercise {
   exerciseIndex: number;
+  isExpanded?: boolean;
   style?: ViewStyle;
 }
 
@@ -34,8 +36,9 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
   const { theme } = useTheme();
   const {
     tableStyles,
-    tableRows,
-    setTableRows,
+    exercises,
+    setExercises,
+    toggleRowExpansion,
     tableRowsPositions,
     setTableRowsPositions,
     setTableRowPosition,
@@ -43,7 +46,6 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
     incrementTableVersion,
   } = useWorkoutTableContext();
   const columnWidths = tableStyles.columns?.widths || {};
-  const [isExpanded, setIsExpanded] = useState(true);
   const pan = useRef(new Animated.ValueXY()).current;
   const displaceY = useRef(new Animated.Value(0)).current; // Animated displacement applied when another row is being dragged
   const isDraggedRef = useRef(false);
@@ -94,12 +96,13 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
       },
       resetDisplacement: () => {
         setDisplacement(0);
-      }
+      },
     };
   });
 
   function toggleExpanded() {
-    setIsExpanded(!isExpanded);
+    // Set rows' expanded state in context to preserve it when rows are reordered
+    toggleRowExpansion(props.exerciseIndex);
   }
 
   const panResponder = useRef(
@@ -115,12 +118,12 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
   ).current;
 
   const handlePanResponderStart = (evt: GestureResponderEvent) => {
-    if (!tableRows) return false;
+    if (!exercises) return false;
     return true; // pan handlers are attached to the handle, so always start
   };
 
   const handlePanResponderGrant = (evt: GestureResponderEvent) => {
-    if (!tableRows) return;
+    if (!exercises) return;
     setIsOnPlace(false);
     isDraggedRef.current = true;
     const { pageX, pageY } = evt.nativeEvent;
@@ -139,8 +142,8 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
   };
 
   const handlePanResponderMove = (evt: GestureResponderEvent) => {
-    if (!tableRows) return;
-    if (isDraggedRef.current && tableRows) {
+    if (!exercises) return;
+    if (isDraggedRef.current && exercises) {
       setIsOnPlace(false);
       const { pageY } = evt.nativeEvent;
 
@@ -176,24 +179,32 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
       pan.setValue({ x: 0, y: deltaY });
 
       // Compute the dragged row midpoint in the list coordinate space
-      const rowMiddleY = maxBefore + deltaY + positions[props.exerciseIndex].height / 2;
-      const draggedRowBottomY = maxBefore + deltaY + positions[props.exerciseIndex].height;
+      const rowMiddleY =
+        maxBefore + deltaY + positions[props.exerciseIndex].height / 2;
+      const draggedRowBottomY =
+        maxBefore + deltaY + positions[props.exerciseIndex].height;
 
       // Compute target index using row midpoints
       let targetIndex = props.exerciseIndex; // Default to current position
-      
+
       // Check if dragged above all rows
       if (positions.length > 0 && maxBefore + deltaY < positions[0].middle) {
         targetIndex = 0;
       }
       // Check if dragged below all rows
-      else if (positions.length > 0 && draggedRowBottomY > positions[positions.length - 1].middle) {
+      else if (
+        positions.length > 0 &&
+        draggedRowBottomY > positions[positions.length - 1].middle
+      ) {
         targetIndex = positions.length - 1;
       }
       // Check over which row the dragged row is being dragged
       else {
         for (let i = 0; i < positions.length; i++) {
-          if (positions[i].top <= rowMiddleY && rowMiddleY < positions[i].top + positions[i].height) {
+          if (
+            positions[i].top <= rowMiddleY &&
+            rowMiddleY < positions[i].top + positions[i].height
+          ) {
             targetIndex = positions[i].index;
             break;
           }
@@ -218,7 +229,7 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
         // Set each sibling's displacement based on index ranges
         const from = props.exerciseIndex;
         const to = targetIndexRef.current;
-        for (let i = 0; i < tableRows.length; i++) {
+        for (let i = 0; i < exercises.length; i++) {
           if (i === from) continue;
           if (to > from && i >= from + 1 && i <= to) {
             // Dragging down: rows between from+1..to move up to make space
@@ -243,8 +254,8 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
       // Merge any offset accumulated during previous drags
       pan.flattenOffset();
       // Immediately clear siblings' temporary displacements so they don't animate post-drop
-      if (tableRows) {
-        for (let i = 0; i < tableRows.length; i++) {
+      if (exercises) {
+        for (let i = 0; i < exercises.length; i++) {
           if (i === props.exerciseIndex) continue;
           getRowRef(i)?.resetDisplacement?.();
         }
@@ -254,7 +265,7 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
       const to = targetIndexRef.current;
       if (to !== from) {
         // Commit rows order
-        setTableRows((prev) => {
+        setExercises((prev) => {
           const next = prev.slice();
           const [moved] = next.splice(from, 1);
           next.splice(to, 0, moved);
@@ -308,7 +319,9 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
 
   // Compute string forms of number of sets and weight range for summary display
   const setsNumber = String(props.sets.length);
-  const weightsString = `${props.sets[0].weight} - ${props.sets[props.sets.length - 1].weight}`;
+  const weightsString = `${props.sets[0].weight} - ${
+    props.sets[props.sets.length - 1].weight
+  }`;
 
   return (
     <Animated.View
@@ -391,7 +404,7 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
                 size={styles.arrowLinker.width}
                 color={Colors[theme].text}
                 onPress={toggleExpanded}
-                toggled={isExpanded}
+                toggled={props.isExpanded}
               />
             </View>
             <Text style={styles.text}>{setsNumber}</Text>
@@ -408,7 +421,7 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
             <Ionicons name="close" size={20} color={Colors[theme].text} />
           </Pressable>
         </View>
-        {isExpanded && (
+        {props.isExpanded && (
           <View style={[styles.expandableArea]}>
             <View style={[{ width: columnWidths.dragColumn }]}></View>
             <View style={[{ width: columnWidths.keyColumn }]}></View>

@@ -101,6 +101,14 @@ export const WorkoutTableContextProvider: React.FC<{ children: React.ReactNode }
     setTableRowsPositions((prevPositions) => {
       const newPositions = [...prevPositions];
       newPositions[index] = position;
+      // calculate y positions for all rows based on heights
+      return newPositions.map((pos, i) => {
+        let y = 0;
+        for (let j = 0; j < i; j++) {
+          y += newPositions[j]?.height || 0;
+        }
+        return { ...pos, y }
+      });
       return newPositions;
     });
   };

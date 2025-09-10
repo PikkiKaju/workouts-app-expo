@@ -176,12 +176,12 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
       pan.setValue({ x: 0, y: deltaY });
 
       // Compute the dragged row midpoint in the list coordinate space
-      let rowMiddleY = maxBefore + deltaY + positions[props.exerciseIndex].height / 2;
+      const rowMiddleY = maxBefore + deltaY + positions[props.exerciseIndex].height / 2;
       const draggedRowBottomY = maxBefore + deltaY + positions[props.exerciseIndex].height;
 
       // Compute target index using row midpoints
       let targetIndex = props.exerciseIndex; // Default to current position
-
+      
       // Check if dragged above all rows
       if (positions.length > 0 && maxBefore + deltaY < positions[0].middle) {
         targetIndex = 0;

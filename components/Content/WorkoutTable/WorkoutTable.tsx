@@ -48,9 +48,7 @@ const WorkoutTableContent = ({ children, style }: WorkoutTableProps) => {
   }, []);
 
   useEffect(() => {
-    console.log("Table rows: ",tableRows);
     setExercises(tableRows.map(row => row.props));
-    console.log("Exercises: ", tableRows.map(row => row.props));
   }, [tableRows]);
 
   const header = childrenArray.find(

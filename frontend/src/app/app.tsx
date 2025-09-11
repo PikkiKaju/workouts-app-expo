@@ -21,39 +21,44 @@ import { usePanelContext } from "context/PanelContextProvider";
 import { Workout } from "components/Content/WorkoutTable/types";
 
 const examplaryWorkout: Workout = {
+  id: 1,
   name: "Full Body Workout",
   date: new Date(),
   exercises: [
     {
+      id: 1,
       name: "Bench Press",
       description: "A great exercise for chest and triceps.",
       sets: [
-        { reps: 10, weight: 100 },
-        { reps: 8, weight: 110 },
+        { id: 1, reps: 10, weight: 100 },
+        { id: 2, reps: 8, weight: 110 },
       ],
     },
     {
+      id: 2,
       name: "Squats",
       description: "A great exercise for legs and glutes.",
       sets: [
-        { reps: 15, weight: 150 },
-        { reps: 8, weight: 160 },
+        { id: 1, reps: 15, weight: 150 },
+        { id: 2, reps: 8, weight: 160 },
       ],
     },
     {
+      id: 3,
       name: "Deadlift",
       description: "Targets the entire posterior chain.",
       sets: [
-        { reps: 10, weight: 180 },
-        { reps: 6, weight: 200 },
+        { id: 1, reps: 10, weight: 180 },
+        { id: 2, reps: 6, weight: 200 },
       ],
     },
     {
+      id: 4,
       name: "Pull Ups",
       description: "Excellent for back and biceps.",
       sets: [
-        { reps: 12, weight: 0 },
-        { reps: 8, weight: 0 },
+        { id: 1, reps: 12, weight: 0 },
+        { id: 2, reps: 8, weight: 0 },
       ],
     },
   ],
@@ -129,6 +134,7 @@ export default function App() {
           style={[styles.content, { marginLeft: contentMarginAnim }]}
         >
           <Content
+            id={examplaryWorkout.id}
             name={examplaryWorkout.name}
             date={examplaryWorkout.date}
             exercises={examplaryWorkout.exercises}

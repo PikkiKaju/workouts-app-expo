@@ -1,17 +1,19 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "baseUrl": ".",            // ensure "paths" work
+    "jsx": "react-jsx",        // ensure TSX compiles even if extends fails
     "strict": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "app/*": ["./src/app/*"],
-      "assets/*": ["./src/assets/*"],
-      "components/*": ["./src/components/*"],
-      "constants/*": ["./src/constants/*"],
-      "data/*": ["./src/data/*"],
-      "hooks/*": ["./src/hooks/*"],
-      "models/*": ["./src/models/*"],
-      "providers/*": ["./src/providers/*"],
+      "@/*": ["./*"],
+      "app/*": ["src/app/*"],
+      "assets/*": ["src/assets/*"],
+      "components/*": ["src/components/*"],
+      "constants/*": ["src/constants/*"],
+      "context/*": ["src/context/*"],
+      "hooks/*": ["src/hooks/*"],
+      "data/*": ["src/data/*"],
+      "i18n": ["src/i18n.js"],
     },
     "esModuleInterop": true,
     "resolveJsonModule": true

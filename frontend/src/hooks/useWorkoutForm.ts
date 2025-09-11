@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { TextInput as RNTextInput } from 'react-native';
-import DatePicker from '../components/DatePicker/DatePicker';
+import DatePicker from 'components/DatePicker/DatePicker';
 
 export function useWorkoutForm(
   initialName = "Workout Name",
@@ -8,7 +8,7 @@ export function useWorkoutForm(
   initialDescription = ""
 ) {
   const nameInputRef = useRef<RNTextInput>(null);
-  const dateInputRef = useRef<DatePicker>(null); 
+  const dateInputRef = useRef<DatePicker>(null);
   const descInputRef = useRef<RNTextInput>(null);
 
   const [workoutName, setWorkoutName] = useState<string>(initialName);
@@ -16,6 +16,8 @@ export function useWorkoutForm(
   const [workoutDescription, setWorkoutDescription] = useState<string>(initialDescription);
 
   useEffect(() => {
+    // TODO: Fetch initial workout data 
+    // For now, set initial values directly
     setWorkoutName("Workout 1");
     setWorkoutDate(new Date());
     setWorkoutDescription("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ");
@@ -41,21 +43,20 @@ export function useWorkoutForm(
     // Add logic to save the workout description
   }, [workoutDescription]);
 
+  const deleteWorkout = useCallback(() => {
+    console.log("Workout deleted (implement delete logic)");
+    // Add logic to delete the workout
+  }, []);
+
   const requestFocusNameInput = useCallback(() => {
-    dateInputRef.current?.blur();
-    descInputRef.current?.blur();
     nameInputRef.current?.focus();
   }, []);
 
   const requestFocusDateInput = useCallback(() => {
-    nameInputRef.current?.blur();
-    descInputRef.current?.blur();
     dateInputRef.current?.focus();
   }, []);
 
   const requestFocusDescriptionInput = useCallback(() => {
-    nameInputRef.current?.blur();
-    dateInputRef.current?.blur();
     descInputRef.current?.focus();
   }, []);
 
@@ -69,6 +70,7 @@ export function useWorkoutForm(
     saveWorkoutName,         // For onBlur
     handleWorkoutDateChange, // For onDateChange
     saveWorkoutDescription,  // For onBlur
+    deleteWorkout,
     requestFocusNameInput,
     requestFocusDateInput,
     requestFocusDescriptionInput,

@@ -1,16 +1,18 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { Platform, StyleSheet } from "react-native";
-import { View } from "components/UI/Themed";
+import { View } from "components/ui/Themed";
 import DatePicker from "components/DatePicker/DatePicker";
-import { useTheme } from "providers/ThemeProvider";
+import { useTheme } from "context/ThemeProvider";
 import Colors from "constants/Colors";
 
-import MenuButton, { MenuItem } from "./MenuButton";
-import DescriptionInput from "./DescriptionInput";
+import MenuButton from "./MenuButton";
+import { MenuItem } from "./Menu";
 import WorkoutNameInput from "./WorkoutNameInput";
 import DescriptionToggle from "./DescriptionToggle";
 import { useResponsiveLayout } from "hooks/useResponsiveLayout";
 import { useWorkoutForm } from "hooks/useWorkoutForm";
+import AutoExpandingTextInput from "components/ui/AutoExpandingTextInput";
+import { useTranslation } from "react-i18next";
 
 interface ContentHeaderProps {
   name: string;
@@ -23,6 +25,7 @@ const textFontSize =
 
 export default function ContentHeader(props: ContentHeaderProps) {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const { isRowLayout, handleLayout } = useResponsiveLayout();
   const {
     refs,
@@ -34,6 +37,7 @@ export default function ContentHeader(props: ContentHeaderProps) {
     handleWorkoutDateChange,
     setWorkoutDescription,
     saveWorkoutDescription,
+    deleteWorkout,
     requestFocusNameInput,
     requestFocusDateInput,
     requestFocusDescriptionInput,
@@ -45,23 +49,18 @@ export default function ContentHeader(props: ContentHeaderProps) {
     setDescriptionToggled(!descriptionToggled);
   }
 
-  function deleteWorkout() {
-    console.log("Delete workout action (implement logic)");
-    // Add logic to delete the workout
-  }
-
   // Define menu items for the MenuButton component
   const menuItems: MenuItem[] = [
     {
-      text: "Rename",
+      text: t("content.header.menu.edit_name"),
       onPressAction: requestFocusNameInput,
     },
     {
-      text: "Change date",
+      text: t("content.header.menu.edit_date"),
       onPressAction: requestFocusDateInput,
     },
     {
-      text: "Edit description",
+      text: t("content.header.menu.edit_description"),
       onPressAction: requestFocusDescriptionInput,
     },
     {
@@ -70,7 +69,7 @@ export default function ContentHeader(props: ContentHeaderProps) {
       onPressAction: () => {},
     }, // Separator item
     {
-      text: "Delete",
+      text: t("content.header.menu.delete.title"),
       onPressAction: deleteWorkout,
     },
   ];
@@ -109,10 +108,10 @@ export default function ContentHeader(props: ContentHeaderProps) {
             selectedDate={workoutDate}
             theme={theme}
             width={170}
-            height={30} // Consider making height dynamic or using padding
+            height={30}
             style={{
               ...styles.datePicker,
-              fontSize: textFontSize, // Ensure font size is consistent
+              fontSize: textFontSize,
               borderColorFocused:
                 theme === "light"
                   ? Colors.light.text
@@ -135,10 +134,15 @@ export default function ContentHeader(props: ContentHeaderProps) {
 
       {/* Description Input Area */}
       {descriptionToggled && (
-        <DescriptionInput
+        <AutoExpandingTextInput
           inputRef={refs.descInputRef}
           theme={theme}
+          style={[
+            //@ts-ignore
+            Platform.OS === "web" ? { outlineStyle: "none" } : null,
+          ]}
           value={workoutDescription}
+          placeholder={t("content.header.description_input_placeholder")}
           onChangeText={setWorkoutDescription}
           onFocus={requestFocusDescriptionInput}
           onBlur={saveWorkoutDescription}
@@ -152,18 +156,17 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
     rowGap: 15,
-    marginHorizontal: 20,
     padding: 5,
     paddingBottom: 10,
     borderBottomWidth: 1,
     borderColor: Colors.global.tableLines,
+    zIndex: 2,
   },
   visibleWrap: {
     flexDirection: "row",
     alignItems: "flex-start",
     paddingVertical: 5,
     justifyContent: "space-between",
-    zIndex: 10,
   },
   inputs: {
     flex: 1,
@@ -172,6 +175,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   datePicker: {
+    flexDirection: "row-reverse",
     borderWidth: 0,
     borderBottomWidth: 1,
     borderRadius: 0,

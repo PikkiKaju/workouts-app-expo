@@ -1,9 +1,8 @@
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
 import {
   Text as DefaultText,
   View as DefaultView,
-  TextInput as DefaultTextInput,
-  StyleSheet,
+  TextInput as DefaultTextInput
 } from 'react-native';
 
 export type ThemeProps = {

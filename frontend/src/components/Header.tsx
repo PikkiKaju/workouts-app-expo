@@ -4,10 +4,10 @@ import * as SplashScreen from "expo-splash-screen";
 import Constants from "expo-constants";
 import { Feather } from "@expo/vector-icons";
 
-import { Text, View } from "components/UI/Themed";
-import { useTheme } from "providers/ThemeProvider";
-import Switch from "components/UI/Switch";
-import { usePanelContext } from "providers/PanelContextProvider";
+import { Text, View } from "components/ui/Themed";
+import { useTheme } from "context/ThemeProvider";
+import Switch from "components/ui/Switch";
+import { usePanelContext } from "context/PanelContextProvider";
 
 function Label({ showLabel }: { showLabel: boolean }) {
   if (showLabel) {

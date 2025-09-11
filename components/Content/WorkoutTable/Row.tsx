@@ -21,7 +21,6 @@ import { useTheme } from "@/components/Providers/ThemeProvider";
 import Colors from "@/constants/Colors";
 import HoverableView from "@/components/UI/HoverableView";
 import { rowPositionType } from "./types";
-import { RowElement } from "./WorkoutTable";
 
 export interface RowProps extends Exercise {
   exerciseIndex: number;
@@ -179,35 +178,44 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
       pan.setValue({ x: 0, y: deltaY });
 
       // Compute the dragged row midpoint in the list coordinate space
-      const rowMiddleY =
-        maxBefore + deltaY + positions[props.exerciseIndex].height / 2;
-      const draggedRowBottomY =
-        maxBefore + deltaY + positions[props.exerciseIndex].height;
+      const draggedTopY = maxBefore + deltaY;
+      const draggedMiddleY = maxBefore + deltaY + positions[props.exerciseIndex].height / 2;
+      const draggedBottomY = maxBefore + deltaY + positions[props.exerciseIndex].height;
 
       // Compute target index using row midpoints
       let targetIndex = props.exerciseIndex; // Default to current position
 
-      // Check if dragged above all rows
-      if (positions.length > 0 && maxBefore + deltaY < positions[0].middle) {
-        targetIndex = 0;
-      }
-      // Check if dragged below all rows
-      else if (
-        positions.length > 0 &&
-        draggedRowBottomY > positions[positions.length - 1].middle
-      ) {
-        targetIndex = positions.length - 1;
-      }
-      // Check over which row the dragged row is being dragged
-      else {
-        for (let i = 0; i < positions.length; i++) {
-          if (
-            positions[i].top <= rowMiddleY &&
-            rowMiddleY < positions[i].top + positions[i].height
-          ) {
-            targetIndex = positions[i].index;
-            break;
-          }
+      for (let i = 0; i < positions.length; i++) {
+        if (i === props.exerciseIndex) continue; // Skip self
+        // Check if the bottom edge of the dragged row is over the bottom middle of another row
+        if (positions[i].middle < draggedBottomY && draggedBottomY < positions[i].bottom) {
+          targetIndex = positions[i].index;
+          console.log("index: ", i, "scenario 3");
+          break;
+        }
+        // Check if the middle of a row is under the top row half of the dragged row
+        else if (draggedTopY < positions[i].middle && positions[i].middle < draggedMiddleY) {
+          targetIndex = positions[i].index;
+          console.log("index: ", i, "scenario 2");
+          break;
+        }
+        // Check if the middle of the dragged row is over the middle of another row
+        else if (draggedMiddleY < positions[i].middle && positions[i].middle < draggedBottomY) {
+          targetIndex = positions[i].index;
+          console.log("index: ", i, "scenario 4");
+          break;
+        }
+        // Check if the top edge of the dragged row is over the top half of another row
+        else if (positions[i].top < draggedTopY && draggedTopY < positions[i].middle) {
+          targetIndex = positions[i].index;
+          console.log("index: ", i, "scenario 1");
+          break;
+        }
+        // Check if the middle of the dragged row is over the middle of another row
+        else if (positions[i].top < draggedMiddleY && draggedMiddleY < positions[i].bottom) {
+          targetIndex = positions[i].index;
+          console.log("index: ", i, "scenario 5");
+          break;
         }
       }
 
@@ -269,7 +277,7 @@ export default React.forwardRef<RowHandle, RowProps>(function Row(
         // Commit the new order in context by moving the dragged row to targetIndex
         const from = props.exerciseIndex;
         const to = targetIndexRef.current;
-        
+
         if (to !== from) {
           // Commit rows order
           setExercises((prev) => {

@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { View, StyleSheet, Pressable, Animated } from "react-native";
-import { useTheme } from "providers/ThemeProvider";
+import { useTheme } from "context/ThemeProvider";
 
 interface SwitchProps {
   onValueChange: () => void;

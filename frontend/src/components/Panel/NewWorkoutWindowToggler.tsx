@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Animated, Pressable, StyleSheet } from "react-native";
-import { View } from "components/UI/Themed";
+import { View } from "components/ui/Themed";
 import Colors from "constants/Colors";
 
 interface NewWorkoutWindowTogglerProps {

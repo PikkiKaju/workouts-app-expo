@@ -4,10 +4,10 @@
     "slug": "workouts-app-expo",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "assets/images/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -16,22 +16,23 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "icon": "./assets/images/puero-logo-transparent.png"
+      "icon": "assets/images/puero-logo-transparent.png"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.anonymous.workoutsappexpo"
     },
     "web": {
       "output": "single",
-      "favicon": "./assets/images/puero-logo-transparent.png",
+      "favicon": "assets/images/puero-logo-transparent.png",
       "bundler": "metro"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-localization"
     ]
   }
 }

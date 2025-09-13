@@ -1,30 +1,36 @@
-import React, { useState } from 'react';
-import { Platform, Pressable, StyleSheet } from 'react-native';
-import { Text, View, TextInput } from 'components/UI/Themed';
-import DatePicker from 'components/DatePicker/DatePicker';
-import { useTheme } from 'providers/ThemeProvider';
-import Colors from 'constants/Colors';
+import { useState } from "react";
+import { Platform, Pressable, StyleSheet } from "react-native";
+import { Text, View, TextInput } from "components/ui/Themed";
+import DatePicker from "components/DatePicker/DatePicker";
+import { useTheme } from "context/ThemeProvider";
+import Colors from "constants/Colors";
 
 export default function NewWorkoutWindow() {
   const { theme, toggleTheme } = useTheme();
-  const [ isInputValid, setIsInputValid ] = useState(true);
-  const [ isTextInputFocused, setIsTextInputFocused ] = useState(false);
+  const [isInputValid, setIsInputValid] = useState(true);
+  const [isTextInputFocused, setIsTextInputFocused] = useState(false);
 
   function validateInput(input: string) {
     if (input.includes("<") || input.includes(">")) {
       setIsInputValid(false);
     } else {
       setIsInputValid(true);
-    } 
-  } 
+    }
+  }
 
   return (
-    <View theme={theme} style={[
-      styles.container,
-      {
-        borderColor: theme === "light" ? Colors.global.themeColorFirst : Colors.global.themeColorSecond
-      }
-    ]}>
+    <View
+      theme={theme}
+      style={[
+        styles.container,
+        {
+          borderColor:
+            theme === "light"
+              ? Colors.global.themeColorFirst
+              : Colors.global.themeColorSecond,
+        },
+      ]}
+    >
       <TextInput
         theme={theme}
         style={[
@@ -32,9 +38,8 @@ export default function NewWorkoutWindow() {
           styles.textInput,
           isTextInputFocused ? styles.inputFocused : styles.inputUnfocused,
           Platform.OS === "web"
-            ?
-            //@ts-ignore 
-            { outline: "none" }
+            ? //@ts-ignore
+              { outline: "none" }
             : null,
         ]}
         inputMode="text"
@@ -53,11 +58,11 @@ export default function NewWorkoutWindow() {
       />
       <View style={styles.lowerSection}>
         <View style={styles.validationSection}>
-          {
-            isInputValid
-              ? null
-              : <Text style={styles.validationText}>Can't use: {"<"} or {">"}</Text>
-          }
+          {isInputValid ? null : (
+            <Text style={styles.validationText}>
+              Can't use: {"<"} or {">"}
+            </Text>
+          )}
         </View>
         <Pressable style={styles.submit}>
           <Text style={styles.submitText}>Add</Text>
@@ -70,7 +75,7 @@ export default function NewWorkoutWindow() {
 const styles = StyleSheet.create({
   container: {
     flex: -1,
-    flexDirection: 'column',
+    flexDirection: "column",
     borderWidth: 1,
     borderRadius: 8,
     width: 300,
@@ -107,7 +112,6 @@ const styles = StyleSheet.create({
     height: 30,
     justifyContent: "center",
     alignItems: "flex-start",
-
   },
   validationText: {
     color: "red",
@@ -115,9 +119,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 15,
   },
-  workoutDate: {
-
-  },
+  workoutDate: {},
   submit: {
     justifyContent: "center",
     right: 0,

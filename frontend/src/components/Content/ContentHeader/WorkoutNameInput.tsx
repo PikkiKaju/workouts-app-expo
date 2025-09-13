@@ -1,3 +1,4 @@
+// c:\.Projects\WebProjects\WorkoutsApp\workouts-app-expo\components\Content\ContentHeader\WorkoutNameInput.tsx
 import React, { useState } from "react";
 import {
   Platform,
@@ -5,7 +6,7 @@ import {
   StyleSheet,
   TextInput as RNTextInput,
 } from "react-native";
-import { TextInput } from "components/UI/Themed";
+import { TextInput } from "components/ui/Themed";
 import { AntDesign } from "@expo/vector-icons";
 import Colors from "constants/Colors";
 

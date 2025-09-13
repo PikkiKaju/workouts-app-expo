@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import { StyleSheet, Pressable } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { Text, View } from "./Themed";

@@ -1,18 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Platform, Animated } from 'react-native';
+import { useEffect, useRef, useState } from "react";
+import { StyleSheet, Platform, Animated } from "react-native";
 
-import { useTheme } from 'providers/ThemeProvider';
-import { View } from 'components/UI/Themed';
-import Colors from 'constants/Colors';
-import NewWorkoutWindow from './NewWorkoutWindow';
-import { NewWorkoutWindowToggler } from './NewWorkoutWindowToggler';
-import WorkoutList from './WorkoutList';
-import Dimensions from 'constants/Dimensions';
-import { usePanelContext } from 'providers/PanelContextProvider';
+import { useTheme } from "context/ThemeProvider";
+import { View } from "components/ui/Themed";
+import NewWorkoutWindow from "./NewWorkoutWindow";
+import { NewWorkoutWindowToggler } from "./NewWorkoutWindowToggler";
+import WorkoutList from "./WorkoutList";
 
 export default function Panel() {
   const { theme, toggleTheme } = useTheme();
-  const { panelToggled, togglePanel } = usePanelContext();
   const [isNewWorkoutWindowOpen, setIsNewWorkoutWindowOpen] = useState(false);
   const [selectedWorkoutID, setSelectedWorkoutID] = useState(1);
 
@@ -46,21 +42,25 @@ export default function Panel() {
     } else {
       setIsNewWorkoutWindowOpen(true);
     }
-  }
+  };
 
   return (
-    <View style={[ styles.container ]}>
-      <View style={ styles.newWorkoutWindowSection }>
-        <Animated.View style={[
-          {
-            opacity: windowOpacityAnim,
-            transform: [{ translateY: windowMoveAnim }],
-            maxHeight: (Platform.OS !== "ios" && Platform.OS !== "android")
-              ? windowHeightAnim
-              : isNewWorkoutWindowOpen ? 500 : 0,
-          },
-
-        ]}>
+    <View style={[styles.container]}>
+      <View style={styles.newWorkoutWindowSection}>
+        <Animated.View
+          style={[
+            {
+              opacity: windowOpacityAnim,
+              transform: [{ translateY: windowMoveAnim }],
+              maxHeight:
+                Platform.OS !== "ios" && Platform.OS !== "android"
+                  ? windowHeightAnim
+                  : isNewWorkoutWindowOpen
+                  ? 500
+                  : 0,
+            },
+          ]}
+        >
           <NewWorkoutWindow />
         </Animated.View>
         <NewWorkoutWindowToggler
@@ -69,9 +69,9 @@ export default function Panel() {
           toggleNewWorkoutWindow={toggleNewWorkoutWindow}
         />
       </View>
-      <WorkoutList 
-        selectedWorkoutID={selectedWorkoutID} 
-        setSelectedWorkoutID={setSelectedWorkoutID} 
+      <WorkoutList
+        selectedWorkoutID={selectedWorkoutID}
+        setSelectedWorkoutID={setSelectedWorkoutID}
       />
     </View>
   );
@@ -88,6 +88,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     zIndex: 10,
-    margin: 20
+    margin: 20,
   },
 });

@@ -1,18 +1,24 @@
 import React, { Component } from "react";
 import { StyleSheet, Pressable, Keyboard, Platform } from "react-native";
-import { View } from "components/UI/Themed";
+import { View, Text } from "@/src/components/ui/Themed";
 import ContentHeader from "./ContentHeader/ContentHeader";
+import WorkoutTable from "./WorkoutTable/WorkoutTable";
+import Footer from "./WorkoutTable/Footer";
+import { Set, Exercise, Workout } from "./WorkoutTable/types";
+import { withTranslation, WithTranslation } from "react-i18next";
 
-interface ContentProps {
-  name: string;
-  date: Date;
+interface workoutProps extends Workout, WithTranslation {}
+
+interface ContentState {
+  exercises: Exercise[];
 }
 
-interface ContentState {}
-
-export default class Content extends Component<ContentProps, ContentState> {
-  constructor(props: ContentProps) {
+class Content extends Component<workoutProps, ContentState> {
+  constructor(props: workoutProps) {
     super(props);
+    this.state = {
+      exercises: props.exercises,
+    };
   }
 
   render() {
@@ -29,6 +35,24 @@ export default class Content extends Component<ContentProps, ContentState> {
       >
         <View style={this.styles.innerContainer}>
           <ContentHeader name={this.props.name} />
+          <Text style={this.styles.exercisesHeading}>
+            {this.props.t("content.exercisesHeading")}
+          </Text>
+          <WorkoutTable exercises={this.state.exercises}>
+            <WorkoutTable.Header />
+            {this.state.exercises.map(
+              (exercise: Exercise, exerciseIndex: number) => (
+                <WorkoutTable.Row
+                  key={exerciseIndex}
+                  id={exerciseIndex}
+                  exerciseIndex={exerciseIndex}
+                  name={exercise.name}
+                  description={exercise.description}
+                  sets={exercise.sets}
+                />
+              )
+            )}
+          </WorkoutTable>
         </View>
       </Pressable>
     );
@@ -40,8 +64,13 @@ export default class Content extends Component<ContentProps, ContentState> {
     },
     innerContainer: {
       flex: 1,
-      paddingHorizontal: 5,
-      minWidth: 400,
+      marginHorizontal: 20,
+    },
+    exercisesHeading: {
+      fontSize: 20,
+      marginBottom: 15,
     },
   });
 }
+
+export default withTranslation()(Content);

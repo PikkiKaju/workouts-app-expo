@@ -6,6 +6,7 @@ import {
 } from "react-native";
 import Colors from "constants/Colors";
 import { forwardRef } from "react";
+import { useTheme } from "context/ThemeProvider";
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
@@ -33,9 +34,29 @@ export type ViewProps = ThemeProps & DefaultView["props"];
 
 export function Text(props: TextProps) {
   const { style, theme, ...otherProps } = props;
+  let providerTheme = undefined;
+
+  if (!theme) {
+    // if theme is not provided, use the default theme from the context
+    try {
+      providerTheme = useTheme().theme;
+    } catch (error) {
+      console.warn("useTheme is not available, using default 'light' theme");
+      providerTheme = "light"; // fallback to light theme if context is not available
+    }
+  }
+
+  // const cursorStyle = Platform.OS === 'web' ? (cursor ? { cursor } : { cursor: 'text' }) : { cursor: "auto" };
+
   const lightColor = "#000";
   const darkColor = "#fff";
-  const color = theme === "light" ? lightColor : darkColor;
+  const color = theme
+    ? theme === "light"
+      ? lightColor
+      : darkColor // use the props theme if provided
+    : providerTheme === "light"
+    ? lightColor
+    : darkColor; // use the context theme if available
 
   return <DefaultText style={[{ color }, style]} {...otherProps} />;
 }
@@ -43,9 +64,27 @@ export function Text(props: TextProps) {
 export const TextInput = forwardRef<DefaultTextInput, TextInputProps>(
   (props, ref) => {
     const { style, theme, ...otherProps } = props;
+    let providerTheme = undefined;
+
+    if (!theme) {
+      // if theme is not provided, use the default theme from the context
+      try {
+        providerTheme = useTheme().theme;
+      } catch (error) {
+        console.warn("useTheme is not available, using default 'light' theme");
+        providerTheme = "light"; // fallback to light theme if context is not available
+      }
+    }
+
     const lightColor = "#000";
     const darkColor = "#fff";
-    const color = theme === "light" ? lightColor : darkColor;
+    const color = theme
+      ? theme === "light"
+        ? lightColor
+        : darkColor // use the props theme if provided
+      : providerTheme === "light"
+      ? lightColor
+      : darkColor; // use the context theme if available
 
     return (
       <DefaultTextInput ref={ref} style={[{ color }, style]} {...otherProps} />
@@ -53,8 +92,9 @@ export const TextInput = forwardRef<DefaultTextInput, TextInputProps>(
   }
 );
 
-export function View(props: ViewProps) {
+export const View = forwardRef<DefaultView, ViewProps>((props, ref) => {
   const { style, theme, ...otherProps } = props;
+
   const lightColor = "#fff";
   const darkColor = "#333"; //"#181818";
   let backgroundColor = "transparent";
@@ -62,5 +102,11 @@ export function View(props: ViewProps) {
     backgroundColor = theme === "light" ? lightColor : darkColor;
   }
 
-  return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
-}
+  return (
+    <DefaultView
+      ref={ref}
+      style={[{ backgroundColor }, style]}
+      {...otherProps}
+    />
+  );
+});

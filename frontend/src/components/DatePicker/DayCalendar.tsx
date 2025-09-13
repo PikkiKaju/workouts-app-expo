@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import { StyleSheet, Pressable, FlatList } from "react-native";
 import { Text, View } from "./Themed";
 import {
